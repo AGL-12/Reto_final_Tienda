@@ -10,7 +10,7 @@ public class Principal {
 	private static Dao dao = new DaoImplementMySQL();
 
 	public static void main(String[] args) {
-
+           System.out.println("PRUEBA NEW BRANCH DE AINGERU");
 	}
 
 //	public static void login(Usuario usu) throws LoginError {
