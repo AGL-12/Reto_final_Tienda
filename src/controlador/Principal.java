@@ -24,5 +24,5 @@ public class Principal {
 //	public static Map<String, Propietario> listarPropietarios() {
 //		return dao.listarPropietarios();
 //	}
-
+System.out.println("Prueba Mikel");
 }
