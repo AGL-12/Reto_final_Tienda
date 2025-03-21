@@ -46,7 +46,7 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		txtUser.setBounds(158, 55, 284, 20);
 		contentPane.add(txtUser);
 		txtUser.setColumns(10);
-
+		System.out.println("PruebaV");
 		JLabel lblContrasea = new JLabel("Contraseña:");
 		lblContrasea.setBounds(78, 83, 75, 14);
 		contentPane.add(lblContrasea);
