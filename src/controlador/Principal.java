@@ -11,12 +11,9 @@ public class Principal {
 	private static Dao dao = new DaoImplementMySQL();
 
 	public static void main(String[] args) {
-<<<<<<< HEAD
            System.out.println("PRUEBA NEW BRANCH DE AINGERU");
-=======
 		VistaLogIn inicio = new VistaLogIn();
 		inicio.setVisible(true);
->>>>>>> refs/heads/develop
 	}
 
 	public static void login(Cliente cli) throws LoginError {
