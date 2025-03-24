@@ -50,12 +50,14 @@ public class VistaUsuario extends JDialog {
 	private JTextField textDNI;
 	private JTextField textNombre;
 	private JTextField textDireccion;
-	private JTextField textMetodoPago;
 	private JRadioButton rdbtnAdminSi;
 	private JRadioButton rdbtnAdminNo;
 	private JButton btnMostrarPedidos;
 	private JButton btnRegistrarse;
 	private JButton btnModificar;
+	private JRadioButton rdbtnVisa;
+	private JRadioButton rdbtnMastercard;
+	private JRadioButton rdbtnPaypal;
 
 	/**
 	 * Launch the application.
@@ -296,16 +298,31 @@ public class VistaUsuario extends JDialog {
 		gbc_lblMetodoPago.gridy = 8;
 		contentPanel.add(lblMetodoPago, gbc_lblMetodoPago);
 		{
-			textMetodoPago = new JTextField();
-			textMetodoPago.setFont(new Font("Tahoma", Font.PLAIN, 12));
-			textMetodoPago.setColumns(10);
-			GridBagConstraints gbc_textMetodoPago = new GridBagConstraints();
-			gbc_textMetodoPago.gridwidth = 3;
-			gbc_textMetodoPago.insets = new Insets(0, 0, 5, 5);
-			gbc_textMetodoPago.fill = GridBagConstraints.HORIZONTAL;
-			gbc_textMetodoPago.gridx = 1;
-			gbc_textMetodoPago.gridy = 8;
-			contentPanel.add(textMetodoPago, gbc_textMetodoPago);
+			rdbtnVisa = new JRadioButton("VISA");
+			rdbtnVisa.setFont(new Font("Tahoma", Font.PLAIN, 12));
+			GridBagConstraints gbc_rdbtnVisa = new GridBagConstraints();
+			gbc_rdbtnVisa.insets = new Insets(0, 0, 5, 5);
+			gbc_rdbtnVisa.gridx = 1;
+			gbc_rdbtnVisa.gridy = 8;
+			contentPanel.add(rdbtnVisa, gbc_rdbtnVisa);
+		}
+		{
+			rdbtnMastercard = new JRadioButton("MASTERCARD");
+			rdbtnMastercard.setFont(new Font("Tahoma", Font.PLAIN, 12));
+			GridBagConstraints gbc_rdbtnMastercard = new GridBagConstraints();
+			gbc_rdbtnMastercard.insets = new Insets(0, 0, 5, 5);
+			gbc_rdbtnMastercard.gridx = 2;
+			gbc_rdbtnMastercard.gridy = 8;
+			contentPanel.add(rdbtnMastercard, gbc_rdbtnMastercard);
+		}
+		{
+			rdbtnPaypal = new JRadioButton("PAYPAL");
+			rdbtnPaypal.setFont(new Font("Tahoma", Font.PLAIN, 12));
+			GridBagConstraints gbc_rdbtnPaypal = new GridBagConstraints();
+			gbc_rdbtnPaypal.insets = new Insets(0, 0, 5, 5);
+			gbc_rdbtnPaypal.gridx = 3;
+			gbc_rdbtnPaypal.gridy = 8;
+			contentPanel.add(rdbtnPaypal, gbc_rdbtnPaypal);
 		}
 		lblAdmin = new JLabel("ADMIN");
 		lblAdmin.setFont(new Font("Tahoma", Font.BOLD, 12));
