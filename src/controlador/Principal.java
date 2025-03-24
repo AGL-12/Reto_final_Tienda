@@ -10,7 +10,7 @@ public class Principal {
 	private static Dao dao = new DaoImplementMySQL();
 
 	public static void main(String[] args) {
-
+;
 	}
 
 //	public static void login(Usuario usu) throws LoginError {
