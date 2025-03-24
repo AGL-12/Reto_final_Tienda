@@ -16,19 +16,6 @@ public class TiendaVista extends JDialog {
 	private JTable table;
 
 	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		try {
-			TiendaVista dialog = new TiendaVista();
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
 	 * Create the dialog.
 	 */
 	public TiendaVista() {
@@ -48,7 +35,7 @@ public class TiendaVista extends JDialog {
 		getContentPane().add(comboBox);
 		
 		JComboBox comboBox_1 = new JComboBox();
-		comboBox_1.setBounds(246, 11, 145, 22);
+		comboBox_1.setBounds(186, 11, 145, 22);
 		getContentPane().add(comboBox_1);
 	}
 }
