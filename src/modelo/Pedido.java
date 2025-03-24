@@ -7,7 +7,7 @@ public class Pedido {
 	private int id_usu;
 	private float total;
 	private LocalDateTime fecha_compra;
-;
+
 	public int getId_ped() {
 		return id_ped;
 	}
