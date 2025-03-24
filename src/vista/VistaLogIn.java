@@ -5,6 +5,8 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.border.EmptyBorder;
 
+import controlador.Principal;
+import excepciones.LoginError;
 import modelo.Cliente;
 
 import javax.swing.JTextField;
@@ -61,7 +63,7 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		btnCheck.addActionListener(this);
 		contentPane.add(btnCheck);
 
-		btnSalir = new JButton("Salir");
+		btnSalir = new JButton("Registrarte");
 		btnSalir.setBounds(280, 207, 162, 82);
 		btnSalir.addActionListener(this);
 		contentPane.add(btnSalir);
@@ -69,21 +71,21 @@ public class VistaLogIn extends JFrame implements ActionListener {
 
 	protected void comprobar() {
 		// creo objeto usuario para manejar los datos
-		Cliente usu = new Cliente();
-//		usu.setIduser(txtUser.getText());
-//		usu.setContra(new String(txtContra.getPassword()));
-//
-//		// comprobar login correcto
-//		try {
-//			Principal.login(usu);
+		Cliente clien = new Cliente();
+		clien.setUsuario(txtUser.getText());
+		clien.setContra(new String(txtContra.getPassword()));
+
+		// comprobar login correcto
+		try {
+			Principal.login(clien);
 //			Menu startMenu = new Menu(this);
-////			this.setVisible(false);
+//			this.setVisible(false);
 //			startMenu.setVisible(true);
-//		} catch (LoginError e) {
-//			e.visualizarMen();
-//			txtUser.setText("");
-//			txtContra.setText("");
-//		}
+		} catch (LoginError e) {
+			e.visualizarMen();
+			txtUser.setText("");
+			txtContra.setText("");
+		}
 	}
 
 	@Override
