@@ -4,7 +4,7 @@ public class Compra {
 	private int id_art;
 	private int id_ped;
 	private int cantidad;
-
+;
 	public int getId_art() {
 		return id_art;
 	}
