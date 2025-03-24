@@ -14,11 +14,11 @@ public class Cliente {
 	private String num_cuenta;
 	private boolean esAdmin;
 	private Map<Integer, Pedido> listaPedido;
-	
+
 	public Cliente() {
-		this.listaPedido=new HashMap<>();
+		this.listaPedido = new HashMap<>();
 	}
-	
+
 	public int getId_usu() {
 		return id_usu;
 	}

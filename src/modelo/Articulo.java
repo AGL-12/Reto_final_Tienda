@@ -8,7 +8,7 @@ public class Articulo {
 	private float precio;
 	private float oferta;
 	private Seccion seccion;
-	
+
 	public int getId_art() {
 		return id_art;
 	}

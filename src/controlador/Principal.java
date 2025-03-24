@@ -11,7 +11,6 @@ public class Principal {
 	private static Dao dao = new DaoImplementMySQL();
 
 	public static void main(String[] args) {
-		System.out.println("alhgo");
 		VistaLogIn inicio = new VistaLogIn();
 		inicio.setVisible(true);
 	}
