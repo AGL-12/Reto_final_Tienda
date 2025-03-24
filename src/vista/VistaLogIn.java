@@ -63,7 +63,7 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		btnCheck.addActionListener(this);
 		contentPane.add(btnCheck);
 
-		btnSalir = new JButton("Salir");
+		btnSalir = new JButton("Registrarte");
 		btnSalir.setBounds(280, 207, 162, 82);
 		btnSalir.addActionListener(this);
 		contentPane.add(btnSalir);
