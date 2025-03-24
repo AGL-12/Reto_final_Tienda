@@ -18,6 +18,7 @@ public class Principal {
 	public static void login(Cliente cli) throws LoginError {
 		dao.login(cli);
 		
+		System.out.println("prueba");
 	}
 
 
