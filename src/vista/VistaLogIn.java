@@ -78,8 +78,9 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		// comprobar login correcto
 		try {
 			Principal.login(clien);
-			VentanaIntermedia test = new VentanaIntermedia();
-			test.setVisible(true);
+//			Menu startMenu = new Menu(this);
+//			this.setVisible(false);
+//			startMenu.setVisible(true);
 		} catch (LoginError e) {
 			e.visualizarMen();
 			txtUser.setText("");
@@ -90,13 +91,9 @@ public class VistaLogIn extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(btnSalir)) {
-			abrirVistaRegistro();
+			this.dispose();
 		} else if (e.getSource().equals(btnCheck)) {
 			comprobar();
 		}
-	}
-
-	private void abrirVistaRegistro() {
-
 	}
 }
