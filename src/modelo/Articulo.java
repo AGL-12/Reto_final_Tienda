@@ -8,9 +8,6 @@ public class Articulo {
 	private float precio;
 	private float oferta;
 	private Seccion seccion;
-	
-
-
 
 	public Articulo(int id_art, String nombre, String descripcion, int stock, float precio, float oferta,
 			Seccion seccion) {

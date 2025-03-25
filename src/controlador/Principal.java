@@ -13,17 +13,11 @@ public class Principal {
 	public static void main(String[] args) {
 		VistaLogIn inicio = new VistaLogIn();
 		inicio.setVisible(true);
-		;
 	}
 
 	public static void login(Cliente cli) throws LoginError {
 		dao.login(cli);
-		
-
-		
 	}
-
-
 //	public static void Alta(Propietario propi) throws InsertError {
 //		dao.altaPropietario(propi);
 //	}

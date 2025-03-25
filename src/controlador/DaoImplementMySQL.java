@@ -23,28 +23,21 @@ public class DaoImplementMySQL implements Dao {
 	private PreparedStatement stmt;
 	// Sentencias SQL
 	final String LOGIN = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
-	final String ALTAPROP = "insert into propietario (nombre,fechaNace) values (?,?)";
-
-	/*public DaoImplementMySQL() {
+	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
 		this.urlBD = this.configFile.getString("Conn");
 		this.userBD = this.configFile.getString("DBUser");
 		this.passwordBD = this.configFile.getString("DBPass");
-	}*/
+	}
 
 	private void openConnection() {
 		try {
-		//	con = DriverManager.getConnection(urlBD, this.userBD, this.passwordBD);
-
-			
-			/*con =  DriverManager.getConnection(
-			  "jdbc:mysql://localhost:3306/tienda_brico?serverTimezone=Europe/Madrid&useSSL=false",
-			  "root", "abcd*1234");*/
-			//con = DriverManager.getConnection("jdbc:mysql://localhost:3306/tienda_brico?serverTimezone=Europe/Madrid&useSSL=false", "root", "abcd*1234");
 			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/tienda_brico?serverTimezone=Europe/Madrid&useSSL=false", "root", "abcd*1234");
-
-
-			 
+			/*
+			 * DriverManager.getConnection(
+			 * "jdbc:mysql://localhost:3306/tienda_brico?serverTimezone=Europe/Madrid&useSSL=false",
+			 * "root", "abcd*1234");
+			 */
 		} catch (SQLException e) {
 			System.out.println("Error al intentar abrir la BD" +e.getMessage());
 		}
