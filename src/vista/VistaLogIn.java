@@ -78,13 +78,18 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		// comprobar login correcto
 		try {
 			Principal.login(clien);
-//			VentanaIntermedia test = new VentanaIntermedia();
-//			test.setVisible(true);
+			VentanaIntermedia test = new VentanaIntermedia();
+			test.setVisible(true);
 		} catch (LoginError e) {
 			e.visualizarMen();
-			txtUser.setText("");
-			txtContra.setText("");
+		}finally {
+			limpiar();
 		}
+	}
+
+	private void limpiar() {
+		txtUser.setText("");
+		txtContra.setText("");
 	}
 
 	@Override
