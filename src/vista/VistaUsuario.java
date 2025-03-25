@@ -2,17 +2,21 @@ package vista;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import modelo.Metodo;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import controlador.Principal;
 import modelo.Cliente;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.GridLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -52,8 +56,8 @@ public class VistaUsuario extends JDialog implements ActionListener{
 	private JLabel lblNumeroCuenta;
 	private JLabel lblEmail;
 	private JTextField textUser;
-	private JTextField textDNI;
-	private JTextField textNombre;
+	private JTextField textDni;
+	private JTextField textEmail;
 	private JTextField textDireccion;
 	private JButton btnMostrarPedidos;
 	private JButton btnRegistrarse;
@@ -196,16 +200,16 @@ public class VistaUsuario extends JDialog implements ActionListener{
 		gbc_lblDni.gridy = 5;
 		contentPanel.add(lblDni, gbc_lblDni);
 		{
-			textDNI = new JTextField();
-			textDNI.setFont(new Font("Tahoma", Font.PLAIN, 12));
-			textDNI.setColumns(10);
-			GridBagConstraints gbc_textDNI = new GridBagConstraints();
-			gbc_textDNI.gridwidth = 3;
-			gbc_textDNI.insets = new Insets(0, 0, 5, 5);
-			gbc_textDNI.fill = GridBagConstraints.HORIZONTAL;
-			gbc_textDNI.gridx = 1;
-			gbc_textDNI.gridy = 5;
-			contentPanel.add(textDNI, gbc_textDNI);
+			textDni = new JTextField();
+			textDni.setFont(new Font("Tahoma", Font.PLAIN, 12));
+			textDni.setColumns(10);
+			GridBagConstraints gbc_textDni = new GridBagConstraints();
+			gbc_textDni.gridwidth = 3;
+			gbc_textDni.insets = new Insets(0, 0, 5, 5);
+			gbc_textDni.fill = GridBagConstraints.HORIZONTAL;
+			gbc_textDni.gridx = 1;
+			gbc_textDni.gridy = 5;
+			contentPanel.add(textDni, gbc_textDni);
 		}
 		{
 			label_6 = new JLabel("");
@@ -226,16 +230,16 @@ public class VistaUsuario extends JDialog implements ActionListener{
 			contentPanel.add(lblEmail, gbc_lblEmail);
 		}
 		{
-			textNombre = new JTextField();
-			textNombre.setFont(new Font("Tahoma", Font.PLAIN, 12));
-			textNombre.setColumns(10);
-			GridBagConstraints gbc_textNombre = new GridBagConstraints();
-			gbc_textNombre.gridwidth = 3;
-			gbc_textNombre.insets = new Insets(0, 0, 5, 5);
-			gbc_textNombre.fill = GridBagConstraints.HORIZONTAL;
-			gbc_textNombre.gridx = 1;
-			gbc_textNombre.gridy = 6;
-			contentPanel.add(textNombre, gbc_textNombre);
+			textEmail = new JTextField();
+			textEmail.setFont(new Font("Tahoma", Font.PLAIN, 12));
+			textEmail.setColumns(10);
+			GridBagConstraints gbc_textEmail = new GridBagConstraints();
+			gbc_textEmail.gridwidth = 3;
+			gbc_textEmail.insets = new Insets(0, 0, 5, 5);
+			gbc_textEmail.fill = GridBagConstraints.HORIZONTAL;
+			gbc_textEmail.gridx = 1;
+			gbc_textEmail.gridy = 6;
+			contentPanel.add(textEmail, gbc_textEmail);
 		}
 		{
 			label_8 = new JLabel("");
@@ -347,6 +351,8 @@ public class VistaUsuario extends JDialog implements ActionListener{
 			gbc_btnRegistrarse.gridx = 1;
 			gbc_btnRegistrarse.gridy = 10;
 			contentPanel.add(btnRegistrarse, gbc_btnRegistrarse);
+			btnRegistrarse.addActionListener(this);
+
 		}
 		{
 			btnModificar = new JButton("MODIFY");
@@ -356,6 +362,8 @@ public class VistaUsuario extends JDialog implements ActionListener{
 			gbc_btnModificar.gridx = 2;
 			gbc_btnModificar.gridy = 10;
 			contentPanel.add(btnModificar, gbc_btnModificar);
+			btnModificar.addActionListener(this);
+
 		}
 		{
 			btnMostrarPedidos = new JButton("ORDERS");
@@ -364,16 +372,81 @@ public class VistaUsuario extends JDialog implements ActionListener{
 			gbc_btnMostrarPedidos.gridx = 4;
 			gbc_btnMostrarPedidos.gridy = 10;
 			contentPanel.add(btnMostrarPedidos, gbc_btnMostrarPedidos);
+			btnMostrarPedidos.addActionListener(this);
+
 		}
 		{
 			label_5 = new JLabel("");
 			getContentPane().add(label_5);
+		}
+		if(clien == null) {
+			btnModificar.setEnabled(false);
+			btnMostrarPedidos.setEnabled(false);
+			
+		}else {
+			btnRegistrarse.setEnabled(false);
 		}
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		
+		if (e.getSource().equals(btnRegistrarse)) {
+			alta();
+		}
 	}
+	
+	private void alta() {
+		Cliente clien = new Cliente();
+		clien.setUsuario(textUser.getText());
+		clien.setContra(new String(passwordFieldContra.getPassword()));
+		clien.setCorreo(textEmail.getText());
+		clien.setDireccion(textDireccion.getText());
+		clien.setDni(textDni.getText());
+		clien.setNum_cuenta(textNumeroCuenta.getText());
+		
+	
+		
+		 if (rdbtnVisa.isSelected()) {
+		        clien.setMetodo_pago(Metodo.visa);
+		    } else if (rdbtnMastercard.isSelected()) {
+		        clien.setMetodo_pago(Metodo.mastercard);
+		    } else if (rdbtnPaypal.isSelected()) {
+		        clien.setMetodo_pago(Metodo.paypal);
+		    } else {
+		       System.out.println("No se ha seleccionado un método de pago");
+		    }
+		 Principal.altaCliente(clien);
+		 JOptionPane.showMessageDialog(this, "User registered successfully!");
+	        dispose();
+	}
+	
+	private void modificar () {
+		Cliente clien = new Cliente();
+		clien.setUsuario(textUser.getText());
+		clien.setContra(new String(passwordFieldContra.getPassword()));
+		clien.setCorreo(textEmail.getName());
+		clien.setDireccion(textDireccion.getName());
+		clien.setDni(textDni.getName());
+		clien.setNum_cuenta(textNumeroCuenta.getName());
+		
+		 if (rdbtnVisa.isSelected()) {
+		        clien.setMetodo_pago(Metodo.visa);
+		    } else if (rdbtnMastercard.isSelected()) {
+		        clien.setMetodo_pago(Metodo.mastercard);
+		    } else if (rdbtnPaypal.isSelected()) {
+		        clien.setMetodo_pago(Metodo.paypal);
+		    } else {
+		       System.out.println("No se ha seleccionado un método de pago");
+		    }
+		 Principal.modificarCliente(clien);
+	}
+	
+	private void baja() {
+		Cliente clien = new Cliente();
+		
+		Principal.bajaCliente(clien);
+	}
+	
+	
 }

@@ -29,4 +29,19 @@ public class Principal {
 //		return dao.listarPropietarios();
 //	}
 
+	public static void altaCliente(Cliente clien) {
+		// TODO Auto-generated method stub
+		dao.altaCliente(clien);
+	}
+
+	public static void modificarCliente(Cliente clien) {
+		// TODO Auto-generated method stub
+		dao.modificarCliente(clien);
+	}
+
+	public static void bajaCliente(Cliente clien) {
+		// TODO Auto-generated method stub
+		dao.bajaCliente(clien);
+	}
+
 }

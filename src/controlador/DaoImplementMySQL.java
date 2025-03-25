@@ -24,6 +24,9 @@ public class DaoImplementMySQL implements Dao {
 	private PreparedStatement stmt;
 	// Sentencias SQL
 	final String LOGIN = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
+	final String INSERTAR_CLIENTE = "INSERT INTO cliente(usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?)";
+	final String ELIMINAR_CLIENTE = "DELETE from cliente where id_clien=?";
+	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?;";
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
 		this.urlBD = this.configFile.getString("Conn");
@@ -45,11 +48,12 @@ public class DaoImplementMySQL implements Dao {
 	}
 
 	private void closeConnection() throws SQLException {
-		if (stmt != null) {
-			stmt.close();
-		}
-		if (con != null)
-			con.close();
+	    try {
+	        if (stmt != null) stmt.close();
+	        if (con != null) con.close();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
 	}
 
 	@Override
@@ -123,4 +127,92 @@ public class DaoImplementMySQL implements Dao {
 	 * closeConnection(); } catch (SQLException e) { e.printStackTrace(); } } return
 	 * prop; }
 	 */
+
+	@Override
+	public void altaCliente(Cliente clien) {
+		// TODO Auto-generated method stub
+		openConnection();
+		
+		try {
+			stmt = con.prepareStatement(INSERTAR_CLIENTE);
+			  stmt.setString(1, clien.getUsuario());
+		        stmt.setString(2, clien.getContra());
+		        stmt.setString(3, clien.getDni());
+		        stmt.setString(4, clien.getCorreo());
+		        stmt.setString(5, clien.getDireccion());
+		        stmt.setString(6, clien.getMetodo_pago().name());
+		        stmt.setString(7, clien.getNum_cuenta());
+	        stmt.executeUpdate();
+
+
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				closeConnection();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				
+			}
+		}
+	}
+
+	@Override
+	public void modificarCliente(Cliente clien) {
+		// TODO Auto-generated method stub
+	openConnection();
+		
+		try {
+			stmt = con.prepareStatement(MODIFICAR_CLIENTE);
+		
+			stmt.setString(1, clien.getUsuario());
+			stmt.setString(2, clien.getContra());
+			stmt.setString(3, clien.getDni());
+			stmt.setString(4, clien.getCorreo());
+			stmt.setString(5, clien.getDireccion());
+			 stmt.setString(6, clien.getMetodo_pago().name());
+			stmt.setString(7, clien.getNum_cuenta());
+			stmt.setInt(8, clien.getId_usu()); // Falta agregar el ID para el WHERE
+
+	        stmt.executeUpdate();
+
+
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				closeConnection();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				
+			}
+		}
+	}
+	@Override
+	public void bajaCliente(Cliente clien) {
+		// TODO Auto-generated method stub
+		openConnection();
+		
+		try {
+			stmt = con.prepareStatement(ELIMINAR_CLIENTE);
+			stmt.setInt(1, clien.getId_usu());
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				closeConnection();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 }
