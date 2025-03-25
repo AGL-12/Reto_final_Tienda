@@ -23,8 +23,8 @@ public class VistaLogIn extends JFrame implements ActionListener {
 	private JTextField txtUser;
 	private JPasswordField txtContra;
 
-	private JButton btnSalir;
-	private JButton btnCheck;
+	private JButton btnSignIn;
+	private JButton btnLogIn;
 
 	/**
 	 * Create the frame.
@@ -58,15 +58,15 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		txtContra.setColumns(10);
 		contentPane.add(txtContra);
 
-		btnCheck = new JButton("comprobar");
-		btnCheck.setBounds(78, 207, 148, 82);
-		btnCheck.addActionListener(this);
-		contentPane.add(btnCheck);
+		btnLogIn = new JButton("comprobar");
+		btnLogIn.setBounds(78, 207, 148, 82);
+		btnLogIn.addActionListener(this);
+		contentPane.add(btnLogIn);
 
-		btnSalir = new JButton("Registrarte");
-		btnSalir.setBounds(280, 207, 162, 82);
-		btnSalir.addActionListener(this);
-		contentPane.add(btnSalir);
+		btnSignIn = new JButton("Registrarte");
+		btnSignIn.setBounds(280, 207, 162, 82);
+		btnSignIn.addActionListener(this);
+		contentPane.add(btnSignIn);
 	}
 
 	protected void comprobar() {
@@ -77,12 +77,12 @@ public class VistaLogIn extends JFrame implements ActionListener {
 
 		// comprobar login correcto
 		try {
-			Principal.login(clien);
+			clien = Principal.login(clien);
 			VentanaIntermedia test = new VentanaIntermedia();
 			test.setVisible(true);
 		} catch (LoginError e) {
 			e.visualizarMen();
-		}finally {
+		} finally {
 			limpiar();
 		}
 	}
@@ -94,9 +94,9 @@ public class VistaLogIn extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource().equals(btnSalir)) {
+		if (e.getSource().equals(btnSignIn)) {
 			abrirVistaRegistro();
-		} else if (e.getSource().equals(btnCheck)) {
+		} else if (e.getSource().equals(btnLogIn)) {
 			comprobar();
 		}
 	}

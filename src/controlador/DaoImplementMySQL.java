@@ -13,6 +13,7 @@ import java.util.ResourceBundle;
 import excepciones.InsertError;
 import excepciones.LoginError;
 import modelo.Cliente;
+import modelo.Metodo;
 
 public class DaoImplementMySQL implements Dao {
 	// Atributo para conexion
@@ -55,7 +56,7 @@ public class DaoImplementMySQL implements Dao {
 	}
 
 	@Override
-	public void login(Cliente cli) throws LoginError {
+	public Cliente login(Cliente cli) throws LoginError {
 		// Tenemos que definie el ResusultSet para recoger el resultado de la consulta
 		ResultSet rs = null;
 		openConnection();
@@ -70,6 +71,13 @@ public class DaoImplementMySQL implements Dao {
 			if (!rs.next()) {
 				throw new LoginError("Usuario o password incorrecto");
 			}
+			cli.setId_usu(rs.getInt("id_clien"));
+			cli.setDni(rs.getString("dni"));
+			cli.setCorreo(rs.getString("correo"));
+			cli.setDireccion(rs.getString("direccion"));
+			cli.setMetodo_pago(Metodo.valueOf(rs.getString("metodo_pago")));
+			cli.setNum_cuenta(rs.getString("num_cuenta"));
+			cli.setEsAdmin(rs.getBoolean("esAdmin"));
 		} catch (SQLException e) {
 			throw new LoginError("Error con el SQL");
 		} finally {
@@ -81,6 +89,7 @@ public class DaoImplementMySQL implements Dao {
 				e.printStackTrace();
 			}
 		}
+		return cli;
 	}
 	/*
 	 * @Override public void altaPropietario(Propietario prop) throws InsertError {
