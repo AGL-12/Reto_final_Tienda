@@ -15,8 +15,9 @@ public class Principal {
 		inicio.setVisible(true);
 	}
 
-	public static void login(Cliente cli) throws LoginError {
-		dao.login(cli);
+	public static Cliente login(Cliente cli) throws LoginError {
+
+		return dao.login(cli);
 	}
 //	public static void Alta(Propietario propi) throws InsertError {
 //		dao.altaPropietario(propi);

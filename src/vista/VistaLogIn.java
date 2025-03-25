@@ -77,9 +77,9 @@ public class VistaLogIn extends JFrame implements ActionListener {
 
 		// comprobar login correcto
 		try {
-			Principal.login(clien);
-			VistaUsuario usuario = new VistaUsuario(this, true);
-			usuario.setVisible(true);
+			clien = Principal.login(clien);
+			VistaTienda tienda = new VistaTienda(clien, this, true);
+			tienda.setVisible(true);
 		} catch (LoginError e) {
 			e.visualizarMen();
 			txtUser.setText("");
@@ -97,6 +97,7 @@ public class VistaLogIn extends JFrame implements ActionListener {
 	}
 
 	private void abrirVistaRegistro() {
-		
+		VistaUsuario usuario = new VistaUsuario(null,this, true);
+		usuario.setVisible(true);
 	}
 }

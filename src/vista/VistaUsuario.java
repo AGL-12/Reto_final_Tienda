@@ -7,6 +7,9 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import modelo.Cliente;
+
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
@@ -79,7 +82,7 @@ public class VistaUsuario extends JDialog implements ActionListener{
 	/**
 	 * Create the dialog.
 	 */
-	public VistaUsuario(VistaLogIn ventana, boolean modal) {
+	public VistaUsuario(Cliente clien,VistaLogIn ventana, boolean modal) {
 		super(ventana);
 		super.setModal(modal);
 		setBounds(100, 100, 702, 392);

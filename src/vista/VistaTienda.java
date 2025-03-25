@@ -2,9 +2,11 @@ package vista;
 
 import java.awt.EventQueue;
 import modelo.Articulo;
+import modelo.Cliente;
 import modelo.Seccion;
 
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
@@ -24,28 +26,11 @@ public class VistaTienda extends JDialog implements ActionListener{
 	private JTable tableProductos;
 
 	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					VistaTienda dialog = new VistaTienda();
-					dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-					dialog.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
-	/**
 	 * Create the dialog.
 	 */
-	public VistaTienda() {
-//		super(ventana);
-//		super.setModal(modal);
+	public VistaTienda(Cliente clien, JFrame vista, boolean modal) {
+		super(vista);
+		super.setModal(modal);
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
 

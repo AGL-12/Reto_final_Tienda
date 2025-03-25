@@ -13,6 +13,7 @@ import java.util.ResourceBundle;
 import excepciones.InsertError;
 import excepciones.LoginError;
 import modelo.Cliente;
+import modelo.Metodo;
 
 public class DaoImplementMySQL implements Dao {
 	// Atributo para conexion
@@ -52,10 +53,12 @@ public class DaoImplementMySQL implements Dao {
 	}
 
 	@Override
-	public void login(Cliente cli) throws LoginError {
+	public Cliente login(Cliente cli) throws LoginError {
 		// Tenemos que definie el ResusultSet para recoger el resultado de la consulta
 		ResultSet rs = null;
 		openConnection();
+	    Cliente usuarioAutenticado = null;
+
 		try {
 			stmt = con.prepareStatement(LOGIN);
 
@@ -66,7 +69,17 @@ public class DaoImplementMySQL implements Dao {
 			// Leemos de uno en uno los propietarios devueltos en el ResultSet
 			if (!rs.next()) {
 				throw new LoginError("Usuario o password incorrecto");
-			}
+			}else {
+	            // Recuperamos los datos del usuario autenticado
+				  usuarioAutenticado = new Cliente();
+		            usuarioAutenticado.setId_usu(rs.getInt("id_clien")); // Asegúrate de que el nombre de la columna sea "id_usu"
+		            usuarioAutenticado.setDni(rs.getString("dni"));
+		            usuarioAutenticado.setCorreo(rs.getString("correo"));
+		            usuarioAutenticado.setDireccion(rs.getString("direccion"));
+		            usuarioAutenticado.setMetodo_pago(Metodo.valueOf(rs.getString("metodo_pago"))); // Asegúrate de que coincida con la estructura de la base de datos
+		            usuarioAutenticado.setNum_cuenta(rs.getString("num_cuenta"));
+		            usuarioAutenticado.setEsAdmin(rs.getBoolean("esAdmin")); // Suponiendo que hay una columna "rol"
+	        }
 		} catch (SQLException e) {
 			throw new LoginError("Error con el SQL");
 		} finally {
@@ -78,6 +91,7 @@ public class DaoImplementMySQL implements Dao {
 				e.printStackTrace();
 			}
 		}
+		 return usuarioAutenticado;
 	}
 	/*
 	 * @Override public void altaPropietario(Propietario prop) throws InsertError {
