@@ -22,7 +22,7 @@ public class DaoImplementMySQL implements Dao {
 	private Connection con;
 	private PreparedStatement stmt;
 	// Sentencias SQL
-	final String LOGIN = "select * from usuario where usuario=? and contra=?";
+	final String LOGIN = "select * from cliente where usuario=? and contra=?";
 	final String ALTAPROP = "insert into propietario (nombre,fechaNace) values (?,?)";
 
 	public DaoImplementMySQL() {
