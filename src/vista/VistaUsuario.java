@@ -17,6 +17,9 @@ import javax.swing.GroupLayout.Alignment;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.Font;
 import javax.swing.SwingConstants;
@@ -25,7 +28,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JRadioButton;
 import javax.swing.JPasswordField;
 
-public class VistaUsuario extends JDialog {
+public class VistaUsuario extends JDialog implements ActionListener{
 
 	private static final long serialVersionUID = 1L;
 	private final JPanel contentPanel = new JPanel();
@@ -63,7 +66,7 @@ public class VistaUsuario extends JDialog {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		try {
 			VistaUsuario dialog = new VistaUsuario();
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -71,12 +74,14 @@ public class VistaUsuario extends JDialog {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 
 	/**
 	 * Create the dialog.
 	 */
-	public VistaUsuario() {
+	public VistaUsuario(VistaLogIn ventana, boolean modal) {
+		super(ventana);
+		super.setModal(modal);
 		setBounds(100, 100, 702, 392);
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -361,5 +366,11 @@ public class VistaUsuario extends JDialog {
 			label_5 = new JLabel("");
 			getContentPane().add(label_5);
 		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 }
