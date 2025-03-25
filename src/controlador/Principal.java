@@ -13,6 +13,7 @@ public class Principal {
 	public static void main(String[] args) {
 		VistaLogIn inicio = new VistaLogIn();
 		inicio.setVisible(true);
+		
 	}
 
 	public static Cliente login(Cliente cli) throws LoginError {
