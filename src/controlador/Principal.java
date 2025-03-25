@@ -14,6 +14,7 @@ public class Principal {
 		VistaLogIn inicio = new VistaLogIn();
 		inicio.setVisible(true);
 		
+		
 	}
 
 	public static Cliente login(Cliente cli) throws LoginError {
