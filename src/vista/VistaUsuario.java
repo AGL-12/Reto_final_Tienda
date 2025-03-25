@@ -8,6 +8,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import java.awt.GridLayout;
 import javax.swing.GroupLayout;
@@ -22,6 +23,7 @@ import javax.swing.SwingConstants;
 import javax.swing.JTextField;
 import javax.swing.JCheckBox;
 import javax.swing.JRadioButton;
+import javax.swing.JPasswordField;
 
 public class VistaUsuario extends JDialog {
 
@@ -29,7 +31,6 @@ public class VistaUsuario extends JDialog {
 	private final JPanel contentPanel = new JPanel();
 	private JLabel lblUsuario;
 	private JLabel lblTitulo;
-	private JLabel lblNewLabel;
 	private JLabel label_1;
 	private JLabel label_2;
 	private JLabel label_3;
@@ -39,25 +40,25 @@ public class VistaUsuario extends JDialog {
 	private JLabel label_6;
 	private JLabel label_8;
 	private JLabel label_9;
-	private JTextField textID;
 	private JLabel lblDni;
 	private JLabel lblDireccion;
 	private JLabel lblMetodoPago;
-	private JLabel lblAdmin;
-	private JLabel lblNombre;
+	private JLabel lblNumeroCuenta;
+	private JLabel lblEmail;
 	private JTextField textUser;
-	private JTextField textField;
 	private JTextField textDNI;
 	private JTextField textNombre;
 	private JTextField textDireccion;
-	private JRadioButton rdbtnAdminSi;
-	private JRadioButton rdbtnAdminNo;
 	private JButton btnMostrarPedidos;
 	private JButton btnRegistrarse;
 	private JButton btnModificar;
 	private JRadioButton rdbtnVisa;
 	private JRadioButton rdbtnMastercard;
 	private JRadioButton rdbtnPaypal;
+	private JTextField textNumeroCuenta;
+	private JPasswordField passwordFieldContra;
+	private ButtonGroup rdGroup;
+	
 
 	/**
 	 * Launch the application.
@@ -122,27 +123,6 @@ public class VistaUsuario extends JDialog {
 			lblUsuario = new JLabel("User");
 			lblUsuario.setFont(new Font("Tahoma", Font.BOLD, 12));
 		}
-		{
-			lblNewLabel = new JLabel("ID");
-			lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
-		}
-		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
-		gbc_lblNewLabel.fill = GridBagConstraints.VERTICAL;
-		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel.gridx = 0;
-		gbc_lblNewLabel.gridy = 2;
-		contentPanel.add(lblNewLabel, gbc_lblNewLabel);
-		
-		textID = new JTextField();
-		textID.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		textID.setColumns(10);
-		GridBagConstraints gbc_textID = new GridBagConstraints();
-		gbc_textID.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textID.insets = new Insets(0, 0, 5, 5);
-		gbc_textID.gridwidth = 3;
-		gbc_textID.gridx = 1;
-		gbc_textID.gridy = 2;
-		contentPanel.add(textID, gbc_textID);
 		GridBagConstraints gbc_lblUsuario = new GridBagConstraints();
 		gbc_lblUsuario.fill = GridBagConstraints.VERTICAL;
 		gbc_lblUsuario.insets = new Insets(0, 0, 5, 5);
@@ -184,16 +164,14 @@ public class VistaUsuario extends JDialog {
 		gbc_lblPassword.gridy = 4;
 		contentPanel.add(lblPassword, gbc_lblPassword);
 		{
-			textField = new JTextField();
-			textField.setFont(new Font("Tahoma", Font.PLAIN, 12));
-			textField.setColumns(10);
-			GridBagConstraints gbc_textField = new GridBagConstraints();
-			gbc_textField.gridwidth = 3;
-			gbc_textField.insets = new Insets(0, 0, 5, 5);
-			gbc_textField.fill = GridBagConstraints.HORIZONTAL;
-			gbc_textField.gridx = 1;
-			gbc_textField.gridy = 4;
-			contentPanel.add(textField, gbc_textField);
+			passwordFieldContra = new JPasswordField();
+			GridBagConstraints gbc_passwordFieldContra = new GridBagConstraints();
+			gbc_passwordFieldContra.gridwidth = 3;
+			gbc_passwordFieldContra.insets = new Insets(0, 0, 5, 5);
+			gbc_passwordFieldContra.fill = GridBagConstraints.HORIZONTAL;
+			gbc_passwordFieldContra.gridx = 1;
+			gbc_passwordFieldContra.gridy = 4;
+			contentPanel.add(passwordFieldContra, gbc_passwordFieldContra);
 		}
 		GridBagConstraints gbc_label_4 = new GridBagConstraints();
 		gbc_label_4.fill = GridBagConstraints.BOTH;
@@ -231,13 +209,13 @@ public class VistaUsuario extends JDialog {
 		gbc_label_6.gridy = 5;
 		contentPanel.add(label_6, gbc_label_6);
 		{
-			lblNombre = new JLabel("NAME");
-			lblNombre.setFont(new Font("Tahoma", Font.BOLD, 12));
-			GridBagConstraints gbc_lblNombre = new GridBagConstraints();
-			gbc_lblNombre.insets = new Insets(0, 0, 5, 5);
-			gbc_lblNombre.gridx = 0;
-			gbc_lblNombre.gridy = 6;
-			contentPanel.add(lblNombre, gbc_lblNombre);
+			lblEmail = new JLabel("EMAIL");
+			lblEmail.setFont(new Font("Tahoma", Font.BOLD, 12));
+			GridBagConstraints gbc_lblEmail = new GridBagConstraints();
+			gbc_lblEmail.insets = new Insets(0, 0, 5, 5);
+			gbc_lblEmail.gridx = 0;
+			gbc_lblEmail.gridy = 6;
+			contentPanel.add(lblEmail, gbc_lblEmail);
 		}
 		{
 			textNombre = new JTextField();
@@ -298,6 +276,9 @@ public class VistaUsuario extends JDialog {
 		gbc_lblMetodoPago.gridy = 8;
 		contentPanel.add(lblMetodoPago, gbc_lblMetodoPago);
 		{
+			
+			
+			
 			rdbtnVisa = new JRadioButton("VISA");
 			rdbtnVisa.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			GridBagConstraints gbc_rdbtnVisa = new GridBagConstraints();
@@ -324,29 +305,31 @@ public class VistaUsuario extends JDialog {
 			gbc_rdbtnPaypal.gridy = 8;
 			contentPanel.add(rdbtnPaypal, gbc_rdbtnPaypal);
 		}
-		lblAdmin = new JLabel("ADMIN");
-		lblAdmin.setFont(new Font("Tahoma", Font.BOLD, 12));
-		GridBagConstraints gbc_lblAdmin = new GridBagConstraints();
-		gbc_lblAdmin.fill = GridBagConstraints.VERTICAL;
-		gbc_lblAdmin.insets = new Insets(0, 0, 5, 5);
-		gbc_lblAdmin.gridx = 0;
-		gbc_lblAdmin.gridy = 9;
-		contentPanel.add(lblAdmin, gbc_lblAdmin);
+		// Crear un ButtonGroup y agregar los botones
+					rdGroup = new ButtonGroup();
+					rdGroup.add(rdbtnVisa);
+					rdGroup.add(rdbtnMastercard);
+					rdGroup.add(rdbtnPaypal);
+		lblNumeroCuenta = new JLabel("ACCOUNT NUMBER");
+		lblNumeroCuenta.setFont(new Font("Tahoma", Font.BOLD, 12));
+		GridBagConstraints gbc_lblNumeroCuenta = new GridBagConstraints();
+		gbc_lblNumeroCuenta.anchor = GridBagConstraints.EAST;
+		gbc_lblNumeroCuenta.fill = GridBagConstraints.VERTICAL;
+		gbc_lblNumeroCuenta.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNumeroCuenta.gridx = 0;
+		gbc_lblNumeroCuenta.gridy = 9;
+		contentPanel.add(lblNumeroCuenta, gbc_lblNumeroCuenta);
 		{
-			rdbtnAdminSi = new JRadioButton("Yes, I'm admin");
-			GridBagConstraints gbc_rdbtnAdminSi = new GridBagConstraints();
-			gbc_rdbtnAdminSi.insets = new Insets(0, 0, 5, 5);
-			gbc_rdbtnAdminSi.gridx = 1;
-			gbc_rdbtnAdminSi.gridy = 9;
-			contentPanel.add(rdbtnAdminSi, gbc_rdbtnAdminSi);
-		}
-		{
-			rdbtnAdminNo = new JRadioButton("No I'm not admin");
-			GridBagConstraints gbc_rdbtnAdminNo = new GridBagConstraints();
-			gbc_rdbtnAdminNo.insets = new Insets(0, 0, 5, 5);
-			gbc_rdbtnAdminNo.gridx = 2;
-			gbc_rdbtnAdminNo.gridy = 9;
-			contentPanel.add(rdbtnAdminNo, gbc_rdbtnAdminNo);
+			textNumeroCuenta = new JTextField();
+			textNumeroCuenta.setFont(new Font("Tahoma", Font.PLAIN, 12));
+			textNumeroCuenta.setColumns(10);
+			GridBagConstraints gbc_textNumeroCuenta = new GridBagConstraints();
+			gbc_textNumeroCuenta.gridwidth = 3;
+			gbc_textNumeroCuenta.insets = new Insets(0, 0, 5, 5);
+			gbc_textNumeroCuenta.fill = GridBagConstraints.HORIZONTAL;
+			gbc_textNumeroCuenta.gridx = 1;
+			gbc_textNumeroCuenta.gridy = 9;
+			contentPanel.add(textNumeroCuenta, gbc_textNumeroCuenta);
 		}
 		{
 			btnRegistrarse = new JButton("SIGN UP");

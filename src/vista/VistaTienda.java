@@ -9,6 +9,8 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +18,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JButton;
 
-public class VistaTienda extends JDialog {
+public class VistaTienda extends JDialog implements ActionListener{
 
 	private static final long serialVersionUID = 1L;
 	private JTable tableProductos;
@@ -42,6 +44,8 @@ public class VistaTienda extends JDialog {
 	 * Create the dialog.
 	 */
 	public VistaTienda() {
+//		super(ventana);
+//		super.setModal(modal);
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
 
@@ -104,5 +108,11 @@ public class VistaTienda extends JDialog {
 		btnCompra.setBounds(341, 233, 85, 21);
 		getContentPane().add(btnCompra);
 
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 }
