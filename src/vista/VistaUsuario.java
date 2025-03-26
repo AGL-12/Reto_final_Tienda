@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import controlador.Principal;
+import excepciones.modifyError;
 import modelo.Cliente;
 
 import javax.swing.BoxLayout;
@@ -21,6 +22,7 @@ import javax.swing.JOptionPane;
 import java.awt.GridLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.ImageIcon;
 
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -28,6 +30,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentListener;
+import java.net.URL;
 
 import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.Font;
@@ -70,6 +73,8 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	private JTextField textNumeroCuenta;
 	private JPasswordField passwordFieldContra;
 	private ButtonGroup rdGroup;
+	private Cliente localClien;
+	private JButton btnDrop;
 
 	/**
 	 * Launch the application.
@@ -390,6 +395,8 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	public VistaUsuario(Cliente clien, Object ventPadre, boolean modal) {
 		super(ventPadre instanceof JFrame ? (JFrame) ventPadre
 				: ventPadre instanceof JDialog ? (JDialog) ventPadre : null);
+		localClien = clien;
+		
 		setModal(modal);
 
 		inicializarComponentes();
@@ -685,6 +692,14 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		gbc_btnModificar.gridy = 10;
 		contentPanel.add(btnModificar, gbc_btnModificar);
 		btnModificar.addActionListener(this);
+		
+		btnDrop = new JButton("DROP");
+		btnDrop.setFont(new Font("Tahoma", Font.BOLD, 14));
+		GridBagConstraints gbc_btnDrop = new GridBagConstraints();
+		gbc_btnDrop.insets = new Insets(0, 0, 0, 5);
+		gbc_btnDrop.gridx = 3;
+		gbc_btnDrop.gridy = 10;
+		contentPanel.add(btnDrop, gbc_btnDrop);
 
 		btnMostrarPedidos = new JButton("ORDERS");
 		btnMostrarPedidos.setFont(new Font("Tahoma", Font.BOLD, 14));
@@ -705,7 +720,9 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		if (e.getSource().equals(btnRegistrarse)) {
 			alta();
 		} else if (e.getSource().equals(btnModificar)) {
-			modificar();
+			modificar(localClien);
+		}else if (e.getSource().equals(btnDrop)) {
+			baja(localClien);
 		}
 	}
 
@@ -732,14 +749,13 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		dispose();
 	}
 
-	private void modificar() {
-		Cliente clien = new Cliente();
+	private void modificar(Cliente clien) {
 		clien.setUsuario(textUser.getText());
 		clien.setContra(new String(passwordFieldContra.getPassword()));
-		clien.setCorreo(textEmail.getName());
-		clien.setDireccion(textDireccion.getName());
-		clien.setDni(textDni.getName());
-		clien.setNum_cuenta(textNumeroCuenta.getName());
+		clien.setCorreo(textEmail.getText());
+		clien.setDireccion(textDireccion.getText());
+		clien.setDni(textDni.getText());
+		clien.setNum_cuenta(textNumeroCuenta.getText());
 
 		if (rdbtnVisa.isSelected()) {
 			clien.setMetodo_pago(Metodo.visa);
@@ -747,14 +763,21 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			clien.setMetodo_pago(Metodo.mastercard);
 		} else if (rdbtnPaypal.isSelected()) {
 			clien.setMetodo_pago(Metodo.paypal);
-		} else {
-			System.out.println("No se ha seleccionado un método de pago");
 		}
-		Principal.modificarCliente(clien);
+		try {
+			Principal.modificarCliente(clien);
+			
+		
+
+			JOptionPane.showMessageDialog(this, "Modificacion exitosa", "Mensaje", DISPOSE_ON_CLOSE);
+		} catch (modifyError e) {
+			// TODO Auto-generated catch block
+			e.visualizarMen();
+		}
 	}
 
-	private void baja() {
-		Cliente clien = new Cliente();
+	private void baja(Cliente clien) {
+		
 
 		Principal.bajaCliente(clien);
 	}

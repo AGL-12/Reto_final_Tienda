@@ -4,6 +4,7 @@ import java.util.Map;
 
 import excepciones.InsertError;
 import excepciones.LoginError;
+import excepciones.modifyError;
 import modelo.Cliente;
 
 public interface Dao {
@@ -15,7 +16,7 @@ public interface Dao {
 	public void altaCliente(Cliente clien);
 
 
-	public void modificarCliente(Cliente clien);
+	public void modificarCliente(Cliente clien) throws modifyError;
 
 	public void bajaCliente(Cliente clien);
 }

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import excepciones.InsertError;
 import excepciones.LoginError;
+import excepciones.modifyError;
 import modelo.Cliente;
 import vista.VistaLogIn;
 
@@ -34,8 +35,7 @@ public class Principal {
 		dao.altaCliente(clien);
 	}
 
-	public static void modificarCliente(Cliente clien) {
-		// TODO Auto-generated method stub
+	public static void modificarCliente(Cliente clien) throws modifyError {
 		dao.modificarCliente(clien);
 	}
 
