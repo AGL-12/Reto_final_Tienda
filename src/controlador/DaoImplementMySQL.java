@@ -24,11 +24,11 @@ public class DaoImplementMySQL implements Dao {
 	private Connection con;
 	private PreparedStatement stmt;
 	// Sentencias SQL
-	final String LOGIN = "select * from cliente where usuario=? and contra=?";
-	private static final String SELECT_Cliente = "select * from cliente";
-	// Consulta SQL para obtener todos los clientes
-	final String SELECT_Clientes = "SELECT * FROM propietario";
-	final String CONTAR_PEDS = "SELECT * FROM propietario";
+	final String LOGIN = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
+	final String INSERTAR_CLIENTE = "INSERT INTO cliente(usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?)";
+	final String ELIMINAR_CLIENTE = "DELETE from cliente where id_clien=?";
+	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?;";
+	static final String SELECT_Cliente = "select * from cliente";
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -39,24 +39,28 @@ public class DaoImplementMySQL implements Dao {
 
 	private void openConnection() {
 		try {
-			con = DriverManager.getConnection(urlBD, this.userBD, this.passwordBD);
-
+			con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/tienda_brico?serverTimezone=Europe/Madrid&useSSL=false", "root",
+					"abcd*1234");
 			/*
 			 * DriverManager.getConnection(
 			 * "jdbc:mysql://localhost:3306/tienda_brico?serverTimezone=Europe/Madrid&useSSL=false",
 			 * "root", "abcd*1234");
 			 */
 		} catch (SQLException e) {
-			System.out.println("Error al intentar abrir la BD");
+			System.out.println("Error al intentar abrir la BD" + e.getMessage());
 		}
 	}
 
 	private void closeConnection() throws SQLException {
-		if (stmt != null) {
-			stmt.close();
+		try {
+			if (stmt != null)
+				stmt.close();
+			if (con != null)
+				con.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		if (con != null)
-			con.close();
 	}
 
 	@Override
@@ -64,6 +68,8 @@ public class DaoImplementMySQL implements Dao {
 		// Tenemos que definie el ResusultSet para recoger el resultado de la consulta
 		ResultSet rs = null;
 		openConnection();
+		Cliente usuarioAutenticado = null;
+
 		try {
 			stmt = con.prepareStatement(LOGIN);
 
@@ -74,16 +80,25 @@ public class DaoImplementMySQL implements Dao {
 			// Leemos de uno en uno los propietarios devueltos en el ResultSet
 			if (!rs.next()) {
 				throw new LoginError("Usuario o password incorrecto");
+			} else {
+				// Recuperamos los datos del usuario autenticado
+				usuarioAutenticado = new Cliente();
+				usuarioAutenticado.setId_usu(rs.getInt("id_clien")); // Asegúrate de que el nombre de la columna sea
+																		// "id_usu"
+				usuarioAutenticado.setUsuario(rs.getString("usuario")); // Asegúrate de que el nombre de la columna sea
+																		// "id_usu"
+				usuarioAutenticado.setContra(rs.getString("contra")); // Asegúrate de que el nombre de la columna sea
+																		// "id_usu"
+				usuarioAutenticado.setDni(rs.getString("dni"));
+				usuarioAutenticado.setCorreo(rs.getString("correo"));
+				usuarioAutenticado.setDireccion(rs.getString("direccion"));
+				usuarioAutenticado.setMetodo_pago(Metodo.valueOf(rs.getString("metodo_pago"))); // Asegúrate de que
+																								// coincida con la
+																								// estructura de la base
+																								// de datos
+				usuarioAutenticado.setNum_cuenta(rs.getString("num_cuenta"));
+				usuarioAutenticado.setEsAdmin(rs.getBoolean("esAdmin")); // Suponiendo que hay una columna "rol"
 			}
-			cli.setId_usu(rs.getInt("id_clien"));
-			cli.setUsuario(rs.getString("usuario"));
-			cli.setContra(rs.getString("contra"));
-			cli.setDni(rs.getString("dni"));
-			cli.setCorreo(rs.getString("correo"));
-			cli.setDireccion(rs.getString("direccion"));
-			cli.setMetodo_pago(Metodo.valueOf(rs.getString("metodo_pago")));
-			cli.setNum_cuenta(rs.getString("num_cuenta"));
-			cli.setEsAdmin(rs.getBoolean("esAdmin"));
 		} catch (SQLException e) {
 			throw new LoginError("Error con el SQL");
 		} finally {
@@ -95,7 +110,7 @@ public class DaoImplementMySQL implements Dao {
 				e.printStackTrace();
 			}
 		}
-		return cli;
+		return usuarioAutenticado;
 	}
 
 	@Override
@@ -126,7 +141,8 @@ public class DaoImplementMySQL implements Dao {
 				Map<Integer, Pedido> listaPedido = cargarMapaPed();
 
 				// Crear el objeto Propietario con los datos obtenidos
-				Cliente prop = new Cliente(id, usuario, contra, dni, correo, direccion, metodoPago, num_cuenta, esAdmin, null);
+				Cliente prop = new Cliente(id, usuario, contra, dni, correo, direccion, metodoPago, num_cuenta, esAdmin,
+						null);
 
 				// Agregar al Map con el ID como clave
 				todosClientes.put(String.valueOf(id), prop);
@@ -144,7 +160,7 @@ public class DaoImplementMySQL implements Dao {
 			}
 		}
 
-		// Retornar el Map con todos los propietarios
+		// Retornar el Map con todos los clientes
 		return todosClientes;
 	}
 	/*
@@ -182,5 +198,89 @@ public class DaoImplementMySQL implements Dao {
 		Map<Integer, Pedido> paraCargar = new HashMap<>();
 		
 		return null;
+
+	@Override
+	public void altaCliente(Cliente clien) {
+		// TODO Auto-generated method stub
+		openConnection();
+
+		try {
+			stmt = con.prepareStatement(INSERTAR_CLIENTE);
+			stmt.setString(1, clien.getUsuario());
+			stmt.setString(2, clien.getContra());
+			stmt.setString(3, clien.getDni());
+			stmt.setString(4, clien.getCorreo());
+			stmt.setString(5, clien.getDireccion());
+			stmt.setString(6, clien.getMetodo_pago().name());
+			stmt.setString(7, clien.getNum_cuenta());
+			stmt.executeUpdate();
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				closeConnection();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+
+			}
+		}
+	}
+
+	@Override
+	public void modificarCliente(Cliente clien) {
+		// TODO Auto-generated method stub
+		openConnection();
+
+		try {
+			stmt = con.prepareStatement(MODIFICAR_CLIENTE);
+
+			stmt.setString(1, clien.getUsuario());
+			stmt.setString(2, clien.getContra());
+			stmt.setString(3, clien.getDni());
+			stmt.setString(4, clien.getCorreo());
+			stmt.setString(5, clien.getDireccion());
+			stmt.setString(6, clien.getMetodo_pago().name());
+			stmt.setString(7, clien.getNum_cuenta());
+			stmt.setInt(8, clien.getId_usu()); // Falta agregar el ID para el WHERE
+
+			stmt.executeUpdate();
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				closeConnection();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+
+			}
+		}
+	}
+
+	@Override
+	public void bajaCliente(Cliente clien) {
+		// TODO Auto-generated method stub
+		openConnection();
+
+		try {
+			stmt = con.prepareStatement(ELIMINAR_CLIENTE);
+			stmt.setInt(1, clien.getId_usu());
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				closeConnection();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 }

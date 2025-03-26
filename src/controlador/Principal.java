@@ -13,6 +13,7 @@ public class Principal {
 	public static void main(String[] args) {
 		VistaLogIn inicio = new VistaLogIn();
 		inicio.setVisible(true);
+
 	}
 
 	public static Cliente login(Cliente cli) throws LoginError {
@@ -25,6 +26,21 @@ public class Principal {
 //
 	public static Map<String, Cliente> listarCliente() {
 		return dao.listarPropietarios();
+	}
+
+	public static void altaCliente(Cliente clien) {
+		// TODO Auto-generated method stub
+		dao.altaCliente(clien);
+	}
+
+	public static void modificarCliente(Cliente clien) {
+		// TODO Auto-generated method stub
+		dao.modificarCliente(clien);
+	}
+
+	public static void bajaCliente(Cliente clien) {
+		// TODO Auto-generated method stub
+		dao.bajaCliente(clien);
 	}
 
 }

@@ -9,6 +9,18 @@ public class Articulo {
 	private float oferta;
 	private Seccion seccion;
 
+	public Articulo(int id_art, String nombre, String descripcion, int stock, float precio, float oferta,
+			Seccion seccion) {
+		super();
+		this.id_art = id_art;
+		this.nombre = nombre;
+		this.descripcion = descripcion;
+		this.stock = stock;
+		this.precio = precio;
+		this.oferta = oferta;
+		this.seccion = seccion;
+	}
+
 	public int getId_art() {
 		return id_art;
 	}
