@@ -31,27 +31,29 @@ public class AdminListaCliente extends JDialog {
 		DefaultTableModel model = new DefaultTableModel();
 		model.addColumn("id_clien");
 		model.addColumn("usuario");
-		model.addColumn("contra");
+//		model.addColumn("contra");
 		model.addColumn("dni");
 		model.addColumn("correo");
 		model.addColumn("direccion");
-		model.addColumn("metodo_pago");
-		model.addColumn("num_cuenta");
-		model.addColumn("esAdmin");
+//		model.addColumn("metodo_pago");
+//		model.addColumn("num_cuenta");
+//		model.addColumn("esAdmin");
+		model.addColumn("Total de compras");
 		// Llamamos al DAO para obtener los vehículos del propietario
-		Map<Integer, Cliente> vehiculos = Principal.listarCliente();
+		Map<Integer, Cliente> listaClienteTod = Principal.listarCliente();
 		// Definir las columnas de la tabla
 		// String[] columnNames = {"Matrícula", "Marca", "Modelo", "Antigüedad",
 		// "Precio"};
 
 		// Agregar los datos de los vehículos al modelo de la tabla
-		for (Cliente cliens : vehiculos.values()) {
+		for (Cliente cliens : listaClienteTod.values()) {
 			model.addRow(new Object[] {
-//	            		cliens.getMatricula(),
-//	            		cliens.getMarca(),
-//	            		cliens.getModelo(),
-//	            		cliens.getAntiguedad(),
-//	            		cliens.getPrecio()
+	            		cliens.getId_usu(),
+	            		cliens.getUsuario(),
+	            		cliens.getDni(),
+	            		cliens.getCorreo(),
+	            		cliens.getDireccion(),
+	            		cliens.getListaCompra().size()
 			});
 
 		}

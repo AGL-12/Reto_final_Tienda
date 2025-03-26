@@ -2,10 +2,8 @@ package controlador;
 
 import java.util.Map;
 
-import excepciones.InsertError;
 import excepciones.LoginError;
 import modelo.Cliente;
-import modelo.Pedido;
 
 public interface Dao {
 

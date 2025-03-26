@@ -13,7 +13,6 @@ import excepciones.LoginError;
 import modelo.Cliente;
 import modelo.Compra;
 import modelo.Metodo;
-import modelo.Pedido;
 
 public class DaoImplementMySQL implements Dao {
 	// Atributo para conexion
