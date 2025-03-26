@@ -723,6 +723,8 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			modificar(localClien);
 		}else if (e.getSource().equals(btnDrop)) {
 			baja(localClien);
+			
+			
 		}
 	}
 
