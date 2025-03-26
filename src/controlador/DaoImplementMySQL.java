@@ -127,12 +127,12 @@ public class DaoImplementMySQL implements Dao {
 
 			// Iterar sobre el ResultSet y agregar los propietarios al Map
 			while (rs.next()) {
-				int id = rs.getInt("id");
-				String usuario = rs.getString("nombre");
-				String contra = rs.getString("nombre");
-				String dni = rs.getString("nombre");
-				String correo = rs.getString("nombre");
-				String direccion = rs.getString("nombre");
+				int id = rs.getInt("id_clien");
+				String usuario = rs.getString("usuario");
+				String contra = rs.getString("contra");
+				String dni = rs.getString("dni");
+				String correo = rs.getString("correo");
+				String direccion = rs.getString("direccion");
 				Metodo metodoPago = Metodo.valueOf(rs.getString("metodo_pago"));
 				String num_cuenta = rs.getString("num_cuenta");
 				boolean esAdmin = rs.getBoolean("esAdmin");

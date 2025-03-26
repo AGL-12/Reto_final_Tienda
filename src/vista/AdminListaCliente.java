@@ -1,12 +1,10 @@
 package vista;
 
-import javax.swing.JDialog;
 import javax.swing.table.DefaultTableModel;
 
 import controlador.Principal;
 import modelo.Cliente;
 
-import java.awt.Container;
 import java.util.Map;
 
 import javax.swing.*;
@@ -14,19 +12,20 @@ import javax.swing.*;
 public class AdminListaCliente extends JDialog {
 
 	private static final long serialVersionUID = 1L;
-	Container contentPanel;
-	JTable tableCoches;
+	private JTable tableClientes;
 
 	/**
 	 * Create the dialog.
 	 */
-	public AdminListaCliente() {
+	public AdminListaCliente(JDialog ventanaIntermedia) {
+		super(ventanaIntermedia,"Lista de todos los clientes",true);
 		setBounds(100, 100, 450, 300);
-		// Creamos un JScrollPane para la tabla
-		JScrollPane scrollPane = new JScrollPane(tableCoches);
-		scrollPane.setBounds(67, 179, 327, 85); // Ubicación y tamaño del JScrollPane
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		getContentPane().setLayout(null);
 
-		contentPanel.add(scrollPane); // Añadir el JScrollPane al panel
+		// Creamos un JScrollPane para la tabla
+		tableClientes = new JTable();
+
 		// Crear un modelo de tabla vacío
 		DefaultTableModel model = new DefaultTableModel();
 		model.addColumn("id_clien");
@@ -47,19 +46,17 @@ public class AdminListaCliente extends JDialog {
 
 		// Agregar los datos de los vehículos al modelo de la tabla
 		for (Cliente cliens : listaClienteTod.values()) {
-			model.addRow(new Object[] {
-	            		cliens.getId_usu(),
-	            		cliens.getUsuario(),
-	            		cliens.getDni(),
-	            		cliens.getCorreo(),
-	            		cliens.getDireccion(),
-	            		cliens.getListaCompra().size()
-			});
+			model.addRow(new Object[] { cliens.getId_usu(), cliens.getUsuario(), cliens.getDni(), cliens.getCorreo(),
+					cliens.getDireccion(), cliens.getListaCompra().size() });
 
 		}
-
 		// Establecer el modelo de la tabla con los datos
-		tableCoches.setModel(model);
+		tableClientes.setModel(model);
+
+		JScrollPane scrollPane = new JScrollPane(tableClientes);
+		scrollPane.setBounds(10, 46, 418, 179); // Ubicación y tamaño del JScrollPane
+		getContentPane().add(scrollPane); // Añadir el JScrollPane al panel
+	
 	}
 
 }

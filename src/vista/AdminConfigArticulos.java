@@ -8,8 +8,9 @@ public class AdminConfigArticulos extends JDialog {
 
 	/**
 	 * Create the dialog.
+	 * @param ventanaIntermedia 
 	 */
-	public AdminConfigArticulos() {
+	public AdminConfigArticulos(JDialog ventanaIntermedia) {
 		setBounds(100, 100, 450, 300);
 	}
 
