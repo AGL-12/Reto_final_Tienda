@@ -11,6 +11,8 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import controlador.Principal;
+import excepciones.AltaError;
+import excepciones.DropError;
 import excepciones.modifyError;
 import modelo.Cliente;
 
@@ -409,7 +411,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		if (clien == null) {
 			btnModificar.setEnabled(false);
 			btnMostrarPedidos.setEnabled(false);
-
+			btnDrop.setEnabled(false);
 		} else {
 			btnRegistrarse.setEnabled(false);
 			textUser.setText(clien.getUsuario());
@@ -700,6 +702,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		gbc_btnDrop.gridx = 3;
 		gbc_btnDrop.gridy = 10;
 		contentPanel.add(btnDrop, gbc_btnDrop);
+		btnDrop.addActionListener(this);
 
 		btnMostrarPedidos = new JButton("ORDERS");
 		btnMostrarPedidos.setFont(new Font("Tahoma", Font.BOLD, 14));
@@ -746,8 +749,14 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		} else {
 			System.out.println("No se ha seleccionado un método de pago");
 		}
-		Principal.altaCliente(clien);
-		JOptionPane.showMessageDialog(this, "User registered successfully!");
+		try {
+			Principal.altaCliente(clien);
+			JOptionPane.showMessageDialog(this, "User registered successfully!");
+		} catch (AltaError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
 		dispose();
 	}
 
@@ -768,20 +777,25 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		}
 		try {
 			Principal.modificarCliente(clien);
-			
-		
-
 			JOptionPane.showMessageDialog(this, "Modificacion exitosa", "Mensaje", DISPOSE_ON_CLOSE);
 		} catch (modifyError e) {
 			// TODO Auto-generated catch block
 			e.visualizarMen();
 		}
+		
+		dispose();
 	}
 
-	private void baja(Cliente clien) {
-		
-
-		Principal.bajaCliente(clien);
+	private void baja(Cliente clien)  {
+		try {
+			Principal.bajaCliente(clien);
+			JOptionPane.showMessageDialog(this, "Baja exitosa", "Mensaje", DISPOSE_ON_CLOSE);
+		} catch (DropError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		JOptionPane.showMessageDialog(this, "Baja exitosa", "Mensaje", DISPOSE_ON_CLOSE);
+		dispose();
 	}
 
 }

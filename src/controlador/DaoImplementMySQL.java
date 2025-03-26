@@ -10,11 +10,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import excepciones.AltaError;
+import excepciones.DropError;
 import excepciones.InsertError;
 import excepciones.LoginError;
 import excepciones.modifyError;
+import modelo.Articulo;
 import modelo.Cliente;
 import modelo.Metodo;
+import modelo.Seccion;
 
 public class DaoImplementMySQL implements Dao {
 	// Atributo para conexion
@@ -29,6 +33,7 @@ public class DaoImplementMySQL implements Dao {
 	final String ELIMINAR_CLIENTE = "DELETE from cliente where id_clien=?";
 	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?;";
 
+	final String TODOS_ARTICULOS = "SELECT * FROM articulo";
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
 		this.urlBD = this.configFile.getString("Conn");
@@ -143,7 +148,7 @@ public class DaoImplementMySQL implements Dao {
 	 */
 
 	@Override
-	public void altaCliente(Cliente clien) {
+	public void altaCliente(Cliente clien) throws AltaError {
 		// TODO Auto-generated method stub
 		openConnection();
 
@@ -205,7 +210,7 @@ public class DaoImplementMySQL implements Dao {
 	}
 
 	@Override
-	public void bajaCliente(Cliente clien) {
+	public void bajaCliente(Cliente clien) throws DropError{
 		// TODO Auto-generated method stub
 		openConnection();
 
@@ -225,4 +230,47 @@ public class DaoImplementMySQL implements Dao {
 			}
 		}
 	}
+	
+	public Map<Integer, Articulo> obtenerTodosArticulos() {
+	    Map<Integer, Articulo> articulos = new HashMap<>();
+	    ResultSet rs = null;
+
+	    try {
+	        openConnection();
+	        
+	        if (con == null) {
+	            throw new SQLException("No se pudo establecer la conexión con la base de datos.");
+	        }
+
+	        stmt = con.prepareStatement(TODOS_ARTICULOS);
+	        rs = stmt.executeQuery();
+
+	        while (rs.next()) {
+	            Articulo articulo = new Articulo(
+	                rs.getInt("id_art"),
+	                rs.getString("nombre"),
+	                rs.getString("descripcion"),
+	                rs.getInt("stock"),
+	                rs.getFloat("precio"),
+	                rs.getFloat("oferta"),
+	                Seccion.valueOf(rs.getString("seccion"))
+	            );
+	            articulos.put(articulo.getId_art(), articulo);
+	        }
+	    } catch (SQLException e) {
+	        System.err.println("Error al obtener los artículos: " + e.getMessage());
+	        e.printStackTrace();
+	    } finally {
+	        try {
+	            if (rs != null) rs.close();
+	            closeConnection();
+	        } catch (SQLException e) {
+	            System.err.println("Error al cerrar la conexión: " + e.getMessage());
+	            e.printStackTrace();
+	        }
+	    }
+
+	    return articulos; // Siempre devuelve un HashMap válido (vacío si hay errores)
+	}
+
 }

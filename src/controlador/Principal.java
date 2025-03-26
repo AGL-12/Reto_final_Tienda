@@ -2,6 +2,8 @@ package controlador;
 
 import java.util.Map;
 
+import excepciones.AltaError;
+import excepciones.DropError;
 import excepciones.InsertError;
 import excepciones.LoginError;
 import excepciones.modifyError;
@@ -30,7 +32,7 @@ public class Principal {
 //		return dao.listarPropietarios();
 //	}
 
-	public static void altaCliente(Cliente clien) {
+	public static void altaCliente(Cliente clien) throws AltaError {
 		// TODO Auto-generated method stub
 		dao.altaCliente(clien);
 	}
@@ -39,7 +41,7 @@ public class Principal {
 		dao.modificarCliente(clien);
 	}
 
-	public static void bajaCliente(Cliente clien) {
+	public static void bajaCliente(Cliente clien) throws DropError{
 		// TODO Auto-generated method stub
 		dao.bajaCliente(clien);
 	}
