@@ -15,6 +15,8 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Dimension;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 
 public class VistaLogIn extends JFrame implements ActionListener {
 
@@ -34,39 +36,60 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 489, 350);
 		setMinimumSize(new Dimension(450, 280));
+		setResizable(true);
 
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
-		contentPane.setLayout(null);
 
 		JLabel lblNewLabel = new JLabel("Usuario: ");
-		lblNewLabel.setBounds(78, 58, 75, 14);
-		contentPane.add(lblNewLabel);
 
 		txtUser = new JTextField();
-		txtUser.setBounds(158, 55, 284, 20);
-		contentPane.add(txtUser);
 		txtUser.setColumns(10);
 
 		JLabel lblContrasea = new JLabel("Contraseña:");
-		lblContrasea.setBounds(78, 83, 75, 14);
-		contentPane.add(lblContrasea);
 
 		txtContra = new JPasswordField();
-		txtContra.setBounds(158, 80, 284, 20);
 		txtContra.setColumns(10);
-		contentPane.add(txtContra);
 
 		btnLogIn = new JButton("comprobar");
-		btnLogIn.setBounds(78, 207, 148, 82);
 		btnLogIn.addActionListener(this);
-		contentPane.add(btnLogIn);
 
 		btnSignIn = new JButton("Registrarte");
-		btnSignIn.setBounds(280, 207, 162, 82);
 		btnSignIn.addActionListener(this);
-		contentPane.add(btnSignIn);
+		GroupLayout gl_contentPane = new GroupLayout(contentPane);
+		gl_contentPane.setHorizontalGroup(gl_contentPane.createParallelGroup(Alignment.LEADING).addGroup(gl_contentPane
+				.createSequentialGroup().addGap(73)
+				.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_contentPane.createSequentialGroup()
+								.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 75, GroupLayout.PREFERRED_SIZE)
+								.addGap(5)
+								.addComponent(txtUser, GroupLayout.PREFERRED_SIZE, 284, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_contentPane.createSequentialGroup()
+								.addComponent(lblContrasea, GroupLayout.PREFERRED_SIZE, 75, GroupLayout.PREFERRED_SIZE)
+								.addGap(5)
+								.addComponent(txtContra, GroupLayout.PREFERRED_SIZE, 284, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_contentPane.createSequentialGroup()
+								.addComponent(btnLogIn, GroupLayout.PREFERRED_SIZE, 148, GroupLayout.PREFERRED_SIZE)
+								.addGap(54).addComponent(btnSignIn, GroupLayout.PREFERRED_SIZE, 162,
+										GroupLayout.PREFERRED_SIZE)))));
+		gl_contentPane.setVerticalGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_contentPane.createSequentialGroup().addGap(50)
+						.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+								.addGroup(gl_contentPane.createSequentialGroup().addGap(3).addComponent(lblNewLabel))
+								.addComponent(txtUser, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+										GroupLayout.PREFERRED_SIZE))
+						.addGap(5)
+						.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+								.addGroup(gl_contentPane.createSequentialGroup().addGap(3).addComponent(lblContrasea))
+								.addComponent(txtContra, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+										GroupLayout.PREFERRED_SIZE))
+						.addGap(107)
+						.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+								.addComponent(btnLogIn, GroupLayout.PREFERRED_SIZE, 82, GroupLayout.PREFERRED_SIZE)
+								.addComponent(btnSignIn, GroupLayout.PREFERRED_SIZE, 82, GroupLayout.PREFERRED_SIZE))));
+		contentPane.setLayout(gl_contentPane);
+		pack();
 	}
 
 	protected void comprobar() {

@@ -14,6 +14,22 @@ public class Cliente {
 	private String num_cuenta;
 	private boolean esAdmin;
 	private Map<Integer, Pedido> listaPedido;
+		
+	
+	public Cliente(int id_usu, String usuario, String contra, String dni, String correo, String direccion,
+			Metodo metodo_pago, String num_cuenta, boolean esAdmin, Map<Integer, Pedido> listaPedido) {
+		super();
+		this.id_usu = id_usu;
+		this.usuario = usuario;
+		this.contra = contra;
+		this.dni = dni;
+		this.correo = correo;
+		this.direccion = direccion;
+		this.metodo_pago = metodo_pago;
+		this.num_cuenta = num_cuenta;
+		this.esAdmin = esAdmin;
+		this.listaPedido = listaPedido;
+	}
 
 	public Cliente() {
 		this.listaPedido = new HashMap<>();

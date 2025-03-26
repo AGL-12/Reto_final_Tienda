@@ -23,8 +23,8 @@ public class Principal {
 //		dao.altaPropietario(propi);
 //	}
 //
-//	public static Map<String, Propietario> listarPropietarios() {
-//		return dao.listarPropietarios();
-//	}
+	public static Map<String, Cliente> listarCliente() {
+		return dao.listarPropietarios();
+	}
 
 }

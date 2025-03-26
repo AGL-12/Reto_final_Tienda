@@ -14,6 +14,7 @@ import excepciones.InsertError;
 import excepciones.LoginError;
 import modelo.Cliente;
 import modelo.Metodo;
+import modelo.Pedido;
 
 public class DaoImplementMySQL implements Dao {
 	// Atributo para conexion
@@ -24,7 +25,10 @@ public class DaoImplementMySQL implements Dao {
 	private PreparedStatement stmt;
 	// Sentencias SQL
 	final String LOGIN = "select * from cliente where usuario=? and contra=?";
-	final String ALTAPROP = "insert into propietario (nombre,fechaNace) values (?,?)";
+	private static final String SELECT_Cliente = "select * from cliente";
+	// Consulta SQL para obtener todos los clientes
+	final String SELECT_Clientes = "SELECT * FROM propietario";
+	final String CONTAR_PEDS = "SELECT * FROM propietario";
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -72,6 +76,8 @@ public class DaoImplementMySQL implements Dao {
 				throw new LoginError("Usuario o password incorrecto");
 			}
 			cli.setId_usu(rs.getInt("id_clien"));
+			cli.setUsuario(rs.getString("usuario"));
+			cli.setContra(rs.getString("contra"));
 			cli.setDni(rs.getString("dni"));
 			cli.setCorreo(rs.getString("correo"));
 			cli.setDireccion(rs.getString("direccion"));
@@ -90,6 +96,56 @@ public class DaoImplementMySQL implements Dao {
 			}
 		}
 		return cli;
+	}
+
+	@Override
+	public Map<String, Cliente> listarPropietarios() {
+		Map<String, Cliente> todosClientes = new HashMap<>();
+		ResultSet rs = null;
+
+		openConnection();
+
+		try {
+			// Preparar la sentencia SQL
+			stmt = con.prepareStatement(SELECT_Cliente);
+
+			// Ejecutar la consulta
+			rs = stmt.executeQuery();
+
+			// Iterar sobre el ResultSet y agregar los propietarios al Map
+			while (rs.next()) {
+				int id = rs.getInt("id");
+				String usuario = rs.getString("nombre");
+				String contra = rs.getString("nombre");
+				String dni = rs.getString("nombre");
+				String correo = rs.getString("nombre");
+				String direccion = rs.getString("nombre");
+				Metodo metodoPago = Metodo.valueOf(rs.getString("metodo_pago"));
+				String num_cuenta = rs.getString("num_cuenta");
+				boolean esAdmin = rs.getBoolean("esAdmin");
+				Map<Integer, Pedido> listaPedido = cargarMapaPed();
+
+				// Crear el objeto Propietario con los datos obtenidos
+				Cliente prop = new Cliente(id, usuario, contra, dni, correo, direccion, metodoPago, num_cuenta, esAdmin, null);
+
+				// Agregar al Map con el ID como clave
+				todosClientes.put(String.valueOf(id), prop);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				closeConnection();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		// Retornar el Map con todos los propietarios
+		return todosClientes;
 	}
 	/*
 	 * @Override public void altaPropietario(Propietario prop) throws InsertError {
@@ -121,4 +177,10 @@ public class DaoImplementMySQL implements Dao {
 	 * closeConnection(); } catch (SQLException e) { e.printStackTrace(); } } return
 	 * prop; }
 	 */
+
+	private Map<Integer, Pedido> cargarMapaPed() {
+		Map<Integer, Pedido> paraCargar = new HashMap<>();
+		
+		return null;
+	}
 }

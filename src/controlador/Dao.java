@@ -10,5 +10,5 @@ public interface Dao {
 
 	public Cliente login(Cliente usu) throws LoginError;
 //	public void altaPropietario(Propietario prop) throws InsertError;
-//	public Map<String, Propietario> listarPropietarios();
+	public Map<String, Cliente> listarPropietarios();
 }
