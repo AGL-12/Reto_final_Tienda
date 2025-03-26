@@ -77,6 +77,8 @@ public class DaoImplementMySQL implements Dao {
 	            // Recuperamos los datos del usuario autenticado
 				  usuarioAutenticado = new Cliente();
 		            usuarioAutenticado.setId_usu(rs.getInt("id_clien")); // Asegúrate de que el nombre de la columna sea "id_usu"
+		            usuarioAutenticado.setUsuario(rs.getString("usuario")); // Asegúrate de que el nombre de la columna sea "id_usu"
+		            usuarioAutenticado.setContra(rs.getString("contra")); // Asegúrate de que el nombre de la columna sea "id_usu"
 		            usuarioAutenticado.setDni(rs.getString("dni"));
 		            usuarioAutenticado.setCorreo(rs.getString("correo"));
 		            usuarioAutenticado.setDireccion(rs.getString("direccion"));

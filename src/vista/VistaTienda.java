@@ -24,7 +24,8 @@ public class VistaTienda extends JDialog implements ActionListener{
 
 	private static final long serialVersionUID = 1L;
 	private JTable tableProductos;
-
+	private JButton btnUsuario;
+	private Cliente cambio;
 	/**
 	 * Create the dialog.
 	 */
@@ -33,6 +34,8 @@ public class VistaTienda extends JDialog implements ActionListener{
 		super.setModal(modal);
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
+		
+		this.cambio= clien;
 
         // Datos de ejemplo para la tabla
         List<Articulo> articulos = new ArrayList<>();
@@ -78,10 +81,11 @@ public class VistaTienda extends JDialog implements ActionListener{
 		tableProductos.setBounds(30, 62, 360, 115);
 		getContentPane().add(tableProductos);*/
 		
-		JButton btnUsuario = new JButton("USER");
+		 btnUsuario = new JButton("USER");
 		btnUsuario.setFont(new Font("Tahoma", Font.BOLD, 12));
 		btnUsuario.setBounds(10, 232, 85, 21);
 		getContentPane().add(btnUsuario);
+		btnUsuario.addActionListener(this);
 		
 		JButton btnAdmin = new JButton("ADMIN");
 		btnAdmin.setFont(new Font("Tahoma", Font.BOLD, 12));
@@ -98,6 +102,12 @@ public class VistaTienda extends JDialog implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		
+		if(e.getSource().equals(btnUsuario)) {
+			
+	        VistaUsuario vistaUsuario = new VistaUsuario(this.cambio, this, true); // "this" es el JFrame principal, "true" para modal
+	        vistaUsuario.setVisible(true);
+	        
+	        this.dispose(); 
+		}
 	}
 }
