@@ -104,10 +104,12 @@ public class VistaTienda extends JDialog implements ActionListener{
 		// TODO Auto-generated method stub
 		if(e.getSource().equals(btnUsuario)) {
 			
+	        this.setVisible(false); 
+
 	        VistaUsuario vistaUsuario = new VistaUsuario(this.cambio, this, true); // "this" es el JFrame principal, "true" para modal
 	        vistaUsuario.setVisible(true);
 	        
-	        this.dispose(); 
+	        this.setVisible(true); 
 		}
 	}
 }
