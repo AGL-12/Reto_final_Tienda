@@ -15,11 +15,11 @@ public class Cliente {
 	private Metodo metodo_pago;
 	private String num_cuenta;
 	private boolean esAdmin;
-	private Map<Integer, Pedido> listaPedido;
+	private Map<Integer, Compra> listaPedido;
 		
 	
 	public Cliente(int id_usu, String usuario, String contra, String dni, String correo, String direccion,
-			Metodo metodo_pago, String num_cuenta, boolean esAdmin, Map<Integer, Pedido> listaPedido) {
+			Metodo metodo_pago, String num_cuenta, boolean esAdmin, Map<Integer, Compra> listaPedido) {
 		super();
 		this.id_usu = id_usu;
 		this.usuario = usuario;
@@ -109,11 +109,11 @@ public class Cliente {
 		this.esAdmin = esAdmin;
 	}
 
-	public Map<Integer, Pedido> getListaPedido() {
+	public Map<Integer, Compra> getListaPedido() {
 		return listaPedido;
 	}
 
-	public void setListaPedido(Map<Integer, Pedido> listaPedido) {
+	public void setListaPedido(Map<Integer, Compra> listaPedido) {
 		this.listaPedido = listaPedido;
 	}
 
