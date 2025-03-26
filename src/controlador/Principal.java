@@ -24,8 +24,8 @@ public class Principal {
 //		dao.altaPropietario(propi);
 //	}
 //
-	public static Map<String, Cliente> listarCliente() {
-		return dao.listarPropietarios();
+	public static Map<Integer, Cliente> listarCliente() {
+		return dao.listarClientesTod();
 	}
 
 	public static void altaCliente(Cliente clien) {

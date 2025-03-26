@@ -39,7 +39,7 @@ public class AdminListaCliente extends JDialog {
 		model.addColumn("num_cuenta");
 		model.addColumn("esAdmin");
 		// Llamamos al DAO para obtener los vehículos del propietario
-		Map<String, Cliente> vehiculos = Principal.listarCliente();
+		Map<Integer, Cliente> vehiculos = Principal.listarCliente();
 		// Definir las columnas de la tabla
 		// String[] columnNames = {"Matrícula", "Marca", "Modelo", "Antigüedad",
 		// "Precio"};

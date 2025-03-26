@@ -1,7 +1,6 @@
 package controlador;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,9 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import excepciones.InsertError;
 import excepciones.LoginError;
 import modelo.Cliente;
+import modelo.Compra;
 import modelo.Metodo;
 import modelo.Pedido;
 
@@ -24,11 +23,13 @@ public class DaoImplementMySQL implements Dao {
 	private Connection con;
 	private PreparedStatement stmt;
 	// Sentencias SQL
-	final String LOGIN = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
+	final String login = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
 	final String INSERTAR_CLIENTE = "INSERT INTO cliente(usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?)";
 	final String ELIMINAR_CLIENTE = "DELETE from cliente where id_clien=?";
 	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?;";
-	static final String SELECT_Cliente = "select * from cliente";
+	static final String select_cliente = "select * from cliente";
+	static final String pedido_cliente = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?);"
+			+ "";
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -39,11 +40,9 @@ public class DaoImplementMySQL implements Dao {
 
 	private void openConnection() {
 		try {
-			con = DriverManager.getConnection(
-					"jdbc:mysql://localhost:3306/tienda_brico?serverTimezone=Europe/Madrid&useSSL=false", "root",
-					"abcd*1234");
+			con = DriverManager.getConnection(urlBD, this.userBD, this.passwordBD);
 			/*
-			 * DriverManager.getConnection(
+			 * con = DriverManager.getConnection(
 			 * "jdbc:mysql://localhost:3306/tienda_brico?serverTimezone=Europe/Madrid&useSSL=false",
 			 * "root", "abcd*1234");
 			 */
@@ -71,7 +70,7 @@ public class DaoImplementMySQL implements Dao {
 		Cliente usuarioAutenticado = null;
 
 		try {
-			stmt = con.prepareStatement(LOGIN);
+			stmt = con.prepareStatement(login);
 
 			stmt.setString(1, cli.getUsuario());
 			stmt.setString(2, cli.getContra());
@@ -114,15 +113,15 @@ public class DaoImplementMySQL implements Dao {
 	}
 
 	@Override
-	public Map<String, Cliente> listarPropietarios() {
-		Map<String, Cliente> todosClientes = new HashMap<>();
+	public Map<Integer, Cliente> listarClientesTod() {
+		Map<Integer, Cliente> todosClientes = new HashMap<>();
 		ResultSet rs = null;
 
 		openConnection();
 
 		try {
 			// Preparar la sentencia SQL
-			stmt = con.prepareStatement(SELECT_Cliente);
+			stmt = con.prepareStatement(select_cliente);
 
 			// Ejecutar la consulta
 			rs = stmt.executeQuery();
@@ -138,14 +137,14 @@ public class DaoImplementMySQL implements Dao {
 				Metodo metodoPago = Metodo.valueOf(rs.getString("metodo_pago"));
 				String num_cuenta = rs.getString("num_cuenta");
 				boolean esAdmin = rs.getBoolean("esAdmin");
-				Map<Integer, Pedido> listaPedido = cargarMapaPed();
+				Map<Integer, Compra> listaCompra = cargarMapaCom(id);
 
 				// Crear el objeto Propietario con los datos obtenidos
 				Cliente prop = new Cliente(id, usuario, contra, dni, correo, direccion, metodoPago, num_cuenta, esAdmin,
-						null);
+						listaCompra);
 
 				// Agregar al Map con el ID como clave
-				todosClientes.put(String.valueOf(id), prop);
+				todosClientes.put(id, prop);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -194,14 +193,39 @@ public class DaoImplementMySQL implements Dao {
 	 * prop; }
 	 */
 
-	private Map<Integer, Pedido> cargarMapaPed() {
-		Map<Integer, Pedido> paraCargar = new HashMap<>();
-		
-		return null;
+	private Map<Integer, Compra> cargarMapaCom(int id) {
+		Map<Integer, Compra> paraCargar = new HashMap<>();
+
+		openConnection();
+		ResultSet rs = null;
+
+		try {
+			stmt = con.prepareStatement(pedido_cliente);
+			stmt.setInt(1, id);
+			rs = stmt.executeQuery();
+
+			while (rs.next()) {
+				int id_art = rs.getInt("id_art");
+				int id_ped = rs.getInt("id_ped");
+				int cantidad = rs.getInt("cantidad");
+
+				Compra comp = new Compra(id_art, id_ped, cantidad);
+				paraCargar.put(comp.getId_ped(), comp);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return paraCargar;
+	}
+
+//	@Override
+//	public Map<String, Pedido> listarPedidoCli() {
+//		
+//		return null;
+//	}
 
 	@Override
 	public void altaCliente(Cliente clien) {
-		// TODO Auto-generated method stub
 		openConnection();
 
 		try {
@@ -216,7 +240,6 @@ public class DaoImplementMySQL implements Dao {
 			stmt.executeUpdate();
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			try {
@@ -283,4 +306,5 @@ public class DaoImplementMySQL implements Dao {
 			}
 		}
 	}
+
 }
