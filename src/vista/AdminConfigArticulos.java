@@ -4,6 +4,9 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JTextField;
+
+import modelo.Articulo;
+
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -179,5 +182,15 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 	private void añadir() {
 		// TODO Auto-generated method stub
 		
+	}
+	private void recopilarInformacion() {
+		String nombre= textNombre.getText();
+		String precioSin= textPrecio.getText();
+		String descripcion= textDescripcion.getText();
+		String stockSin= textStock.getText();
+		String oferta=textOferta.getText();
+		String seccion=textSeccion.getText();
+		
+		Articulo art= new Articulo();
 	}
 }
