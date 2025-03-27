@@ -46,12 +46,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 		articulos.add(new Articulo(4, "Headphones", "Headphones description", 15, 100f, 90f, Seccion.pintura));
 
 		// Crear el modelo de tabla con datos
-		DefaultTableModel model = new DefaultTableModel() {
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				return false; // Hacer que todas las celdas no sean editables
-			}
-		};
+		DefaultTableModel model = new DefaultTableModel();
 		model.setColumnIdentifiers(
 				new Object[] { "ID", "Nombre", "Descripción", "Stock", "Precio", "Oferta", "Sección" });
 

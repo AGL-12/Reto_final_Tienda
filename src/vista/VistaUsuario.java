@@ -68,9 +68,9 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	public VistaUsuario(Cliente clien, Object ventPadre) {
 		super(ventPadre instanceof JFrame ? (JFrame) ventPadre
 				: ventPadre instanceof JDialog ? (JDialog) ventPadre : null);
-		
+
 		localClien = clien;
-		
+
 		setModal(true);
 
 		inicializarComponentes();
@@ -386,7 +386,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			alta();
 		} else if (e.getSource().equals(btnModificar)) {
 			modificar();
-		}else if (e.getSource().equals(btnMostrarPedidos)) {
+		} else if (e.getSource().equals(btnMostrarPedidos)) {
 			mostrarPedidos();
 		}
 	}
@@ -418,10 +418,10 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		Cliente clien = new Cliente();
 		clien.setUsuario(textUser.getText());
 		clien.setContra(new String(passwordFieldContra.getPassword()));
-		clien.setCorreo(textEmail.getName());
-		clien.setDireccion(textDireccion.getName());
-		clien.setDni(textDni.getName());
-		clien.setNum_cuenta(textNumeroCuenta.getName());
+		clien.setCorreo(textEmail.getText());
+		clien.setDireccion(textDireccion.getText());
+		clien.setDni(textDni.getText());
+		clien.setNum_cuenta(textNumeroCuenta.getText());
 
 		if (rdbtnVisa.isSelected()) {
 			clien.setMetodo_pago(Metodo.visa);
@@ -429,8 +429,6 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			clien.setMetodo_pago(Metodo.mastercard);
 		} else if (rdbtnPaypal.isSelected()) {
 			clien.setMetodo_pago(Metodo.paypal);
-		} else {
-			System.out.println("No se ha seleccionado un método de pago");
 		}
 		Principal.modificarCliente(clien);
 	}
