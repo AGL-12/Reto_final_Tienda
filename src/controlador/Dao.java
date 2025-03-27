@@ -2,7 +2,11 @@ package controlador;
 
 import java.util.Map;
 
+import excepciones.AltaError;
+import excepciones.DropError;
 import excepciones.LoginError;
+import excepciones.modifyError;
+import modelo.Articulo;
 import modelo.Cliente;
 
 public interface Dao {
@@ -12,9 +16,10 @@ public interface Dao {
 	public Map<Integer, Cliente> listarClientesTod();
 //	public Map<String, Pedido> listarPedidoCli();
 	
-	public void altaCliente(Cliente clien);
+	public void altaCliente(Cliente clien) throws AltaError;
 
-	public void modificarCliente(Cliente clien);
+	public void modificarCliente(Cliente clien) throws modifyError;
 
-	public void bajaCliente(Cliente clien);
+	public void bajaCliente(Cliente clien) throws DropError;
+	public Map<Integer, Articulo> obtenerTodosArticulos();
 }

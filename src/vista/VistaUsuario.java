@@ -9,6 +9,9 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import controlador.Principal;
+import excepciones.AltaError;
+import excepciones.DropError;
+import excepciones.modifyError;
 import modelo.Cliente;
 
 import javax.swing.BoxLayout;
@@ -16,12 +19,18 @@ import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
+import java.awt.GridLayout;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.ImageIcon;
+
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.awt.event.ComponentListener;
+import java.net.URL;
 import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JRadioButton;
@@ -31,36 +40,19 @@ public class VistaUsuario extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	private final JPanel contentPanel = new JPanel();
-	private JLabel lblUsuario;
-	private JLabel lblTitulo;
-	private JLabel label_1;
-	private JLabel label_2;
-	private JLabel label_3;
-	private JLabel lblPassword;
-	private JLabel label_4;
-	private JLabel label_5;
-	private JLabel label_6;
-	private JLabel label_8;
-	private JLabel label_9;
-	private JLabel lblDni;
-	private JLabel lblDireccion;
-	private JLabel lblMetodoPago;
-	private JLabel lblNumeroCuenta;
-	private JLabel lblEmail;
-	private JTextField textUser;
-	private JTextField textDni;
-	private JTextField textEmail;
-	private JTextField textDireccion;
+	private JLabel lblUsuario, lblTitulo, lblPassword, lblDni, lblDireccion, lblMetodoPago, lblNumeroCuenta, lblEmail,
+			label_1, label_2, label_3, label_4, label_5, label_6, label_8, label_9;
+	private JTextField textUser, textDni, textEmail, textDireccion, textNumeroCuenta;
 	private JButton btnMostrarPedidos;
 	private JButton btnRegistrarse;
 	private JButton btnModificar;
 	private JRadioButton rdbtnVisa;
 	private JRadioButton rdbtnMastercard;
 	private JRadioButton rdbtnPaypal;
-	private JTextField textNumeroCuenta;
 	private JPasswordField passwordFieldContra;
 	private ButtonGroup rdGroup;
 	private Cliente localClien;
+	private JButton btnDrop;
 
 	/**
 	 * @wbp.parser.constructor
@@ -68,7 +60,6 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	public VistaUsuario(Cliente clien, Object ventPadre) {
 		super(ventPadre instanceof JFrame ? (JFrame) ventPadre
 				: ventPadre instanceof JDialog ? (JDialog) ventPadre : null);
-
 		localClien = clien;
 
 		setModal(true);
@@ -83,7 +74,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		if (clien == null) {
 			btnModificar.setEnabled(false);
 			btnMostrarPedidos.setEnabled(false);
-
+			btnDrop.setEnabled(false);
 		} else {
 			btnRegistrarse.setEnabled(false);
 			textUser.setText(clien.getUsuario());
@@ -367,6 +358,15 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		contentPanel.add(btnModificar, gbc_btnModificar);
 		btnModificar.addActionListener(this);
 
+		btnDrop = new JButton("DROP");
+		btnDrop.setFont(new Font("Tahoma", Font.BOLD, 14));
+		GridBagConstraints gbc_btnDrop = new GridBagConstraints();
+		gbc_btnDrop.insets = new Insets(0, 0, 0, 5);
+		gbc_btnDrop.gridx = 3;
+		gbc_btnDrop.gridy = 10;
+		contentPanel.add(btnDrop, gbc_btnDrop);
+		btnDrop.addActionListener(this);
+
 		btnMostrarPedidos = new JButton("ORDERS");
 		btnMostrarPedidos.setFont(new Font("Tahoma", Font.BOLD, 14));
 		GridBagConstraints gbc_btnMostrarPedidos = new GridBagConstraints();
@@ -388,6 +388,8 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			modificar();
 		} else if (e.getSource().equals(btnMostrarPedidos)) {
 			mostrarPedidos();
+		} else if (e.getSource().equals(btnDrop)) {
+			baja(localClien);
 		}
 	}
 
@@ -409,32 +411,54 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		} else {
 			System.out.println("No se ha seleccionado un método de pago");
 		}
-		Principal.altaCliente(clien);
-		JOptionPane.showMessageDialog(this, "User registered successfully!");
+		try {
+			Principal.altaCliente(clien);
+			JOptionPane.showMessageDialog(this, "User registered successfully!");
+		} catch (AltaError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		dispose();
 	}
 
 	private void modificar() {
-		Cliente clien = new Cliente();
-		clien.setUsuario(textUser.getText());
-		clien.setContra(new String(passwordFieldContra.getPassword()));
-		clien.setCorreo(textEmail.getText());
-		clien.setDireccion(textDireccion.getText());
-		clien.setDni(textDni.getText());
-		clien.setNum_cuenta(textNumeroCuenta.getText());
+		localClien.setUsuario(textUser.getText());
+		localClien.setContra(new String(passwordFieldContra.getPassword()));
+		localClien.setCorreo(textEmail.getText());
+		localClien.setDireccion(textDireccion.getText());
+		localClien.setDni(textDni.getText());
+		localClien.setNum_cuenta(textNumeroCuenta.getText());
 
 		if (rdbtnVisa.isSelected()) {
-			clien.setMetodo_pago(Metodo.visa);
+			localClien.setMetodo_pago(Metodo.visa);
 		} else if (rdbtnMastercard.isSelected()) {
-			clien.setMetodo_pago(Metodo.mastercard);
+			localClien.setMetodo_pago(Metodo.mastercard);
 		} else if (rdbtnPaypal.isSelected()) {
-			clien.setMetodo_pago(Metodo.paypal);
+			localClien.setMetodo_pago(Metodo.paypal);
 		}
-		Principal.modificarCliente(clien);
+		try {
+			Principal.modificarCliente(localClien);
+			JOptionPane.showMessageDialog(this, "Modificacion exitosa", "Mensaje", DISPOSE_ON_CLOSE);
+		} catch (modifyError e) {
+			e.visualizarMen();
+		}
+
+		dispose();
 	}
 
 	private void mostrarPedidos() {
 //		Principal.listarPedidosCliente(localClien);
+	}
+
+	private void baja(Cliente clien) {
+		try {
+			Principal.bajaCliente(clien);
+			JOptionPane.showMessageDialog(this, "Baja exitosa", "Mensaje", DISPOSE_ON_CLOSE);
+		} catch (DropError e) {
+			e.printStackTrace();
+		}
+		dispose();
 	}
 
 }

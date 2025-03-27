@@ -9,10 +9,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import excepciones.AltaError;
+import excepciones.DropError;
 import excepciones.LoginError;
+import excepciones.modifyError;
+import modelo.Articulo;
 import modelo.Cliente;
 import modelo.Compra;
 import modelo.Metodo;
+import modelo.Seccion;
 
 public class DaoImplementMySQL implements Dao {
 	// Atributo para conexion
@@ -25,10 +30,10 @@ public class DaoImplementMySQL implements Dao {
 	final String login = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
 	final String INSERTAR_CLIENTE = "INSERT INTO cliente(usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?)";
 	final String ELIMINAR_CLIENTE = "DELETE from cliente where id_clien=?";
-	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?;";
-	static final String select_cliente = "select * from cliente";
-	static final String pedido_cliente = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?);"
-			+ "";
+	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?";
+	final String select_cliente = "select * from cliente";
+	final String pedido_cliente = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?)";
+	final String TODOS_ARTICULOS = "SELECT * FROM articulo";
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -224,7 +229,7 @@ public class DaoImplementMySQL implements Dao {
 //	}
 
 	@Override
-	public void altaCliente(Cliente clien) {
+	public void altaCliente(Cliente clien) throws AltaError {
 		openConnection();
 
 		try {
@@ -244,7 +249,6 @@ public class DaoImplementMySQL implements Dao {
 			try {
 				closeConnection();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 
 			}
@@ -252,8 +256,7 @@ public class DaoImplementMySQL implements Dao {
 	}
 
 	@Override
-	public void modificarCliente(Cliente clien) {
-		// TODO Auto-generated method stub
+	public void modificarCliente(Cliente clien) throws modifyError {
 		openConnection();
 
 		try {
@@ -271,13 +274,11 @@ public class DaoImplementMySQL implements Dao {
 			stmt.executeUpdate();
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new modifyError("Error al modificar el perfil");
 		} finally {
 			try {
 				closeConnection();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 
 			}
@@ -285,8 +286,7 @@ public class DaoImplementMySQL implements Dao {
 	}
 
 	@Override
-	public void bajaCliente(Cliente clien) {
-		// TODO Auto-generated method stub
+	public void bajaCliente(Cliente clien) throws DropError {
 		openConnection();
 
 		try {
@@ -294,16 +294,50 @@ public class DaoImplementMySQL implements Dao {
 			stmt.setInt(1, clien.getId_usu());
 			stmt.executeUpdate();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
 
+	public Map<Integer, Articulo> obtenerTodosArticulos() {
+		Map<Integer, Articulo> articulos = new HashMap<>();
+		ResultSet rs = null;
+
+		try {
+			openConnection();
+
+			if (con == null) {
+				throw new SQLException("No se pudo establecer la conexión con la base de datos.");
+			}
+
+			stmt = con.prepareStatement(TODOS_ARTICULOS);
+			rs = stmt.executeQuery();
+
+			while (rs.next()) {
+				Articulo articulo = new Articulo(rs.getInt("id_art"), rs.getString("nombre"),
+						rs.getString("descripcion"), rs.getInt("stock"), rs.getFloat("precio"), rs.getFloat("oferta"),
+						Seccion.valueOf(rs.getString("seccion")));
+				articulos.put(articulo.getId_art(), articulo);
+			}
+		} catch (SQLException e) {
+			System.err.println("Error al obtener los artículos: " + e.getMessage());
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null)
+					rs.close();
+				closeConnection();
+			} catch (SQLException e) {
+				System.err.println("Error al cerrar la conexión: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+
+		return articulos; // Siempre devuelve un HashMap válido (vacío si hay errores)
+	}
 }

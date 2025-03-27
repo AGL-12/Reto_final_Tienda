@@ -2,7 +2,10 @@ package controlador;
 
 import java.util.Map;
 
+import excepciones.AltaError;
+import excepciones.DropError;
 import excepciones.LoginError;
+import excepciones.modifyError;
 import modelo.Cliente;
 import vista.VistaLogIn;
 
@@ -27,15 +30,15 @@ public class Principal {
 		return dao.listarClientesTod();
 	}
 
-	public static void altaCliente(Cliente clien) {
+	public static void altaCliente(Cliente clien) throws AltaError {
 		dao.altaCliente(clien);
 	}
 
-	public static void modificarCliente(Cliente clien) {
+	public static void modificarCliente(Cliente clien) throws modifyError {
 		dao.modificarCliente(clien);
 	}
 
-	public static void bajaCliente(Cliente clien) {
+	public static void bajaCliente(Cliente clien) throws DropError {
 		dao.bajaCliente(clien);
 	}
 
