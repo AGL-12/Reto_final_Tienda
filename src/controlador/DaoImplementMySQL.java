@@ -272,5 +272,6 @@ public class DaoImplementMySQL implements Dao {
 
 	    return articulos; // Siempre devuelve un HashMap válido (vacío si hay errores)
 	}
+	
 
 }

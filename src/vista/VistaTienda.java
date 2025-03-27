@@ -14,6 +14,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +34,7 @@ public class VistaTienda extends JDialog implements ActionListener{
 
 	private static final long serialVersionUID = 1L;
 	private JTable tableArticulo;
-	private JButton btnUsuario;
+	private JButton btnUsuario, btnCompra, btnAdmin;
 	private Cliente cambio;
 	/**
 	 * Create the dialog.
@@ -62,15 +63,16 @@ public class VistaTienda extends JDialog implements ActionListener{
 		getContentPane().add(btnUsuario);
 		btnUsuario.addActionListener(this);
 		
-		JButton btnAdmin = new JButton("ADMIN");
+		 btnAdmin = new JButton("ADMIN");
 		btnAdmin.setFont(new Font("Tahoma", Font.BOLD, 12));
 		btnAdmin.setBounds(109, 233, 85, 21);
 		getContentPane().add(btnAdmin);
 		
-		JButton btnCompra = new JButton("BUY");
+		 btnCompra = new JButton("BUY");
 		btnCompra.setFont(new Font("Tahoma", Font.BOLD, 12));
 		btnCompra.setBounds(341, 233, 85, 21);
 		getContentPane().add(btnCompra);
+		btnCompra.addActionListener(this);
 			
 		// Crear la tabla antes de usarla en JScrollPane
 		tableArticulo = new JTable();
@@ -140,16 +142,46 @@ public class VistaTienda extends JDialog implements ActionListener{
 		    }
 		});
 	}
-	
+
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		if(e.getSource().equals(btnUsuario)) {
-			
-	        VistaUsuario vistaUsuario = new VistaUsuario(this.cambio, this, true); // "this" es el JFrame principal, "true" para modal
-	        vistaUsuario.setVisible(true);
-	        
-	        this.dispose(); 
-		}
+	    if (e.getSource().equals(btnUsuario)) {
+            VistaUsuario vistaUsuario = new VistaUsuario(this.cambio, this, true);
+            vistaUsuario.setVisible(true);
+            this.dispose();
+        } else if (e.getSource().equals(btnCompra)) {
+            abrirCarrito();
+        }
 	}
+	
+	  private void abrirCarrito() {
+	        Map<Integer, Articulo> seleccionados = obtenerArticulosSeleccionados();
+	        VistaCarrito carrito = new VistaCarrito(this, true, seleccionados);
+	        carrito.setVisible(true);
+	    }
+	
+	
+	  private Map<Integer, Articulo> obtenerArticulosSeleccionados() {
+		    Map<Integer, Articulo> seleccionados = new HashMap<>();
+		    DefaultTableModel model = (DefaultTableModel) tableArticulo.getModel();
+
+		    for (int i = 0; i < model.getRowCount(); i++) {
+		        Boolean seleccionado = (Boolean) model.getValueAt(i, 0);  // Columna de checkbox
+		        if (seleccionado) {
+		            String nombre = (String) model.getValueAt(i, 1);  // Nombre
+		            float precio = (Float) model.getValueAt(i, 3);  // Precio
+		            int stock = (Integer) model.getValueAt(i, 5);  // Stock disponible
+		            int cantidad = Integer.parseInt(model.getValueAt(i, 6).toString());  // Cantidad seleccionada
+
+		            if (cantidad > 0) {
+		                Articulo articulo = new Articulo(0, nombre, "", stock, precio, 0, null);  // No pasas el ID porque no es necesario
+		                articulo.setStock(cantidad);  // Estableces la cantidad seleccionada
+		                seleccionados.put(seleccionados.size() + 1, articulo);  // Usas el tamaño como ID para este caso
+		            }
+		        }
+		    }
+		    return seleccionados;
+		}
 }
