@@ -6,6 +6,7 @@ import java.awt.Font;
 import javax.swing.JTextField;
 
 import controlador.Principal;
+import excepciones.modifyError;
 import modelo.Articulo;
 import modelo.Seccion;
 
@@ -165,33 +166,52 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 	}
 
 	private void modificar() {
-		Articulo art=recopilarInformacion();
-		Principal.modificarArticulo(art);
-		limpiar();
+		Articulo art = recopilarInformacion();
+		try {
+			Principal.modificarArticulo(art);
+		} catch (modifyError e) {
+			e.printStackTrace();
+		} finally {
+			limpiar();
+		}
 	}
 
 	private void eliminar() {
-		Articulo art=recopilarInformacion();
-		Principal.eliminarArticulo(art);
-		limpiar();
+		Articulo art = recopilarInformacion();
+		try {
+			Principal.eliminarArticulo(art);
+		} catch (modifyError e) {
+			e.printStackTrace();
+		} finally {
+			limpiar();
+		}
 	}
+
 	private void limpiar() {
-		textNombre.setText("");;
-		textDescripcion.setText("");;
+		textNombre.setText("");
+		;
+		textDescripcion.setText("");
+		;
 		textStock.setText("");
 		textPrecio.setText("");
 		textOferta.setText("");
 		comboBoxSeccion.setSelectedIndex(-1);
 
 	}
+
 	private void cerrar() {
 		dispose();
 	}
 
 	private void añadir() {
-		Articulo art=recopilarInformacion();
-		Principal.añadirArticulo(art);
-		limpiar();
+		Articulo art = recopilarInformacion();
+		try {
+			Principal.añadirArticulo(art);
+		} catch (modifyError e) {
+			e.printStackTrace();
+		} finally {
+			limpiar();
+		}
 	}
 
 	private Articulo recopilarInformacion() {
@@ -206,7 +226,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		art.setStock(Integer.valueOf(stockSin));
 		art.setOferta(Float.valueOf(oferta));
 		art.setPrecio(Float.valueOf(precioSin));
-		
+
 		if (posicion == 0) {
 			art.setSeccion(Seccion.pintura);
 		} else if (posicion == 1) {
