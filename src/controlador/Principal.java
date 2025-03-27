@@ -4,6 +4,8 @@ import java.util.Map;
 
 import excepciones.InsertError;
 import excepciones.LoginError;
+import excepciones.modifyError;
+import modelo.Articulo;
 import modelo.Cliente;
 import vista.VistaLogIn;
 
@@ -19,12 +21,13 @@ public class Principal {
 		dao.login(cli);
 	}
 
-//	public static void Alta(Propietario propi) throws InsertError {
-//		dao.altaPropietario(propi);
-//	}
-//
-//	public static Map<String, Propietario> listarPropietarios() {
-//		return dao.listarPropietarios();
-//	}
-
+	public static void modificarArticulo(Articulo art) throws modifyError {
+		dao.modificarArticulo(art);
+	}
+	public static void eliminarArticulo(Articulo art) throws modifyError {
+		dao.eliminarArticulo(art);
+	}
+	public static void añadirArticulo(Articulo art) throws modifyError {
+		dao.añadirArticulo(art);
+	}
 }

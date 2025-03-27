@@ -5,13 +5,16 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JTextField;
 
+import controlador.Principal;
 import modelo.Articulo;
+import modelo.Seccion;
 
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JComboBox;
 
 public class AdminConfigArticulos extends JDialog implements ActionListener {
 
@@ -21,13 +24,11 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 	private JTextField textStock;
 	private JTextField textPrecio;
 	private JTextField textOferta;
-	private JTextField textSeccion;
 	private JButton btnAlta;
 	private JButton btnBaja;
 	private JButton btnModify;
 	private JButton btnSalir;
-
-
+	private JComboBox comboBoxSeccion;
 
 	/**
 	 * Create the dialog.
@@ -35,67 +36,62 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 	public AdminConfigArticulos() {
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
-		
+
 		JLabel lblNombre = new JLabel("Name");
 		lblNombre.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		lblNombre.setBounds(59, 31, 46, 28);
 		getContentPane().add(lblNombre);
-		
+
 		textNombre = new JTextField();
 		textNombre.setBounds(117, 38, 161, 20);
 		getContentPane().add(textNombre);
 		textNombre.setColumns(10);
-		
+
 		JLabel lblDescripcion = new JLabel("Description");
 		lblDescripcion.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		lblDescripcion.setBounds(17, 62, 88, 28);
 		getContentPane().add(lblDescripcion);
-		
+
 		textDescripcion = new JTextField();
 		textDescripcion.setColumns(10);
 		textDescripcion.setBounds(117, 69, 161, 20);
 		getContentPane().add(textDescripcion);
-		
+
 		textStock = new JTextField();
 		textStock.setColumns(10);
 		textStock.setBounds(117, 103, 161, 20);
 		getContentPane().add(textStock);
-		
+
 		textPrecio = new JTextField();
 		textPrecio.setColumns(10);
 		textPrecio.setBounds(117, 136, 161, 20);
 		getContentPane().add(textPrecio);
-		
+
 		textOferta = new JTextField();
 		textOferta.setColumns(10);
 		textOferta.setBounds(117, 167, 161, 20);
 		getContentPane().add(textOferta);
-		
-		textSeccion = new JTextField();
-		textSeccion.setColumns(10);
-		textSeccion.setBounds(117, 203, 161, 20);
-		getContentPane().add(textSeccion);
-		
+
 		JLabel lblStock = new JLabel("Stock");
 		lblStock.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		lblStock.setBounds(59, 95, 46, 28);
 		getContentPane().add(lblStock);
-		
+
 		JLabel lblPrecio = new JLabel("Price");
 		lblPrecio.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		lblPrecio.setBounds(57, 128, 48, 28);
 		getContentPane().add(lblPrecio);
-		
+
 		JLabel lblOferta = new JLabel("Offer");
 		lblOferta.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		lblOferta.setBounds(57, 159, 48, 28);
 		getContentPane().add(lblOferta);
-		
+
 		JLabel lblSeccion = new JLabel("Section");
 		lblSeccion.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		lblSeccion.setBounds(48, 195, 57, 28);
 		getContentPane().add(lblSeccion);
-		
+
 		btnAlta = new JButton("Add");
 		btnAlta.addMouseListener(new MouseAdapter() {
 			@Override
@@ -111,7 +107,6 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		getContentPane().add(btnAlta);
 		btnAlta.addActionListener(this);
 
-		
 		btnBaja = new JButton("Delete");
 		btnBaja.addMouseListener(new MouseAdapter() {
 			@Override
@@ -123,7 +118,6 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		getContentPane().add(btnBaja);
 		btnBaja.addActionListener(this);
 
-		
 		btnModify = new JButton("Modify");
 		btnModify.addMouseListener(new MouseAdapter() {
 			@Override
@@ -135,7 +129,6 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		getContentPane().add(btnModify);
 		btnModify.addActionListener(this);
 
-		
 		btnSalir = new JButton("Exit");
 		btnSalir.addMouseListener(new MouseAdapter() {
 			@Override
@@ -145,13 +138,18 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		btnSalir.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		btnSalir.setBounds(329, 202, 97, 23);
 		getContentPane().add(btnSalir);
+
+		comboBoxSeccion = new JComboBox<>(Seccion.values());
+		comboBoxSeccion.setBounds(117, 201, 161, 22);
+		getContentPane().add(comboBoxSeccion);
+		comboBoxSeccion.setSelectedIndex(-1);
 		btnSalir.addActionListener(this);
 
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
+
 		if (e.getSource().equals(btnAlta)) {
 			añadir();
 		}
@@ -167,31 +165,60 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 	}
 
 	private void modificar() {
-		// TODO Auto-generated method stub
-		
+		Articulo art=recopilarInformacion();
+		Principal.modificarArticulo(art);
+		limpiar();
 	}
 
 	private void eliminar() {
-		// TODO Auto-generated method stub
-		
+		Articulo art=recopilarInformacion();
+		Principal.eliminarArticulo(art);
+		limpiar();
 	}
+	private void limpiar() {
+		textNombre.setText("");;
+		textDescripcion.setText("");;
+		textStock.setText("");
+		textPrecio.setText("");
+		textOferta.setText("");
+		comboBoxSeccion.setSelectedIndex(-1);
 
+	}
 	private void cerrar() {
 		dispose();
 	}
 
 	private void añadir() {
-		// TODO Auto-generated method stub
-		
+		Articulo art=recopilarInformacion();
+		Principal.añadirArticulo(art);
+		limpiar();
 	}
-	private void recopilarInformacion() {
-		String nombre= textNombre.getText();
-		String precioSin= textPrecio.getText();
-		String descripcion= textDescripcion.getText();
-		String stockSin= textStock.getText();
-		String oferta=textOferta.getText();
-		String seccion=textSeccion.getText();
+
+	private Articulo recopilarInformacion() {
+		String precioSin = textPrecio.getText();
+		String stockSin = textStock.getText();
+		String oferta = textOferta.getText();
+		int posicion = comboBoxSeccion.getSelectedIndex();
+		Articulo art = new Articulo();
+
+		art.setNombre(textNombre.getText());
+		art.setDescripcion(textDescripcion.getText());
+		art.setStock(Integer.valueOf(stockSin));
+		art.setOferta(Float.valueOf(oferta));
+		art.setPrecio(Float.valueOf(precioSin));
 		
-		Articulo art= new Articulo();
+		if (posicion == 0) {
+			art.setSeccion(Seccion.pintura);
+		} else if (posicion == 1) {
+			art.setSeccion(Seccion.jardineria);
+		} else if (posicion == 2) {
+			art.setSeccion(Seccion.fontaneria);
+		} else if (posicion == 3) {
+			art.setSeccion(Seccion.soldadura);
+		} else if (posicion == 4) {
+			art.setSeccion(Seccion.carpinteria);
+		}
+		return art;
+
 	}
 }

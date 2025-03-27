@@ -81,34 +81,6 @@ public class DaoImplementMySQL implements Dao {
 			}
 		}
 	}
-	/*
-	 * @Override public void altaPropietario(Propietario prop) throws InsertError {
-	 * openConnection(); try { stmt = con.prepareStatement(ALTAPROP);
-	 * stmt.setString(1, prop.getNombre()); stmt.setDate(2,
-	 * Date.valueOf(prop.getFechaNace())); stmt.executeUpdate();
-	 * 
-	 * } catch (SQLException e) { throw new
-	 * InsertError("El nombre excede el limite (30)"); } finally { // Cerrar el
-	 * ResultSet try { closeConnection(); } catch (SQLException e) {
-	 * e.printStackTrace(); } } }
-	 * 
-	 * public Map<String, Propietario> listarPropietarios() {
-	 * 
-	 * // Tenemos que definie el ResusultSet para recoger el resultado de la
-	 * consulta Map<String, Propietario> prop = new HashMap<>(); ResultSet rs =
-	 * null; openConnection();
-	 * 
-	 * final String selec_pro = "select * from propietario"; try { stmt =
-	 * con.prepareStatement(selec_pro);
-	 * 
-	 * rs = stmt.executeQuery(); while (rs.next()) { int id = rs.getInt("ide");
-	 * String nom = rs.getString("nombre"); Date nace = rs.getDate("fechaNace");
-	 * 
-	 * Propietario propie = new Propietario(id, nom, nace.toLocalDate());
-	 * 
-	 * prop.put(String.valueOf(id), propie); } } catch (SQLException e) {
-	 * e.printStackTrace(); } finally { // Cerrar el ResultSet try { rs.close();
-	 * closeConnection(); } catch (SQLException e) { e.printStackTrace(); } } return
-	 * prop; }
-	 */
+
+	
 }
