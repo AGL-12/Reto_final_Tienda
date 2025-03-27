@@ -1,5 +1,6 @@
 package controlador;
 
+import java.security.Timestamp;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -7,8 +8,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+
+import com.mysql.cj.xdevapi.Statement;
+
+import modelo.Articulo;
 
 import excepciones.AltaError;
 import excepciones.DropError;
@@ -18,6 +24,7 @@ import excepciones.modifyError;
 import modelo.Articulo;
 import modelo.Cliente;
 import modelo.Metodo;
+import modelo.Pedido;
 import modelo.Seccion;
 
 public class DaoImplementMySQL implements Dao {
@@ -273,5 +280,6 @@ public class DaoImplementMySQL implements Dao {
 	    return articulos; // Siempre devuelve un HashMap válido (vacío si hay errores)
 	}
 	
+
 
 }

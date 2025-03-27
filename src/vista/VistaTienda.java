@@ -81,8 +81,27 @@ public class VistaTienda extends JDialog implements ActionListener{
 		JScrollPane scrollPane = new JScrollPane(tableArticulo);
 		scrollPane.setBounds(51, 88, 327, 85); // Ubicación y tamaño del JScrollPane
 		getContentPane().add(scrollPane); // Agregar el JScrollPane a la ventana
+		
+		
+		DefaultTableModel model = new DefaultTableModel(new Object[]{"Seleccionar", "Nombre", "Descripción", "Precio", "Oferta", "Stock", "Cantidad"}, 0) {
+		    @Override
+		    public Class<?> getColumnClass(int columnIndex) {
+		        if (columnIndex == 0) { // La primera columna es de checkboxes
+		            return Boolean.class;
+		        } else if (columnIndex == 3 || columnIndex == 4) { // Precio y Oferta deben ser Float
+		            return Float.class;
+		        } else if (columnIndex == 5 || columnIndex == 6) { // Stock y Cantidad deben ser Integer
+		            return Integer.class;
+		        }
+		        return String.class; // Las demás son texto
+		    }
 
-		// Crear un modelo de tabla vacío
+		    @Override
+		    public boolean isCellEditable(int row, int column) {
+		        return column == 0 || column == 6; // Solo permitir editar el checkbox y la cantidad
+		    }
+		};
+		/*// Crear un modelo de tabla vacío
 		DefaultTableModel model = new DefaultTableModel(); 
         model.addColumn("");
         model.addColumn("Nombre");
@@ -90,7 +109,7 @@ public class VistaTienda extends JDialog implements ActionListener{
 		model.addColumn("Precio");
 		model.addColumn("Oferta");
 		model.addColumn("Stock");
-	    model.addColumn("Cantidad");
+	    model.addColumn("Cantidad");*/
 
 		// Obtener los artículos del DAO
 		Dao dao = new DaoImplementMySQL();
@@ -111,7 +130,12 @@ public class VistaTienda extends JDialog implements ActionListener{
 
 		// Establecer el modelo de la tabla con los datos
 		tableArticulo.setModel(model);
-		
+
+        // Configurar la columna "Seleccionar" con checkboxes
+        TableColumn selectColumn = tableArticulo.getColumnModel().getColumn(0);
+        JCheckBox checkBox = new JCheckBox();
+        checkBox.setHorizontalAlignment(JCheckBox.CENTER);
+        selectColumn.setCellEditor(new DefaultCellEditor(checkBox));
 /*
 		   // Configurar la columna "Seleccionar" para mostrar checkboxes
         TableColumn selectColumn = tableArticulo.getColumnModel().getColumn(0);
@@ -125,22 +149,22 @@ public class VistaTienda extends JDialog implements ActionListener{
 		
 
 		// Configurar la columna "Seleccionar" para mostrar checkboxes
-		TableColumn selectColumn = tableArticulo.getColumnModel().getColumn(0);
+		//TableColumn selectColumn = tableArticulo.getColumnModel().getColumn(0);
 
-		// Crear un JCheckBox como editor de la celda (para poder marcar/desmarcar)
+		/*// Crear un JCheckBox como editor de la celda (para poder marcar/desmarcar)
 		JCheckBox checkBox = new JCheckBox();
 		checkBox.setHorizontalAlignment(JCheckBox.CENTER);  // Centrar el checkbox
 		selectColumn.setCellEditor(new DefaultCellEditor(checkBox));
-
+*/
 		// Configurar el renderizador para que se muestre un tick (✔) cuando está marcado
-		selectColumn.setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+		/*selectColumn.setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
 		    @Override
 		    public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		        JCheckBox checkBox = new JCheckBox();
 		        checkBox.setSelected(value != null && (Boolean) value); // Marca el checkbox si el valor es true
 		        return checkBox;
 		    }
-		});
+		});*/
 	}
 
 
@@ -169,16 +193,16 @@ public class VistaTienda extends JDialog implements ActionListener{
 
 		    for (int i = 0; i < model.getRowCount(); i++) {
 		        Boolean seleccionado = (Boolean) model.getValueAt(i, 0);  // Columna de checkbox
-		        if (seleccionado) {
+		        if (seleccionado != null && seleccionado) {
+		            // Obtener los valores de las celdas correspondientes
 		            String nombre = (String) model.getValueAt(i, 1);  // Nombre
 		            float precio = (Float) model.getValueAt(i, 3);  // Precio
-		            int stock = (Integer) model.getValueAt(i, 5);  // Stock disponible
-		            int cantidad = Integer.parseInt(model.getValueAt(i, 6).toString());  // Cantidad seleccionada
+		            int cantidad = (Integer) model.getValueAt(i, 6);  // Cantidad seleccionada
 
 		            if (cantidad > 0) {
-		                Articulo articulo = new Articulo(0, nombre, "", stock, precio, 0, null);  // No pasas el ID porque no es necesario
-		                articulo.setStock(cantidad);  // Estableces la cantidad seleccionada
-		                seleccionados.put(seleccionados.size() + 1, articulo);  // Usas el tamaño como ID para este caso
+		                Articulo articulo = new Articulo(0, nombre, "", cantidad, precio, 0, null);  // No es necesario pasar el ID
+		                articulo.setStock(cantidad);  // Establecer la cantidad seleccionada
+		                seleccionados.put(seleccionados.size() + 1, articulo);  // Usamos el tamaño como ID
 		            }
 		        }
 		    }

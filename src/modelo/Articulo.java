@@ -83,4 +83,6 @@ public class Articulo {
 				+ ", precio=" + precio + ", oferta=" + oferta + ", seccion=" + seccion + "]";
 	}
 
+	
+
 }
