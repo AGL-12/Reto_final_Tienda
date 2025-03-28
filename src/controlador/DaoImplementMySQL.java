@@ -105,13 +105,13 @@ public class DaoImplementMySQL implements Dao {
 
 		try {
 			stmt = con.prepareStatement(ALTA_ARTICULO);
-			stmt.setString(1, art.getUsuario());
-			stmt.setString(2, art.getContra());
-			stmt.setString(3, art.getDni());
-			stmt.setString(4, art.getCorreo());
-			stmt.setString(5, art.getDireccion());
-			stmt.setString(6, art.getMetodo_pago().name());
-			stmt.setString(7, art.getNum_cuenta());
+			stmt.setInt(1, "1");
+			stmt.setString(2, art.getNombre());
+			stmt.setString(3, art.getDescripcion());
+			stmt.setInt(4, art.getStock());
+			stmt.setFloat(5, art.getPrecio());
+			stmt.setFloat(6, art.getOferta());
+			stmt.setString(7, art.getSeccion().name());
 			stmt.executeUpdate();
 
 		} catch (SQLException e) {
