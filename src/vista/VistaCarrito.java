@@ -61,21 +61,28 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		model.addColumn("Nombre");
 		model.addColumn("Cantidad");
 		model.addColumn("Precio");
+		model.addColumn("Oferta (%)");
+		model.addColumn("Precio Final");
 		model.addColumn("Precio Total");
+
 
 		float totalCompra = 0; // Para calcular la suma total
 
 		// Recorrer los artículos seleccionados y agregarlos a la tabla
 		for (Articulo art : carrito.values()) {
-			int cantidadSeleccionada = art.getStock(); // Aquí debes asegurarte de que sea la cantidad seleccionada, no
-														// el stock
-			float precioTotal = art.getPrecio() * cantidadSeleccionada; // Precio total de este artículo
-			totalCompra += precioTotal; // Sumar al total de la compra
+			int cantidadSeleccionada = art.getStock(); 
+			float descuento = (art.getOferta() / 100) * art.getPrecio();
+			float precioFinal = art.getPrecio() - descuento;
+			float precioTotal = precioFinal * cantidadSeleccionada;
+			totalCompra += precioTotal; 
 
-			model.addRow(new Object[] { art.getNombre(), // Nombre del artículo
-					cantidadSeleccionada, // Cantidad seleccionada
-					art.getPrecio(), // Precio del artículo
-					precioTotal // Precio total de este artículo
+			model.addRow(new Object[] { 
+				art.getNombre(), // Nombre del artículo
+				cantidadSeleccionada, // Cantidad seleccionada
+				art.getPrecio(), // Precio del artículo original
+				art.getOferta(), // Oferta en porcentaje
+				precioFinal, // Precio después de aplicar la oferta
+				precioTotal // Precio total con oferta aplicada
 			});
 		}
 		// Actualizamos la variable TOTAL en el objeto Pedido
@@ -85,6 +92,8 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		model.addRow(new Object[] { "Total", // Nombre "Total"
 				"", // Vacío para la columna "Cantidad"
 				"", // Vacío para la columna "Precio"
+				"",
+				"",
 				totalCompra // Precio Total
 		});
 
@@ -118,7 +127,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		gbc_btnVolver.gridx = 0;
 		gbc_btnVolver.gridy = 2;
 		getContentPane().add(btnVolver, gbc_btnVolver);
-
+		btnVolver.addActionListener(this);
 		btnComprar = new JButton("BUY");
 		btnComprar.setFont(new Font("Tahoma", Font.BOLD, 16));
 		GridBagConstraints gbc_btnComprar = new GridBagConstraints();
@@ -135,6 +144,8 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		if (e.getSource().equals(btnComprar)) {
 
 		} else if (e.getSource().equals(btnVolver)) {
+			//VistaTienda tienda = new VistaTienda (this, true, true);
+			
 			this.dispose();
 		}
 	}
