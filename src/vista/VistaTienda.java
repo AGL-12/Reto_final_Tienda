@@ -74,23 +74,23 @@ public class VistaTienda extends JDialog implements ActionListener{
 		getContentPane().add(btnCompra);
 		btnCompra.addActionListener(this);
 			
-		// Crear la tabla antes de usarla en JScrollPane
+		
 		tableArticulo = new JTable();
 
-		// Crear el JScrollPane con la tabla correctamente inicializada
+	
 		JScrollPane scrollPane = new JScrollPane(tableArticulo);
-		scrollPane.setBounds(51, 88, 327, 85); // Ubicación y tamaño del JScrollPane
-		getContentPane().add(scrollPane); // Agregar el JScrollPane a la ventana
+		scrollPane.setBounds(51, 88, 327, 85); 
+		getContentPane().add(scrollPane); 
 		
 		
 		DefaultTableModel model = new DefaultTableModel(new Object[]{"Seleccionar", "Nombre", "Descripción", "Precio", "Oferta", "Stock", "Cantidad"}, 0) {
 		    @Override
 		    public Class<?> getColumnClass(int columnIndex) {
-		        if (columnIndex == 0) { // La primera columna es de checkboxes
+		        if (columnIndex == 0) { 
 		            return Boolean.class;
-		        } else if (columnIndex == 3 || columnIndex == 4) { // Precio y Oferta deben ser Float
+		        } else if (columnIndex == 3 || columnIndex == 4) { 
 		            return Float.class;
-		        } else if (columnIndex == 5 || columnIndex == 6) { // Stock y Cantidad deben ser Integer
+		        } else if (columnIndex == 5 || columnIndex == 6) { 
 		            return Integer.class;
 		        }
 		        return String.class; // Las demás son texto
@@ -98,7 +98,7 @@ public class VistaTienda extends JDialog implements ActionListener{
 
 		    @Override
 		    public boolean isCellEditable(int row, int column) {
-		        return column == 0 || column == 6; // Solo permitir editar el checkbox y la cantidad
+		        return column == 0 || column == 6;
 		    }
 		};
 		/*// Crear un modelo de tabla vacío
@@ -111,7 +111,7 @@ public class VistaTienda extends JDialog implements ActionListener{
 		model.addColumn("Stock");
 	    model.addColumn("Cantidad");*/
 
-		// Obtener los artículos del DAO
+
 		Dao dao = new DaoImplementMySQL();
 		Map<Integer, Articulo> articulos = dao.obtenerTodosArticulos();
 
@@ -130,10 +130,10 @@ public class VistaTienda extends JDialog implements ActionListener{
 			}
 		}
 
-		// Establecer el modelo de la tabla con los datos
+		
 		tableArticulo.setModel(model);
 
-        // Configurar la columna "Seleccionar" con checkboxes
+     
         TableColumn selectColumn = tableArticulo.getColumnModel().getColumn(0);
         JCheckBox checkBox = new JCheckBox();
         checkBox.setHorizontalAlignment(JCheckBox.CENTER);
@@ -195,18 +195,18 @@ public class VistaTienda extends JDialog implements ActionListener{
 
 		    for (int i = 0; i < model.getRowCount(); i++) {
 //		        Boolean seleccionado = (Boolean) model.getValueAt(i, 0);  // Columna de checkbox
-		        int valor = (Integer) model.getValueAt(i, 6);  // Columna de checkbox
+		        int valor = (Integer) model.getValueAt(i, 6);  
 		        if (valor!=0) {
-		            // Obtener los valores de las celdas correspondientes
-		            String nombre = (String) model.getValueAt(i, 1);  // Nombre
-		            float precio = (Float) model.getValueAt(i, 3);  // Precio
-		            float oferta = (Float) model.getValueAt(i, 4); //Oferta
-		            int cantidad = (Integer) model.getValueAt(i, 6);  // Cantidad seleccionada
+		            
+		            String nombre = (String) model.getValueAt(i, 1);  
+		            float precio = (Float) model.getValueAt(i, 3); 
+		            float oferta = (Float) model.getValueAt(i, 4);
+		            int cantidad = (Integer) model.getValueAt(i, 6);  
 
 		            if (cantidad > 0) {
-		                Articulo articulo = new Articulo(0, nombre, "", cantidad, precio,oferta, null);  // No es necesario pasar el ID
-		                articulo.setStock(cantidad);  // Establecer la cantidad seleccionada
-		                seleccionados.put(seleccionados.size() + 1, articulo);  // Usamos el tamaño como ID
+		                Articulo articulo = new Articulo(0, nombre, "", cantidad, precio,oferta, null);  
+		                articulo.setStock(cantidad);  
+		                seleccionados.put(seleccionados.size() + 1, articulo);  
 		            }
 		        }
 		    }

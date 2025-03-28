@@ -57,7 +57,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		getContentPane().setLayout(gridBagLayout);
 
-		// Crear el modelo de la tabla con las columnas necesarias
+		
 		DefaultTableModel model = new DefaultTableModel();
 		model.addColumn("Nombre");
 		model.addColumn("Cantidad");
@@ -67,9 +67,9 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		model.addColumn("Precio Total");
 
 
-		float totalCompra = 0; // Para calcular la suma total
+		float totalCompra = 0;
 
-		// Recorrer los artículos seleccionados y agregarlos a la tabla
+	
 		for (Articulo art : carrito.values()) {
 			int cantidadSeleccionada = art.getStock(); 
 			float descuento = (art.getOferta() / 100) * art.getPrecio();
@@ -78,24 +78,24 @@ public class VistaCarrito extends JDialog implements ActionListener {
 			totalCompra += precioTotal; 
 
 			model.addRow(new Object[] { 
-				art.getNombre(), // Nombre del artículo
-				cantidadSeleccionada, // Cantidad seleccionada
-				art.getPrecio(), // Precio del artículo original
-				art.getOferta(), // Oferta en porcentaje
-				precioFinal, // Precio después de aplicar la oferta
-				precioTotal // Precio total con oferta aplicada
+				art.getNombre(), 
+				cantidadSeleccionada, 
+				art.getPrecio(), 
+				art.getOferta(), 
+				precioFinal, 
+				precioTotal 
 			});
 		}
-		// Actualizamos la variable TOTAL en el objeto Pedido
-		pedido.setTotal(totalCompra); // Asignamos el total al objeto pedido
+		
+		pedido.setTotal(totalCompra); 
 
-		// Agregar una fila al final de la tabla para mostrar el total de la compra
-		model.addRow(new Object[] { "Total", // Nombre "Total"
-				"", // Vacío para la columna "Cantidad"
-				"", // Vacío para la columna "Precio"
+		
+		model.addRow(new Object[] { "Total", 
+				"", 
+				"", 
 				"",
 				"",
-				totalCompra // Precio Total
+				totalCompra 
 		});
 
 		JLabel lblTitulo = new JLabel("CARRITO");
@@ -108,8 +108,8 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		gbc_lblTitulo.gridy = 0;
 		getContentPane().add(lblTitulo, gbc_lblTitulo);
 
-		// Establecer el modelo de la tabla con los datos
-		tableCarrito = new JTable(model); // Aseguramos que el modelo se pasa correctamente aquí
+		
+		tableCarrito = new JTable(model); 
 		JScrollPane scrollPane = new JScrollPane(tableCarrito);
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		gbc_scrollPane.gridwidth = 2;
@@ -117,7 +117,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		gbc_scrollPane.insets = new Insets(0, 0, 5, 5);
 		gbc_scrollPane.gridx = 0;
 		gbc_scrollPane.gridy = 1;
-		getContentPane().add(scrollPane, gbc_scrollPane); // Agregar el JScrollPane a la ventana
+		getContentPane().add(scrollPane, gbc_scrollPane); 
 
 		btnVolver = new JButton("BACK");
 		btnVolver.setFont(new Font("Tahoma", Font.BOLD, 16));
@@ -151,24 +151,24 @@ public class VistaCarrito extends JDialog implements ActionListener {
 	}
 
 	private void cargarArticulos() {
-		// Crear el modelo de la tabla con las columnas necesarias
+
 		DefaultTableModel model = new DefaultTableModel();
 		model.addColumn("Nombre");
 		model.addColumn("Cantidad");
 		model.addColumn("Precio");
 		model.addColumn("Precio Total");
 
-		float totalCompra = 0; // Para calcular la suma total
+		float totalCompra = 0;
 
-		// Recorrer los artículos seleccionados y agregarlos a la tabla
+		
 		for (Articulo art : carrito.values()) {
-			float precioTotal = art.getPrecio() * art.getStock(); // Precio total de este artículo
-			totalCompra += precioTotal; // Sumar al total de la compra
+			float precioTotal = art.getPrecio() * art.getStock();
+			totalCompra += precioTotal; 
 
-			model.addRow(new Object[] { art.getNombre(), // Nombre del artículo
-					art.getStock(), // Cantidad seleccionada
-					art.getPrecio(), // Precio del artículo
-					precioTotal // Precio total de este artículo
+			model.addRow(new Object[] { art.getNombre(), 
+					art.getStock(), 
+					art.getPrecio(), 
+					precioTotal
 			});
 		}
 
