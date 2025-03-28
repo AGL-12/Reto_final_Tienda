@@ -117,6 +117,7 @@ public class VistaTienda extends JDialog implements ActionListener{
 
 		// Agregar los datos de los artículos al modelo de la tabla
 		for (Articulo art : articulos.values()) {
+			if (art.getStock()!=0) {
 		    model.addRow(new Object[]{
 		    	false,
 		        art.getNombre(),
@@ -126,6 +127,7 @@ public class VistaTienda extends JDialog implements ActionListener{
 		        art.getStock(),
 		        0
 		    });
+			}
 		}
 
 		// Establecer el modelo de la tabla con los datos
@@ -192,8 +194,9 @@ public class VistaTienda extends JDialog implements ActionListener{
 		    DefaultTableModel model = (DefaultTableModel) tableArticulo.getModel();
 
 		    for (int i = 0; i < model.getRowCount(); i++) {
-		        Boolean seleccionado = (Boolean) model.getValueAt(i, 0);  // Columna de checkbox
-		        if (seleccionado != null && seleccionado) {
+//		        Boolean seleccionado = (Boolean) model.getValueAt(i, 0);  // Columna de checkbox
+		        int valor = (Integer) model.getValueAt(i, 6);  // Columna de checkbox
+		        if (valor!=0) {
 		            // Obtener los valores de las celdas correspondientes
 		            String nombre = (String) model.getValueAt(i, 1);  // Nombre
 		            float precio = (Float) model.getValueAt(i, 3);  // Precio
