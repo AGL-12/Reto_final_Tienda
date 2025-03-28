@@ -4,11 +4,11 @@ import java.util.Map;
 
 import excepciones.AltaError;
 import excepciones.DropError;
-import excepciones.InsertError;
 import excepciones.LoginError;
 import excepciones.modifyError;
 import modelo.Articulo;
 import modelo.Cliente;
+import modelo.Pedido;
 import vista.VistaLogIn;
 
 public class Principal {
@@ -17,8 +17,7 @@ public class Principal {
 	public static void main(String[] args) {
 		VistaLogIn inicio = new VistaLogIn();
 		inicio.setVisible(true);
-		
-		
+
 	}
 
 	public static Cliente login(Cliente cli) throws LoginError {
@@ -34,11 +33,17 @@ public class Principal {
 	}
 	public static void añadirArticulo(Articulo art) throws modifyError {
 		dao.añadirArticulo(art);
+		}
 	
+//	public static void Alta(Propietario propi) throws InsertError {
+//		dao.altaPropietario(propi);
+//	}
+//
+	public static Map<Integer, Cliente> listarCliente() {
+		return dao.listarClientesTod();
 	}
 
 	public static void altaCliente(Cliente clien) throws AltaError {
-		// TODO Auto-generated method stub
 		dao.altaCliente(clien);
 	}
 
@@ -46,9 +51,19 @@ public class Principal {
 		dao.modificarCliente(clien);
 	}
 
-	public static void bajaCliente(Cliente clien) throws DropError{
-		// TODO Auto-generated method stub
+	public static void bajaCliente(Cliente clien) throws DropError {
 		dao.bajaCliente(clien);
 	}
 
+	public static Map<Integer, Articulo> obtenerTodosArticulos() {
+		return dao.obtenerTodosArticulos();
+	}
+
+	public static Pedido crearPedidoUsuario(int id_usu) {
+		return dao.crearPedidoUsuario(id_usu);
+	}
+
+	public static int obtenerUltimoIdPed() {
+		return dao.obtenerUltimoIdPed();
+	}
 }

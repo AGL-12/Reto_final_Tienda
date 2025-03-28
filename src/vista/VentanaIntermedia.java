@@ -17,7 +17,8 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 	/**
 	 * Create the dialog.
 	 */
-	public VentanaIntermedia() {
+	public VentanaIntermedia(JDialog padre) {
+		super(padre, "Menu Admin", true);
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
 
@@ -53,16 +54,16 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(btnConfigArticulos)) {
-			AdminConfigArticulos vistaCfgArt = new AdminConfigArticulos();
+			AdminConfigArticulos vistaCfgArt = new AdminConfigArticulos(this);
 			abrirOpcion(vistaCfgArt);
 		} else if (e.getSource().equals(btnConfigPedidos)) {
-			AdminConfigPedidos vistaCfgPed = new AdminConfigPedidos();
+			AdminConfigPedidos vistaCfgPed = new AdminConfigPedidos(this);
 			abrirOpcion(vistaCfgPed);
 		} else if (e.getSource().equals(btnConfigUsuario)) {
-			AdminConfigUsuario vistaCfgUsu = new AdminConfigUsuario();
+			AdminConfigUsuario vistaCfgUsu = new AdminConfigUsuario(this);
 			abrirOpcion(vistaCfgUsu);
 		} else if (e.getSource().equals(btnListaCliente)) {
-			AdminListaCliente vistaCfgCli = new AdminListaCliente();
+			AdminListaCliente vistaCfgCli = new AdminListaCliente(this);
 			abrirOpcion(vistaCfgCli);
 		}
 	}

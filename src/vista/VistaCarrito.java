@@ -1,10 +1,7 @@
 package vista;
 
-import java.awt.EventQueue;
-
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -16,6 +13,10 @@ import modelo.Articulo;
 import modelo.Pedido;
 
 import java.awt.BorderLayout;
+
+import modelo.Compra;
+import modelo.Pedido;
+
 import java.awt.Font;
 import javax.swing.JButton;
 import java.awt.GridBagLayout;
@@ -24,6 +25,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
+import java.util.List;
 
 public class VistaCarrito extends JDialog implements ActionListener {
 
@@ -33,15 +35,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
 	private Pedido pedido;
 	private JButton btnVolver, btnComprar;
 
-	/**
-	 * Launch the application.
-	 */
 
-	/**
-	 * Create the dialog.
-	 * 
-	 * @param seleccionados
-	 */
 	public VistaCarrito(JDialog vista, boolean modal, Map<Integer, Articulo> seleccionados) {
 		super(vista);
 		super.setModal(modal);
@@ -50,10 +44,15 @@ public class VistaCarrito extends JDialog implements ActionListener {
 
 		carrito = seleccionados;
 		pedido = new Pedido();
+		super.setModal(true);
+		setBounds(100, 100, 450, 300);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 400, 113, 0 };
 		gridBagLayout.rowHeights = new int[] { 45, 150, 47, 0 };
 		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+		gridBagLayout.columnWidths = new int[] { 113, 93, 48, 113, 0 };
+		gridBagLayout.rowHeights = new int[] { 50, 198, 47, 0 };
+		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		getContentPane().setLayout(gridBagLayout);
 
@@ -129,6 +128,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		gbc_btnVolver.gridy = 2;
 		getContentPane().add(btnVolver, gbc_btnVolver);
 		btnVolver.addActionListener(this);
+
 		btnComprar = new JButton("BUY");
 		btnComprar.setFont(new Font("Tahoma", Font.BOLD, 16));
 		GridBagConstraints gbc_btnComprar = new GridBagConstraints();
@@ -139,6 +139,10 @@ public class VistaCarrito extends JDialog implements ActionListener {
 
 	}
 
+	public VistaCarrito(VistaTienda vista, List<Compra> cargaPedCom, Pedido preSetCompra) {
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
@@ -147,6 +151,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		} else if (e.getSource().equals(btnVolver)) {
 			
 			this.dispose();
+
 		}
 	}
 

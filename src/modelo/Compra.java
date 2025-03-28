@@ -5,6 +5,13 @@ public class Compra {
 	private int id_ped;
 	private int cantidad;
 
+	public Compra(int id_art, int id_ped, int cantidad) {
+		super();
+		this.id_art = id_art;
+		this.id_ped = id_ped;
+		this.cantidad = cantidad;
+	}
+
 	public int getId_art() {
 		return id_art;
 	}

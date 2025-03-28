@@ -8,6 +8,7 @@ import excepciones.LoginError;
 import excepciones.modifyError;
 import modelo.Articulo;
 import modelo.Cliente;
+import modelo.Pedido;
 
 public interface Dao {
 
@@ -16,15 +17,18 @@ public interface Dao {
 	public void modificarArticulo(Articulo art) throws modifyError;
 	public void eliminarArticulo(Articulo art) throws modifyError;
 	public void añadirArticulo(Articulo art) throws modifyError;
-//	public void altaPropietario(Propietario prop) throws InsertError;
-//	public Map<String, Propietario> listarPropietarios();
+
+	public Map<Integer, Cliente> listarClientesTod();
 
 	public void altaCliente(Cliente clien) throws AltaError;
-
 
 	public void modificarCliente(Cliente clien) throws modifyError;
 
 	public void bajaCliente(Cliente clien) throws DropError;
-	public Map<Integer, Articulo> obtenerTodosArticulos();
-}
 
+	public Map<Integer, Articulo> obtenerTodosArticulos();
+
+	public Pedido crearPedidoUsuario(int id_usu);
+
+	public int obtenerUltimoIdPed();
+}
