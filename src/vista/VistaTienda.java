@@ -83,6 +83,7 @@ public class VistaTienda extends JDialog implements ActionListener{
 		getContentPane().add(scrollPane); 
 		
 		
+		
 		DefaultTableModel model = new DefaultTableModel(new Object[]{"Seleccionar", "Nombre", "Descripción", "Precio", "Oferta", "Stock", "Cantidad"}, 0) {
 		    @Override
 		    public Class<?> getColumnClass(int columnIndex) {
