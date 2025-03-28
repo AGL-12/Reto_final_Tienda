@@ -2,6 +2,8 @@ package modelo;
 
 import java.util.HashMap;
 import java.util.Map;
+import modelo.Metodo;
+
 
 public class Cliente {
 	private int id_usu;
@@ -105,5 +107,7 @@ public class Cliente {
 				+ ", correo=" + correo + ", direccion=" + direccion + ", metodo_pago=" + metodo_pago + ", num_cuenta="
 				+ num_cuenta + ", esAdmin=" + esAdmin + "]";
 	}
+
+
 
 }
