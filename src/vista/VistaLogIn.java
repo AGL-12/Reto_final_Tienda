@@ -36,8 +36,7 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		setTitle("Hola Mundo");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 489, 350);
-		setMinimumSize(new Dimension(450, 280));
-		setResizable(true);
+		setResizable(false);
 
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));

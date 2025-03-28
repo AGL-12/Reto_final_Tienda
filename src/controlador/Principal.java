@@ -6,7 +6,9 @@ import excepciones.AltaError;
 import excepciones.DropError;
 import excepciones.LoginError;
 import excepciones.modifyError;
+import modelo.Articulo;
 import modelo.Cliente;
+import modelo.Pedido;
 import vista.VistaLogIn;
 
 public class Principal {
@@ -42,4 +44,15 @@ public class Principal {
 		dao.bajaCliente(clien);
 	}
 
+	public static Map<Integer, Articulo> obtenerTodosArticulos() {
+		return dao.obtenerTodosArticulos();
+	}
+
+	public static Pedido crearPedidoUsuario(int id_usu) {
+		return dao.crearPedidoUsuario(id_usu);
+	}
+
+	public static int obtenerUltimoIdPed() {
+		return dao.obtenerUltimoIdPed();
+	}
 }

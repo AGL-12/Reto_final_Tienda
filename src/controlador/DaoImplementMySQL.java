@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -17,6 +19,7 @@ import modelo.Articulo;
 import modelo.Cliente;
 import modelo.Compra;
 import modelo.Metodo;
+import modelo.Pedido;
 import modelo.Seccion;
 
 public class DaoImplementMySQL implements Dao {
@@ -34,6 +37,9 @@ public class DaoImplementMySQL implements Dao {
 	final String select_cliente = "select * from cliente";
 	final String pedido_cliente = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?)";
 	final String TODOS_ARTICULOS = "SELECT * FROM articulo";
+	final String crear_pediod_cliente = "insert into pedido (id_clien,fecha_compra) values (?,?)";
+	final String maxIdPedido = "SELECT MAX(id) FROM pedido";
+
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -166,36 +172,6 @@ public class DaoImplementMySQL implements Dao {
 		// Retornar el Map con todos los clientes
 		return todosClientes;
 	}
-	/*
-	 * @Override public void altaPropietario(Propietario prop) throws InsertError {
-	 * openConnection(); try { stmt = con.prepareStatement(ALTAPROP);
-	 * stmt.setString(1, prop.getNombre()); stmt.setDate(2,
-	 * Date.valueOf(prop.getFechaNace())); stmt.executeUpdate();
-	 * 
-	 * } catch (SQLException e) { throw new
-	 * InsertError("El nombre excede el limite (30)"); } finally { // Cerrar el
-	 * ResultSet try { closeConnection(); } catch (SQLException e) {
-	 * e.printStackTrace(); } } }
-	 * 
-	 * public Map<String, Propietario> listarPropietarios() {
-	 * 
-	 * // Tenemos que definie el ResusultSet para recoger el resultado de la
-	 * consulta Map<String, Propietario> prop = new HashMap<>(); ResultSet rs =
-	 * null; openConnection();
-	 * 
-	 * final String selec_pro = "select * from propietario"; try { stmt =
-	 * con.prepareStatement(selec_pro);
-	 * 
-	 * rs = stmt.executeQuery(); while (rs.next()) { int id = rs.getInt("ide");
-	 * String nom = rs.getString("nombre"); Date nace = rs.getDate("fechaNace");
-	 * 
-	 * Propietario propie = new Propietario(id, nom, nace.toLocalDate());
-	 * 
-	 * prop.put(String.valueOf(id), propie); } } catch (SQLException e) {
-	 * e.printStackTrace(); } finally { // Cerrar el ResultSet try { rs.close();
-	 * closeConnection(); } catch (SQLException e) { e.printStackTrace(); } } return
-	 * prop; }
-	 */
 
 	private Map<Integer, Compra> cargarMapaCom(int id) {
 		Map<Integer, Compra> paraCargar = new HashMap<>();
@@ -307,13 +283,9 @@ public class DaoImplementMySQL implements Dao {
 	public Map<Integer, Articulo> obtenerTodosArticulos() {
 		Map<Integer, Articulo> articulos = new HashMap<>();
 		ResultSet rs = null;
+		openConnection();
 
 		try {
-			openConnection();
-
-			if (con == null) {
-				throw new SQLException("No se pudo establecer la conexión con la base de datos.");
-			}
 
 			stmt = con.prepareStatement(TODOS_ARTICULOS);
 			rs = stmt.executeQuery();
@@ -339,5 +311,51 @@ public class DaoImplementMySQL implements Dao {
 		}
 
 		return articulos; // Siempre devuelve un HashMap válido (vacío si hay errores)
+	}
+
+	@Override
+	public Pedido crearPedidoUsuario(int id_usu) {
+		openConnection();
+		try {
+			stmt = con.prepareStatement(crear_pediod_cliente);
+
+			stmt.setInt(1, id_usu);
+			// Convertir LocalDateTime a Timestamp
+			Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+			stmt.setTimestamp(2, timestamp);
+
+			stmt.executeQuery();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	@Override
+	public int obtenerUltimoIdPed() {
+		int ultimoId = 0;
+		ResultSet rs = null;
+		try {
+			openConnection();
+			stmt = con.prepareStatement(maxIdPedido);
+			rs=stmt.executeQuery();
+
+			if (rs.next()) {
+				ultimoId = rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null)
+					rs.close();
+				closeConnection();
+			} catch (SQLException e) {
+				System.err.println("Error al cerrar la conexión: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		return ultimoId;
 	}
 }

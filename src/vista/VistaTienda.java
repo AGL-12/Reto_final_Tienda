@@ -2,6 +2,8 @@ package vista;
 
 import modelo.Articulo;
 import modelo.Cliente;
+import modelo.Compra;
+import modelo.Pedido;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -11,27 +13,27 @@ import javax.swing.JScrollPane;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
 
-import controlador.Dao;
-import controlador.DaoImplementMySQL;
+import controlador.Principal;
 
-import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 
 public class VistaTienda extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	private JTable tableArticulo;
 	private JButton btnUsuario;
-	private Cliente cambio;
+	private Cliente localClien;
 	private JButton btnAdmin;
 	private JButton btnCompra;
+	private DefaultTableModel model;
 
 	/**
 	 * Create the dialog.
@@ -41,7 +43,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
 
-		this.cambio = clien;
+		this.localClien = clien;
 
 		JLabel lblTitulo = new JLabel("DYE TOOLS");
 		lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 14));
@@ -77,9 +79,21 @@ public class VistaTienda extends JDialog implements ActionListener {
 		scrollPane.setBounds(51, 88, 327, 85); // Ubicación y tamaño del JScrollPane
 		getContentPane().add(scrollPane); // Agregar el JScrollPane a la ventana
 
-		// Crear un modelo de tabla vacío
-		DefaultTableModel model = new DefaultTableModel();
-		model.addColumn("");
+		model = new DefaultTableModel() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return column == 0; // Solo la primera columna (checkbox) es editable
+			}
+
+			@Override
+			public Class<?> getColumnClass(int columnIndex) {
+				return columnIndex == 0 ? Boolean.class : String.class; // CheckBox en la primera columna
+			}
+		};
+		model.addColumn("Seleccionar");
+		model.addColumn("id_art");
 		model.addColumn("Nombre");
 		model.addColumn("Descripción");
 		model.addColumn("Precio");
@@ -88,51 +102,20 @@ public class VistaTienda extends JDialog implements ActionListener {
 		model.addColumn("Cantidad");
 
 		// Obtener los artículos del DAO
-		Dao dao = new DaoImplementMySQL();
-		Map<Integer, Articulo> articulos = dao.obtenerTodosArticulos();
+		Map<Integer, Articulo> articulos = Principal.obtenerTodosArticulos();
 
 		// Agregar los datos de los artículos al modelo de la tabla
 		for (Articulo art : articulos.values()) {
-			model.addRow(new Object[] { false, art.getNombre(), art.getDescripcion(), art.getPrecio(), art.getOferta(),
-					art.getStock(), 0 });
+			if (art.getStock()!=0) {
+				model.addRow(new Object[] { false, art.getId_art(), art.getNombre(), art.getDescripcion(), art.getPrecio(),
+						art.getOferta(), art.getStock(), 0 });
+			}
 		}
 
 		// Establecer el modelo de la tabla con los datos
 		tableArticulo.setModel(model);
-
-		/*
-		 * // Configurar la columna "Seleccionar" para mostrar checkboxes TableColumn
-		 * selectColumn = tableArticulo.getColumnModel().getColumn(0); JCheckBox
-		 * checkBox = new JCheckBox(); selectColumn.setCellEditor(new
-		 * DefaultCellEditor(checkBox));
-		 * 
-		 * // Configurar la columna "Cantidad" para ser editable con un JTextField
-		 * TableColumn quantityColumn = tableArticulo.getColumnModel().getColumn(6);
-		 * quantityColumn.setCellEditor(new DefaultCellEditor(new JTextField())); }
-		 */
-
-		// Configurar la columna "Seleccionar" para mostrar checkboxes
-		TableColumn selectColumn = tableArticulo.getColumnModel().getColumn(0);
-
-		// Crear un JCheckBox como editor de la celda (para poder marcar/desmarcar)
-		JCheckBox checkBox = new JCheckBox();
-		checkBox.setHorizontalAlignment(JCheckBox.CENTER); // Centrar el checkbox
-		selectColumn.setCellEditor(new DefaultCellEditor(checkBox));
-
-		// Configurar el renderizador para que se muestre un tick (✔) cuando está
-		// marcado
-		selectColumn.setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-					boolean hasFocus, int row, int column) {
-				JCheckBox checkBox = new JCheckBox();
-				checkBox.setSelected(value != null && (Boolean) value); // Marca el checkbox si el valor es true
-				return checkBox;
-			}
-		});
-		
+		// 🔹 OCULTAR LA COLUMNA ID_ART
+		tableArticulo.removeColumn(tableArticulo.getColumnModel().getColumn(1));
 	}
 
 	@Override
@@ -141,7 +124,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 
 			this.setVisible(false);
 
-			VistaUsuario vistaUsuario = new VistaUsuario(this.cambio, this); // "this" es el JFrame principal,
+			VistaUsuario vistaUsuario = new VistaUsuario(this.localClien, this); // "this" es el JFrame principal,
 			vistaUsuario.setVisible(true);
 
 			this.setVisible(true);
@@ -153,6 +136,30 @@ public class VistaTienda extends JDialog implements ActionListener {
 			menuAdmin.setVisible(true);
 
 			this.setVisible(true);
+		} else if (e.getSource().equals(btnCompra)) {
+
+			Pedido preSetCompra = new Pedido(Principal.obtenerUltimoIdPed() + 1, localClien.getId_usu(), 0,
+					LocalDateTime.now());
+
+			this.setVisible(false);
+
+			VistaCarrito carritoNoCompra = new VistaCarrito(this, cargaPedCom(preSetCompra), preSetCompra);
+			carritoNoCompra.setVisible(true);
+
+			this.setVisible(true);
 		}
 	}
+
+	private List<Compra> cargaPedCom(Pedido preSetCompra) {
+		List<Compra> listaCompra = new ArrayList<>();
+		for (int i = 0; i < model.getRowCount(); i++) {
+			boolean isChecked = (Boolean) model.getValueAt(i, 0);
+			if (isChecked && (Integer) model.getValueAt(i, 7) != 0) {
+				Compra palCarro = new Compra((Integer) model.getValueAt(i, 2), preSetCompra.getId_usu(), i);
+				listaCompra.add(palCarro);
+			}
+		}
+		return listaCompra;
+	}
+
 }
