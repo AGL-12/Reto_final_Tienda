@@ -45,6 +45,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
 	public VistaCarrito(JDialog vista, boolean modal, Map<Integer, Articulo> seleccionados) {
 		super(vista);
 		super.setModal(modal);
+	
 		setBounds(100, 100, 747, 335);
 
 		carrito = seleccionados;
@@ -144,7 +145,6 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		if (e.getSource().equals(btnComprar)) {
 
 		} else if (e.getSource().equals(btnVolver)) {
-			//VistaTienda tienda = new VistaTienda (this, true, true);
 			
 			this.dispose();
 		}

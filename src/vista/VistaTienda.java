@@ -201,7 +201,7 @@ public class VistaTienda extends JDialog implements ActionListener{
 		            int cantidad = (Integer) model.getValueAt(i, 6);  // Cantidad seleccionada
 
 		            if (cantidad > 0) {
-		                Articulo articulo = new Articulo(0, nombre, "", cantidad, precio, oferta, null);  // No es necesario pasar el ID
+		                Articulo articulo = new Articulo(0, nombre, "", cantidad, precio,oferta, null);  // No es necesario pasar el ID
 		                articulo.setStock(cantidad);  // Establecer la cantidad seleccionada
 		                seleccionados.put(seleccionados.size() + 1, articulo);  // Usamos el tamaño como ID
 		            }
