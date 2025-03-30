@@ -11,8 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.sql.Statement;
+import java.time.LocalDateTime;
 
-import com.mysql.cj.xdevapi.Statement;
+//import com.mysql.cj.xdevapi.Statement;
 
 import modelo.Articulo;
 
@@ -280,6 +282,77 @@ public class DaoImplementMySQL implements Dao {
 	    return articulos; // Siempre devuelve un HashMap válido (vacío si hay errores)
 	}
 	
+	
+	@Override
+	public int guardarPedido(int idUsuario, float totalCompra, LocalDateTime fechaCompra) throws SQLException {
+	    int idPedido = -1;
+	    String query = "INSERT INTO pedido(id_clien, total, fecha_compra) VALUES (?, ?, ?)";
+
+	    try {
+	        openConnection();
+	        stmt = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+	        stmt.setInt(1, idUsuario);
+	        stmt.setFloat(2, totalCompra);
+	        stmt.setObject(3, fechaCompra); // Usamos setObject para pasar LocalDateTime
+
+	        int rowsAffected = stmt.executeUpdate();
+	        
+	        if (rowsAffected > 0) {
+	            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+	                if (generatedKeys.next()) {
+	                    idPedido = generatedKeys.getInt(1); // Obtener el ID generado
+	                }
+	            }
+	        }
+	    } catch (SQLException e) {
+	        throw new SQLException("Error al insertar el pedido", e);
+	    } finally {
+	        closeConnection();
+	    }
+	    return idPedido;
+	}
+
+	
+	public void guardarCompra(int idPedido, int idArticulo, int cantidad) throws SQLException {
+	    String query = "INSERT INTO compra(id_art, id_ped, cantidad) VALUES (?, ?, ?)";
+	    
+	    try {
+	        openConnection();
+	        stmt = con.prepareStatement(query);
+	        stmt.setInt(1, idArticulo);
+	        stmt.setInt(2, idPedido);
+	        stmt.setInt(3, cantidad);
+	        
+	        stmt.executeUpdate();
+	    } catch (SQLException e) {
+	        System.err.println("Error SQL: " + e.getMessage());
+	        System.err.println("Código de error SQL: " + e.getErrorCode());
+	        System.err.println("Estado SQL: " + e.getSQLState());
+	        throw new SQLException("Error al insertar los artículos en la compra", e);
+	    } finally {
+	        closeConnection();
+	    }
+	}
+	
+	
+	    public void actualizarStock(int idArticulo, int cantidadComprada) throws SQLException {
+	        String query = "UPDATE articulo SET stock = stock - ? WHERE id_art = ?";
+	        
+	        try {
+	            openConnection();
+	            stmt = con.prepareStatement(query);
+	            stmt.setInt(1, cantidadComprada);
+	            stmt.setInt(2, idArticulo);
+	            
+	            stmt.executeUpdate();
+	        } catch (SQLException e) {
+	            throw new SQLException("Error al actualizar el stock del artículo", e);
+	        } finally {
+	            closeConnection();
+	        }
+	    
+
+	}
 
 
 }

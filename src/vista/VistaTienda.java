@@ -84,22 +84,20 @@ public class VistaTienda extends JDialog implements ActionListener{
 		
 		
 		
-		DefaultTableModel model = new DefaultTableModel(new Object[]{"Seleccionar", "Nombre", "Descripción", "Precio", "Oferta", "Stock", "Cantidad"}, 0) {
+		DefaultTableModel model = new DefaultTableModel(new Object[]{ "Nombre", "Descripción", "Precio", "Oferta", "Stock", "Cantidad"}, 0) {
 		    @Override
 		    public Class<?> getColumnClass(int columnIndex) {
-		        if (columnIndex == 0) { 
-		            return Boolean.class;
-		        } else if (columnIndex == 3 || columnIndex == 4) { 
+		        if (columnIndex == 2 || columnIndex == 3) { 
 		            return Float.class;
-		        } else if (columnIndex == 5 || columnIndex == 6) { 
+		        } else if (columnIndex == 4 || columnIndex == 5) { 
 		            return Integer.class;
 		        }
-		        return String.class; // Las demás son texto
+		        return String.class;
 		    }
 
 		    @Override
 		    public boolean isCellEditable(int row, int column) {
-		        return column == 0 || column == 6;
+		        return column == 5; // Solo la columna de cantidad es editable
 		    }
 		};
 		/*// Crear un modelo de tabla vacío
@@ -120,7 +118,7 @@ public class VistaTienda extends JDialog implements ActionListener{
 		for (Articulo art : articulos.values()) {
 			if (art.getStock()!=0) {
 		    model.addRow(new Object[]{
-		    	false,
+		    	//false,
 		        art.getNombre(),
 		        art.getDescripcion(),
 		        art.getPrecio(),
@@ -185,12 +183,12 @@ public class VistaTienda extends JDialog implements ActionListener{
 	
 	  private void abrirCarrito() {
 	        Map<Integer, Articulo> seleccionados = obtenerArticulosSeleccionados();
-	        VistaCarrito carrito = new VistaCarrito(this, true, seleccionados);
+	        VistaCarrito carrito = new VistaCarrito(cambio, this, true, seleccionados);
 	        carrito.setVisible(true);
 	    }
 	
 	
-	  private Map<Integer, Articulo> obtenerArticulosSeleccionados() {
+	  /*private Map<Integer, Articulo> obtenerArticulosSeleccionados() {
 		    Map<Integer, Articulo> seleccionados = new HashMap<>();
 		    DefaultTableModel model = (DefaultTableModel) tableArticulo.getModel();
 
@@ -208,6 +206,59 @@ public class VistaTienda extends JDialog implements ActionListener{
 		                Articulo articulo = new Articulo(0, nombre, "", cantidad, precio,oferta, null);  
 		                articulo.setStock(cantidad);  
 		                seleccionados.put(seleccionados.size() + 1, articulo);  
+		            }
+		        }
+		    }
+		    return seleccionados;
+		}*/
+	  
+	 /* private Map<Integer, Articulo> obtenerArticulosSeleccionados() {
+		    Map<Integer, Articulo> seleccionados = new HashMap<>();
+		    DefaultTableModel model = (DefaultTableModel) tableArticulo.getModel();
+
+		    for (int i = 0; i < model.getRowCount(); i++) {
+		        int cantidad = (Integer) model.getValueAt(i, 5); // Nueva posición de la columna cantidad
+		        if (cantidad > 0) {
+		            String nombre = (String) model.getValueAt(i, 0);
+		            String descripcion = (String) model.getValueAt(i, 1);
+		            float precio = (Float) model.getValueAt(i, 2);
+		            float oferta = (Float) model.getValueAt(i, 3);
+
+		            Articulo articulo = new Articulo(0, nombre, descripcion, cantidad, precio, oferta, null);
+		            seleccionados.put(seleccionados.size() + 1, articulo);
+		        }
+		    }
+		    return seleccionados;
+		}*/
+	  
+	  private Map<Integer, Articulo> obtenerArticulosSeleccionados() {
+		    Map<Integer, Articulo> seleccionados = new HashMap<>();
+		    DefaultTableModel model = (DefaultTableModel) tableArticulo.getModel();
+		    
+		    Dao dao = new DaoImplementMySQL();
+		    Map<Integer, Articulo> todosLosArticulos = dao.obtenerTodosArticulos(); // Obtener artículos originales desde BD
+
+		    for (int i = 0; i < model.getRowCount(); i++) {
+		        int cantidad = (Integer) model.getValueAt(i, 5); // Nueva posición de la columna cantidad
+		        if (cantidad > 0) {
+		            String nombre = (String) model.getValueAt(i, 0);
+		            
+		            // Buscar el artículo original por nombre para obtener su ID real
+		            for (Articulo art : todosLosArticulos.values()) {
+		                if (art.getNombre().equals(nombre)) {
+		                    Articulo articulo = new Articulo(
+		                        art.getId_art(), // Aquí se usa el ID real en lugar de 0
+		                        art.getNombre(),
+		                        art.getDescripcion(),
+		                        cantidad, // Cantidad seleccionada
+		                        art.getPrecio(),
+		                        art.getOferta(),
+		                        art.getSeccion()
+		                    );
+		                    
+		                    seleccionados.put(art.getId_art(), articulo);
+		                    break; // Detener búsqueda tras encontrar el artículo
+		                }
 		            }
 		        }
 		    }

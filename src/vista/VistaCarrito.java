@@ -6,13 +6,16 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import controlador.Dao;
 import controlador.DaoImplementMySQL;
 import modelo.Articulo;
+import modelo.Cliente;
 import modelo.Pedido;
 
 import java.awt.BorderLayout;
@@ -23,6 +26,8 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.security.Timestamp;
+import java.sql.SQLException;
 import java.util.Map;
 
 public class VistaCarrito extends JDialog implements ActionListener {
@@ -32,7 +37,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
 	private JTable tableCarrito;
 	private Pedido pedido;
 	private JButton btnVolver, btnComprar;
-
+	private Cliente clienteActual;
 	/**
 	 * Launch the application.
 	 */
@@ -42,10 +47,10 @@ public class VistaCarrito extends JDialog implements ActionListener {
 	 * 
 	 * @param seleccionados
 	 */
-	public VistaCarrito(JDialog vista, boolean modal, Map<Integer, Articulo> seleccionados) {
+	public VistaCarrito(Cliente clien, JDialog vista, boolean modal, Map<Integer, Articulo> seleccionados) {
 		super(vista);
 		super.setModal(modal);
-	
+		this.clienteActual = clien;
 		setBounds(100, 100, 747, 335);
 
 		carrito = seleccionados;
@@ -61,10 +66,10 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		DefaultTableModel model = new DefaultTableModel();
 		model.addColumn("Nombre");
 		model.addColumn("Cantidad");
-		model.addColumn("Precio");
-		model.addColumn("Oferta (%)");
-		model.addColumn("Precio Final");
-		model.addColumn("Precio Total");
+		//model.addColumn("Precio");
+		//model.addColumn("Oferta (%)");
+		model.addColumn("Precio Final"); //Con oferta aplicada
+		model.addColumn("Precio Total"); //Total de los articulos
 
 
 		float totalCompra = 0;
@@ -80,8 +85,8 @@ public class VistaCarrito extends JDialog implements ActionListener {
 			model.addRow(new Object[] { 
 				art.getNombre(), 
 				cantidadSeleccionada, 
-				art.getPrecio(), 
-				art.getOferta(), 
+				//art.getPrecio(), 
+				//art.getOferta(), 
 				precioFinal, 
 				precioTotal 
 			});
@@ -90,10 +95,10 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		pedido.setTotal(totalCompra); 
 
 		
-		model.addRow(new Object[] { "Total", 
+		model.addRow(new Object[] { "Total Compra", 
 				"", 
-				"", 
-				"",
+				//"", 
+				//"",
 				"",
 				totalCompra 
 		});
@@ -136,19 +141,57 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		gbc_btnComprar.gridx = 1;
 		gbc_btnComprar.gridy = 2;
 		getContentPane().add(btnComprar, gbc_btnComprar);
+		btnComprar.addActionListener(this);
 
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		if (e.getSource().equals(btnComprar)) {
+		
+	    if (e.getSource().equals(btnComprar)) {
+	        // Obtener el total de la compra
+	        float totalCompra = pedido.getTotal();
+	        // Obtener el usuario actual (suponiendo que tienes el ID del usuario logueado)
+	        int idUsuario = clienteActual.getId_usu();
 
-		} else if (e.getSource().equals(btnVolver)) {
-			
-			this.dispose();
-		}
+	        // Obtener la fecha actual
+	        LocalDateTime now = LocalDateTime.now();
+	        // Crear una instancia de DaoImplementMySQL
+	        Dao dao = new DaoImplementMySQL();
+	        // Guardar el pedido en la base de datos
+	        int idPedido = 0;
+			try {
+				idPedido = dao.guardarPedido(idUsuario, totalCompra, now);
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+	        // Registrar los artículos en el pedido
+	        for (Articulo art : carrito.values()) {
+	        	int idArticulo = art.getId_art();
+	            int cantidad = art.getStock();  // O la cantidad que se seleccionó en el carrito
+	            // Depuración: Imprimir los valores de id_art y cantidad
+	            System.out.println("Guardando artículo: ID = " + idArticulo + ", Cantidad = " + cantidad);
+
+	            try {
+					dao.guardarCompra(idPedido, art.getId_art(), cantidad);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+	        }
+
+	        // Mostrar mensaje de éxito o cerrar el carrito
+	        JOptionPane.showMessageDialog(this, "¡Compra realizada con éxito!");
+	        this.dispose(); // Cierra la ventana del carrito
+	    } else if (e.getSource().equals(btnVolver)) {
+	        this.dispose(); // Vuelve a la pantalla anterior
+	    }
 	}
+    
+
 
 	private void cargarArticulos() {
 
@@ -156,7 +199,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		model.addColumn("Nombre");
 		model.addColumn("Cantidad");
 		model.addColumn("Precio");
-		model.addColumn("Precio Total");
+		model.addColumn("Precio Total Compra");
 
 		float totalCompra = 0;
 

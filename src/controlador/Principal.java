@@ -1,5 +1,7 @@
 package controlador;
 
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import excepciones.AltaError;
@@ -45,5 +47,14 @@ public class Principal {
 		// TODO Auto-generated method stub
 		dao.bajaCliente(clien);
 	}
+	
+	public void guardarCompra(int idPedido, int idArticulo, int cantidad) throws SQLException{
+		dao.guardarCompra(idPedido, idArticulo, cantidad);
+	}
+	
+	public void guardarPedido(int idUsuario, float totalCompra, LocalDateTime fechaCompra) throws SQLException {
+		dao.guardarPedido(idUsuario, totalCompra, fechaCompra);
+	}
+	
 
 }
