@@ -2,7 +2,6 @@ package modelo;
 
 import java.util.HashMap;
 import java.util.Map;
-import modelo.Metodo;
 
 
 public class Cliente {
@@ -15,10 +14,26 @@ public class Cliente {
 	private Metodo metodo_pago;
 	private String num_cuenta;
 	private boolean esAdmin;
-	private Map<Integer, Pedido> listaPedido;
+	private Map<Integer, Compra> listaCompra;
+		
+	
+	public Cliente(int id_usu, String usuario, String contra, String dni, String correo, String direccion,
+			Metodo metodo_pago, String num_cuenta, boolean esAdmin, Map<Integer, Compra> listaCompra) {
+		super();
+		this.id_usu = id_usu;
+		this.usuario = usuario;
+		this.contra = contra;
+		this.dni = dni;
+		this.correo = correo;
+		this.direccion = direccion;
+		this.metodo_pago = metodo_pago;
+		this.num_cuenta = num_cuenta;
+		this.esAdmin = esAdmin;
+		this.listaCompra = listaCompra;
+	}
 
 	public Cliente() {
-		this.listaPedido = new HashMap<>();
+		this.listaCompra = new HashMap<>();
 	}
 
 	public int getId_usu() {
@@ -93,12 +108,12 @@ public class Cliente {
 		this.esAdmin = esAdmin;
 	}
 
-	public Map<Integer, Pedido> getListaPedido() {
-		return listaPedido;
+	public Map<Integer, Compra> getListaCompra() {
+		return listaCompra;
 	}
 
-	public void setListaPedido(Map<Integer, Pedido> listaPedido) {
-		this.listaPedido = listaPedido;
+	public void setListaPedido(Map<Integer, Compra> listaCompra) {
+		this.listaCompra = listaCompra;
 	}
 
 	@Override

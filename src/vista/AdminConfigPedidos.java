@@ -9,7 +9,7 @@ public class AdminConfigPedidos extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public AdminConfigPedidos() {
+	public AdminConfigPedidos(JDialog ventanaIntermedia) {
 		setBounds(100, 100, 450, 300);
 	}
 

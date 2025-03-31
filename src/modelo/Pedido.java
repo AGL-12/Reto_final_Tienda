@@ -7,6 +7,14 @@ public class Pedido {
 	private int id_usu;
 	private float total;
 	private LocalDateTime fecha_compra;
+	
+	public Pedido() {
+		super();
+		this.id_ped = id_ped;
+		this.id_usu = id_usu;
+		this.total = total;
+		this.fecha_compra = fecha_compra;
+	}
 
 	public int getId_ped() {
 		return id_ped;

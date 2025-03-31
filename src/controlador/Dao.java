@@ -7,30 +7,36 @@ import java.util.Map;
 
 import excepciones.AltaError;
 import excepciones.DropError;
-import excepciones.InsertError;
 import excepciones.LoginError;
 import excepciones.modifyError;
 import modelo.Articulo;
 import modelo.Cliente;
+import modelo.Pedido;
 
 public interface Dao {
 
 	public Cliente login(Cliente usu) throws LoginError;
-//	public void altaPropietario(Propietario prop) throws InsertError;
-//	public Map<String, Propietario> listarPropietarios();
+
+	public Map<Integer, Cliente> listarClientesTod();
+//	public Map<String, Pedido> listarPedidoCli();
 
 	public void altaCliente(Cliente clien) throws AltaError;
-
 
 	public void modificarCliente(Cliente clien) throws modifyError;
 
 	public void bajaCliente(Cliente clien) throws DropError;
-	public Map<Integer, Articulo> obtenerTodosArticulos();
+
 	public int guardarPedido(int idUsuario, float totalCompra, LocalDateTime fechaCompra) throws SQLException;
+
 	public void guardarCompra(int idPedido, int idArticulo, int cantidad) throws SQLException;
 
 	public int obtenerNewIdCliente();
 
 	public int obtenerUltimoIdPed() throws SQLException;
-}
 
+	public Map<Integer, Articulo> obtenerTodosArticulos();
+
+	public Pedido crearPedidoUsuario(int id_usu);
+
+	public Articulo buscarArticulo(int id_art);
+}

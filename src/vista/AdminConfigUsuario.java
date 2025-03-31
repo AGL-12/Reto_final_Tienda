@@ -9,7 +9,7 @@ public class AdminConfigUsuario extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public AdminConfigUsuario() {
+	public AdminConfigUsuario(JDialog ventanaIntermedia) {
 		setBounds(100, 100, 450, 300);
 	}
 

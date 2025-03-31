@@ -6,10 +6,11 @@ import java.util.Map;
 
 import excepciones.AltaError;
 import excepciones.DropError;
-import excepciones.InsertError;
 import excepciones.LoginError;
 import excepciones.modifyError;
+import modelo.Articulo;
 import modelo.Cliente;
+import modelo.Pedido;
 import vista.VistaLogIn;
 
 public class Principal {
@@ -22,19 +23,15 @@ public class Principal {
 	}
 
 	public static Cliente login(Cliente cli) throws LoginError {
-
 		return dao.login(cli);
 	}
-//	public static void Alta(Propietario propi) throws InsertError {
-//		dao.altaPropietario(propi);
-//	}
-//
-//	public static Map<String, Propietario> listarPropietarios() {
-//		return dao.listarPropietarios();
-//	}
+
+
+	public static Map<Integer, Cliente> listarCliente() {
+		return dao.listarClientesTod();
+	}
 
 	public static void altaCliente(Cliente clien) throws AltaError {
-		// TODO Auto-generated method stub
 		dao.altaCliente(clien);
 	}
 
@@ -43,21 +40,33 @@ public class Principal {
 	}
 
 	public static void bajaCliente(Cliente clien) throws DropError {
-		// TODO Auto-generated method stub
+
 		dao.bajaCliente(clien);
 	}
+
 
 	public static void guardarCompra(int idPedido, int idArticulo, int cantidad) throws SQLException {
 		dao.guardarCompra(idPedido, idArticulo, cantidad);
 	}
 
 	public static int guardarPedido(int idUsuario, float totalCompra, LocalDateTime fechaCompra) throws SQLException {
-		;
+		
 		return dao.guardarPedido(idUsuario, totalCompra, fechaCompra);
+	}
+
+	public static Map<Integer, Articulo> obtenerTodosArticulos() {
+		return dao.obtenerTodosArticulos();
+	}
+
+	public static Pedido crearPedidoUsuario(int id_usu) {
+		return dao.crearPedidoUsuario(id_usu);
+	}
+
+	public static Articulo buscarArticulo(int id_art) {
+		return dao.buscarArticulo(id_art);
 	}
 
 	public static int obtenerNewIdCliente() {
 		return dao.obtenerNewIdCliente();
 	}
-
 }
