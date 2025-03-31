@@ -34,8 +34,8 @@ public class DaoImplementMySQL implements Dao {
 	// Atributos
 	private Connection con;
 	private PreparedStatement stmt;
-	// Sentencias SQL	
-	
+	// Sentencias SQL
+
 	final String ALTA_ARTICULO = "INSERT INTO articulo  VALUES (?, ?, ?, ?, ?, ?, ?)";
 	final String MODIFICAR_ARTICULO = "UPDATE articulo SET nombre = ?, descripcion = ?, stock = ?, precio = ?, oferta = ?, seccion = ? WHERE id_art = ?";
 
@@ -44,13 +44,12 @@ public class DaoImplementMySQL implements Dao {
 	final String INSERTAR_CLIENTE = "INSERT INTO cliente(usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?)";
 	final String ELIMINAR_CLIENTE = "DELETE from cliente where id_clien=?";
 	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?;";
-	final String MAX_ARTICULO="SELECT MAX(ID_ART)FROM ARTICULO";
+	final String MAX_ARTICULO = "SELECT MAX(ID_ART)FROM ARTICULO";
 	final String select_cliente = "select * from cliente";
 	final String pedido_cliente = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?)";
 	final String TODOS_ARTICULOS = "SELECT * FROM articulo";
 	final String crear_pediod_cliente = "insert into pedido (id_clien,fecha_compra) values (?,?)";
 	final String maxIdPedido = "SELECT MAX(id) FROM pedido";
-
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -136,23 +135,23 @@ public class DaoImplementMySQL implements Dao {
 
 	@Override
 	public void modificarArticulo(Articulo art) throws modifyError {
-		
-		
+
 	}
 
 	@Override
 	public void eliminarArticulo(Articulo art) throws modifyError {
-		
-		
+
 	}
 
 	@Override
 	public void añadirArticulo(Articulo art) throws modifyError {
+		int id;
+		id = obtenerUltimoIdArt();
 		openConnection();
 
 		try {
 			stmt = con.prepareStatement(ALTA_ARTICULO);
-			//stmt.setInt(1, "1");
+			stmt.setInt(1, id);
 			stmt.setString(2, art.getNombre());
 			stmt.setString(3, art.getDescripcion());
 			stmt.setInt(4, art.getStock());
@@ -171,8 +170,9 @@ public class DaoImplementMySQL implements Dao {
 
 			}
 		}
-		
+
 	}
+
 	public Map<Integer, Cliente> listarClientesTod() {
 		Map<Integer, Cliente> todosClientes = new HashMap<>();
 		ResultSet rs = null;
@@ -356,8 +356,6 @@ public class DaoImplementMySQL implements Dao {
 
 		return articulos; // Siempre devuelve un HashMap válido (vacío si hay errores)
 	}
-	
-
 
 	@Override
 	public Pedido crearPedidoUsuario(int id_usu) {
@@ -385,7 +383,7 @@ public class DaoImplementMySQL implements Dao {
 		try {
 			openConnection();
 			stmt = con.prepareStatement(maxIdPedido);
-			rs=stmt.executeQuery();
+			rs = stmt.executeQuery();
 
 			if (rs.next()) {
 				ultimoId = rs.getInt(1);
@@ -403,5 +401,32 @@ public class DaoImplementMySQL implements Dao {
 			}
 		}
 		return ultimoId;
+	}
+
+	@Override
+	public int obtenerUltimoIdArt() {
+		int ultimoIdArt = 0;
+		ResultSet rs = null;
+		try {
+			openConnection();
+			stmt = con.prepareStatement(MAX_ARTICULO);
+			rs = stmt.executeQuery();
+
+			if (rs.next()) {
+				ultimoIdArt = rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null)
+					rs.close();
+				closeConnection();
+			} catch (SQLException e) {
+				System.err.println("Error al cerrar la conexión: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		return ultimoIdArt + 1;
 	}
 }

@@ -31,4 +31,5 @@ public interface Dao {
 	public Pedido crearPedidoUsuario(int id_usu);
 
 	public int obtenerUltimoIdPed();
+	public int obtenerUltimoIdArt();
 }
