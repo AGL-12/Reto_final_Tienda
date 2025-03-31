@@ -1,5 +1,6 @@
 package controlador;
 
+import java.util.List;
 import java.util.Map;
 
 import excepciones.AltaError;
@@ -24,10 +25,6 @@ public class Principal {
 		return dao.login(cli);
 	}
 
-//	public static void Alta(Propietario propi) throws InsertError {
-//		dao.altaPropietario(propi);
-//	}
-//
 	public static Map<Integer, Cliente> listarCliente() {
 		return dao.listarClientesTod();
 	}
@@ -48,8 +45,8 @@ public class Principal {
 		return dao.obtenerTodosArticulos();
 	}
 
-	public static Pedido crearPedidoUsuario(int id_usu) {
-		return dao.crearPedidoUsuario(id_usu);
+	public static void crearPedidoUsuario(Pedido id_usu) {
+		dao.crearPedidoUsuario(id_usu);
 	}
 
 	public static int obtenerUltimoIdPed() {
@@ -62,5 +59,13 @@ public class Principal {
 
 	public static int obtenerNewIdCliente() {
 		return dao.obtenerNewIdCliente();
+	}
+
+	public static List<Articulo> obtenerArticulosPedido(int i) {
+		return dao.obtenerArticulosPedido(i);
+	}
+
+	public static List<Pedido> obtenerPedidosCliente(int id_usu) {
+		return dao.obtenerPedidosCliente(id_usu);
 	}
 }

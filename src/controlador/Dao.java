@@ -1,5 +1,6 @@
 package controlador;
 
+import java.util.List;
 import java.util.Map;
 
 import excepciones.AltaError;
@@ -15,7 +16,6 @@ public interface Dao {
 	public Cliente login(Cliente usu) throws LoginError;
 
 	public Map<Integer, Cliente> listarClientesTod();
-//	public Map<String, Pedido> listarPedidoCli();
 
 	public void altaCliente(Cliente clien) throws AltaError;
 
@@ -25,11 +25,16 @@ public interface Dao {
 
 	public Map<Integer, Articulo> obtenerTodosArticulos();
 
-	public Pedido crearPedidoUsuario(int id_usu);
+	public void crearPedidoUsuario(Pedido nuenoBD);
 
 	public int obtenerUltimoIdPed();
 
 	public Articulo buscarArticulo(int id_art);
 
 	public int obtenerNewIdCliente();
+
+	public List<Articulo> obtenerArticulosPedido(int i);
+
+	public List<Pedido> obtenerPedidosCliente(int id_usu);
+
 }

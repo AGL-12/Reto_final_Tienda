@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
@@ -88,7 +88,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 
 			@Override
 			public Class<?> getColumnClass(int columnIndex) {
-				return columnIndex == 6 ? Integer.class : String.class; // CheckBox en la primera columna
+				return columnIndex == 6 ? Integer.class : String.class;
 			}
 		};
 		model.addColumn("id_art");
@@ -106,7 +106,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 		for (Articulo art : articulos.values()) {
 			if (art.getStock() != 0) {
 				model.addRow(new Object[] { art.getId_art(), art.getNombre(), art.getDescripcion(), art.getPrecio(),
-						art.getOferta(), art.getStock(), 0 });
+						art.getOferta(), art.getStock(), null });
 			}
 		}
 
@@ -114,6 +114,9 @@ public class VistaTienda extends JDialog implements ActionListener {
 		tableArticulo.setModel(model);
 		// 🔹 OCULTAR LA COLUMNA ID_ART
 		tableArticulo.removeColumn(tableArticulo.getColumnModel().getColumn(0));
+		// Aplicar el comportamiento del clic en la celda
+		tableArticulo.setCellSelectionEnabled(true); // Permitir selección de celdas
+		tableArticulo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Solo seleccionar una celda a la vez
 		// Agregar el listener después de inicializar la tabla
 		model.addTableModelListener(new TableModelListener() {
 			@Override
@@ -157,6 +160,10 @@ public class VistaTienda extends JDialog implements ActionListener {
 
 			this.setVisible(true);
 		} else if (e.getSource().equals(btnCompra)) {
+			// Forzar que la celda en edición se guarde antes de continuar
+			if (tableArticulo.isEditing()) {
+				tableArticulo.getCellEditor().stopCellEditing();
+			}
 
 			Pedido preSetCompra = new Pedido(Principal.obtenerUltimoIdPed(), localClien.getId_usu(), 0,
 					LocalDateTime.now());
@@ -174,11 +181,13 @@ public class VistaTienda extends JDialog implements ActionListener {
 	private List<Compra> cargaPedCom(Pedido preSetCompra) {
 		List<Compra> listaCompra = new ArrayList<>();
 		for (int i = 0; i < model.getRowCount(); i++) {
-			int selecionado = (Integer) model.getValueAt(i, 6);
-			if (selecionado != 0) {
-				Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), preSetCompra.getId_usu(),
-						(Integer) model.getValueAt(i, 6));
-				listaCompra.add(palCarro);
+			if (model.getValueAt(i, 6) != null) {
+				int selecionado = (Integer) model.getValueAt(i, 6);
+				if (selecionado != 0) {
+					Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), preSetCompra.getId_usu(),
+							(Integer) model.getValueAt(i, 6));
+					listaCompra.add(palCarro);
+				}
 			}
 		}
 		return listaCompra;

@@ -2,6 +2,8 @@ package vista;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import controlador.Principal;
@@ -11,9 +13,6 @@ import modelo.Pedido;
 
 import java.awt.Font;
 import javax.swing.JButton;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -22,6 +21,8 @@ public class VistaCarrito extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	private JButton btnComprar, btnVolver;
+	private DefaultTableModel model;
+	private JTable tablaCarrito;
 
 	/**
 	 * Create the dialog.
@@ -31,69 +32,64 @@ public class VistaCarrito extends JDialog implements ActionListener {
 	public VistaCarrito(JDialog vista, List<Compra> listaCompra, Pedido preSetCompra) {
 		super(vista);
 		super.setModal(true);
-		setBounds(100, 100, 450, 300);
-		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 113, 93, 48, 113, 0 };
-		gridBagLayout.rowHeights = new int[] { 50, 198, 47, 0 };
-		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
-		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
-		getContentPane().setLayout(gridBagLayout);
+		setBounds(100, 100, 849, 608);
+		getContentPane().setLayout(null);
 
-		// Crear el modelo de la tabla con las columnas necesarias
-		DefaultTableModel model = new DefaultTableModel();
+		model = new DefaultTableModel();
 		model.addColumn("Nombre");
 		model.addColumn("Cantidad");
-		model.addColumn("Precio");
-		model.addColumn("Oferta (%)");
+		model.addColumn("Descuento oferta");
 		model.addColumn("Precio Final");
 		model.addColumn("Precio Total");
 
+		float totalCompra = 0;
+
 		for (Compra com : listaCompra) {
 			Articulo arti = Principal.buscarArticulo(com.getId_art());
-			model.addRow(new Object[] {
-					arti.getNombre(),
-					com.getCantidad(),
-					arti.getPrecio(),
-			});
+			float descontado = (arti.getOferta() / 100) * arti.getPrecio();
+			float precioFinal = arti.getPrecio() - descontado;
+			float precioTotal = precioFinal * com.getCantidad();
+			totalCompra += precioFinal;
+
+			model.addRow(new Object[] { arti.getNombre(), com.getCantidad(), descontado, precioFinal, precioTotal });
 		}
+		preSetCompra.setTotal(totalCompra);
+
+		tablaCarrito = new JTable(model);
+		// Crear el JScrollPane con la tabla correctamente inicializada
+		JScrollPane scrollPane = new JScrollPane(tablaCarrito);
+		scrollPane.setBounds(0, 0, 536, 335); // Ubicación y tamaño del JScrollPane
+		getContentPane().add(scrollPane); // Agregar el JScrollPane a la ventana
 
 		JLabel lblTitulo = new JLabel("CARRITO");
+		lblTitulo.setBounds(632, 0, 205, 90);
 		lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 16));
-		GridBagConstraints gbc_lblTitulo = new GridBagConstraints();
-		gbc_lblTitulo.fill = GridBagConstraints.BOTH;
-		gbc_lblTitulo.insets = new Insets(0, 0, 5, 5);
-		gbc_lblTitulo.gridx = 1;
-		gbc_lblTitulo.gridy = 0;
-		getContentPane().add(lblTitulo, gbc_lblTitulo);
+		getContentPane().add(lblTitulo);
 
 		btnVolver = new JButton("BACK");
+		btnVolver.setBounds(315, 407, 181, 103);
 		btnVolver.setFont(new Font("Tahoma", Font.BOLD, 16));
-		GridBagConstraints gbc_btnVolver = new GridBagConstraints();
-		gbc_btnVolver.fill = GridBagConstraints.BOTH;
-		gbc_btnVolver.insets = new Insets(0, 0, 0, 5);
-		gbc_btnVolver.gridx = 0;
-		gbc_btnVolver.gridy = 2;
-		getContentPane().add(btnVolver, gbc_btnVolver);
+		getContentPane().add(btnVolver);
 		btnVolver.addActionListener(this);
 
 		btnComprar = new JButton("BUY");
+		btnComprar.setBounds(40, 407, 198, 103);
 		btnComprar.setFont(new Font("Tahoma", Font.BOLD, 16));
-		GridBagConstraints gbc_btnComprar = new GridBagConstraints();
-		gbc_btnComprar.fill = GridBagConstraints.BOTH;
-		gbc_btnComprar.gridx = 3;
-		gbc_btnComprar.gridy = 2;
-		getContentPane().add(btnComprar, gbc_btnComprar);
+		getContentPane().add(btnComprar);
 		btnComprar.addActionListener(this);
 
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
 		if (e.getSource().equals(btnComprar)) {
-
+			fullCompra();
 		} else if (e.getSource().equals(btnVolver)) {
-
+			this.dispose();
 		}
+	}
+
+	private void fullCompra() {
+		
 	}
 }

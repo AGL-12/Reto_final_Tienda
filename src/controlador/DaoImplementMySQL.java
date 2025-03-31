@@ -6,8 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -35,12 +36,13 @@ public class DaoImplementMySQL implements Dao {
 	final String ELIMINAR_CLIENTE = "DELETE from cliente where id_clien=?";
 	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?";
 	final String select_cliente = "select * from cliente";
-	final String pedido_cliente = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?)";
+	final String pedido_compra = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?)";
 	final String TODOS_ARTICULOS = "SELECT * FROM articulo";
-	final String crear_pediod_cliente = "insert into pedido (id_clien,fecha_compra) values (?,?)";
+	final String crear_pediod_cliente = "insert into pedido (id_ped,id_clien,total,fecha_compra) values (?,?,?,?)";
 	final String newIdPedido = "SELECT MAX(id_ped) FROM pedido";
 	final String newIdCliente = "SELECT MAX(id_clien) FROM cliente";
 	final String busca_articulo = "SELECT * FROM articulo where id_art=?";
+	final String pedidos_cliente = "SELECT * FROM pedido where id_clien=?";
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -93,21 +95,15 @@ public class DaoImplementMySQL implements Dao {
 			} else {
 				// Recuperamos los datos del usuario autenticado
 				usuarioAutenticado = new Cliente();
-				usuarioAutenticado.setId_usu(rs.getInt("id_clien")); // Asegúrate de que el nombre de la columna sea
-																		// "id_usu"
-				usuarioAutenticado.setUsuario(rs.getString("usuario")); // Asegúrate de que el nombre de la columna sea
-																		// "id_usu"
-				usuarioAutenticado.setContra(rs.getString("contra")); // Asegúrate de que el nombre de la columna sea
-																		// "id_usu"
+				usuarioAutenticado.setId_usu(rs.getInt("id_clien"));
+				usuarioAutenticado.setUsuario(rs.getString("usuario"));
+				usuarioAutenticado.setContra(rs.getString("contra"));
 				usuarioAutenticado.setDni(rs.getString("dni"));
 				usuarioAutenticado.setCorreo(rs.getString("correo"));
 				usuarioAutenticado.setDireccion(rs.getString("direccion"));
-				usuarioAutenticado.setMetodo_pago(Metodo.valueOf(rs.getString("metodo_pago"))); // Asegúrate de que
-																								// coincida con la
-																								// estructura de la base
-																								// de datos
+				usuarioAutenticado.setMetodo_pago(Metodo.valueOf(rs.getString("metodo_pago")));
 				usuarioAutenticado.setNum_cuenta(rs.getString("num_cuenta"));
-				usuarioAutenticado.setEsAdmin(rs.getBoolean("esAdmin")); // Suponiendo que hay una columna "rol"
+				usuarioAutenticado.setEsAdmin(rs.getBoolean("esAdmin"));
 			}
 		} catch (SQLException e) {
 			throw new LoginError("Error con el SQL");
@@ -175,7 +171,7 @@ public class DaoImplementMySQL implements Dao {
 		ResultSet rs = null;
 
 		try {
-			stmt = con.prepareStatement(pedido_cliente);
+			stmt = con.prepareStatement(pedido_compra);
 			stmt.setInt(1, id);
 			rs = stmt.executeQuery();
 
@@ -193,19 +189,13 @@ public class DaoImplementMySQL implements Dao {
 		return paraCargar;
 	}
 
-//	@Override
-//	public Map<String, Pedido> listarPedidoCli() {
-//		
-//		return null;
-//	}
-
 	@Override
 	public void altaCliente(Cliente clien) throws AltaError {
 		openConnection();
 
 		try {
 			stmt = con.prepareStatement(INSERTAR_CLIENTE);
-			
+
 			stmt.setInt(1, clien.getId_usu());
 			stmt.setString(2, clien.getUsuario());
 			stmt.setString(3, clien.getContra());
@@ -297,22 +287,21 @@ public class DaoImplementMySQL implements Dao {
 	}
 
 	@Override
-	public Pedido crearPedidoUsuario(int id_usu) {
+	public void crearPedidoUsuario(Pedido nuevoBD) {
 		openConnection();
 		try {
 			stmt = con.prepareStatement(crear_pediod_cliente);
 
-			stmt.setInt(1, id_usu);
-			// Convertir LocalDateTime a Timestamp
-			Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-			stmt.setTimestamp(2, timestamp);
+			stmt.setInt(1, nuevoBD.getId_ped());
+			stmt.setInt(2, nuevoBD.getId_usu());
+			stmt.setFloat(3, nuevoBD.getTotal());
+			// Convertir LocalDateTime a Timestamp correctamente
+			stmt.setTimestamp(4, Timestamp.valueOf(nuevoBD.getFecha_compra()));
 
-			stmt.executeQuery();
+			stmt.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
-		return null;
 	}
 
 	@Override
@@ -395,5 +384,43 @@ public class DaoImplementMySQL implements Dao {
 			}
 		}
 		return ultimoId + 1;
+	}
+
+	@Override
+	public List<Articulo> obtenerArticulosPedido(int id_clien) {
+		List<Compra> listaCompra = new ArrayList<>();
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Pedido> obtenerPedidosCliente(int id_usu) {
+		List<Pedido> listaPedidos = new ArrayList<>();
+		// TODO Auto-generated method stub
+
+		openConnection();
+		ResultSet rs = null;
+		try {
+			stmt = con.prepareStatement(pedidos_cliente);
+			stmt.setInt(1, id_usu);
+			rs = stmt.executeQuery();
+			while (rs.next()) {
+				Pedido ped = new Pedido();
+				ped.setId_ped(rs.getInt("id_ped"));
+				ped.setId_usu(id_usu);
+				ped.setTotal(rs.getFloat("total"));
+				// Obtener timestamp y convertirlo a LocalDateTime
+				Timestamp timestamp = rs.getTimestamp("fecha_compra");
+				if (timestamp != null) {
+					ped.setFecha_compra(timestamp.toLocalDateTime());
+				}
+				listaPedidos.add(ped);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return listaPedidos;
 	}
 }

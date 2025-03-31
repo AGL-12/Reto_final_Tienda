@@ -16,6 +16,9 @@ public class Pedido {
 		this.fecha_compra = fecha_compra;
 	}
 
+	public Pedido() {
+	}
+
 	public int getId_ped() {
 		return id_ped;
 	}
