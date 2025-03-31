@@ -80,12 +80,6 @@ public class VistaUsuario extends JDialog implements ActionListener {
 
 	/**
 	 * Launch the application.
-	 */
-	/*
-	 * public static void main(String[] args) { try { VistaUsuario dialog = new
-	 * VistaUsuario(); dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-	 * dialog.setVisible(true); } catch (Exception e) { e.printStackTrace(); } }
-	 */
 
 	/**
 	 * Create the dialog.
@@ -398,7 +392,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		super(ventPadre instanceof JFrame ? (JFrame) ventPadre
 				: ventPadre instanceof JDialog ? (JDialog) ventPadre : null);
 		localClien = clien;
-		
+
 		setModal(modal);
 
 		inicializarComponentes();
@@ -694,7 +688,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		gbc_btnModificar.gridy = 10;
 		contentPanel.add(btnModificar, gbc_btnModificar);
 		btnModificar.addActionListener(this);
-		
+
 		btnDrop = new JButton("DROP");
 		btnDrop.setFont(new Font("Tahoma", Font.BOLD, 14));
 		GridBagConstraints gbc_btnDrop = new GridBagConstraints();
@@ -724,15 +718,15 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			alta();
 		} else if (e.getSource().equals(btnModificar)) {
 			modificar(localClien);
-		}else if (e.getSource().equals(btnDrop)) {
+		} else if (e.getSource().equals(btnDrop)) {
 			baja(localClien);
-			
-			
+
 		}
 	}
 
 	private void alta() {
 		Cliente clien = new Cliente();
+		clien.setId_usu(Principal.obtenerNewIdCliente());
 		clien.setUsuario(textUser.getText());
 		clien.setContra(new String(passwordFieldContra.getPassword()));
 		clien.setCorreo(textEmail.getText());
@@ -756,7 +750,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	
+
 		dispose();
 	}
 
@@ -782,11 +776,11 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			// TODO Auto-generated catch block
 			e.visualizarMen();
 		}
-		
+
 		dispose();
 	}
 
-	private void baja(Cliente clien)  {
+	private void baja(Cliente clien) {
 		try {
 			Principal.bajaCliente(clien);
 			JOptionPane.showMessageDialog(this, "Baja exitosa", "Mensaje", DISPOSE_ON_CLOSE);

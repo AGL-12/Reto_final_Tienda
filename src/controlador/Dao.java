@@ -28,5 +28,9 @@ public interface Dao {
 	public Map<Integer, Articulo> obtenerTodosArticulos();
 	public int guardarPedido(int idUsuario, float totalCompra, LocalDateTime fechaCompra) throws SQLException;
 	public void guardarCompra(int idPedido, int idArticulo, int cantidad) throws SQLException;
+
+	public int obtenerNewIdCliente();
+
+	public int obtenerUltimoIdPed() throws SQLException;
 }
 

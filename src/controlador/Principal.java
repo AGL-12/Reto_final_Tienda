@@ -18,8 +18,7 @@ public class Principal {
 	public static void main(String[] args) {
 		VistaLogIn inicio = new VistaLogIn();
 		inicio.setVisible(true);
-		
-		
+
 	}
 
 	public static Cliente login(Cliente cli) throws LoginError {
@@ -43,18 +42,22 @@ public class Principal {
 		dao.modificarCliente(clien);
 	}
 
-	public static void bajaCliente(Cliente clien) throws DropError{
+	public static void bajaCliente(Cliente clien) throws DropError {
 		// TODO Auto-generated method stub
 		dao.bajaCliente(clien);
 	}
-	
-	public void guardarCompra(int idPedido, int idArticulo, int cantidad) throws SQLException{
+
+	public static void guardarCompra(int idPedido, int idArticulo, int cantidad) throws SQLException {
 		dao.guardarCompra(idPedido, idArticulo, cantidad);
 	}
-	
-	public void guardarPedido(int idUsuario, float totalCompra, LocalDateTime fechaCompra) throws SQLException {
-		dao.guardarPedido(idUsuario, totalCompra, fechaCompra);
+
+	public static int guardarPedido(int idUsuario, float totalCompra, LocalDateTime fechaCompra) throws SQLException {
+		;
+		return dao.guardarPedido(idUsuario, totalCompra, fechaCompra);
 	}
-	
+
+	public static int obtenerNewIdCliente() {
+		return dao.obtenerNewIdCliente();
+	}
 
 }

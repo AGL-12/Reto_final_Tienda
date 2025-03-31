@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import controlador.Dao;
 import controlador.DaoImplementMySQL;
+import controlador.Principal;
 import modelo.Articulo;
 import modelo.Cliente;
 import modelo.Pedido;
@@ -38,6 +39,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
 	private Pedido pedido;
 	private JButton btnVolver, btnComprar;
 	private Cliente clienteActual;
+
 	/**
 	 * Launch the application.
 	 */
@@ -62,46 +64,32 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		getContentPane().setLayout(gridBagLayout);
 
-		
 		DefaultTableModel model = new DefaultTableModel();
 		model.addColumn("Nombre");
 		model.addColumn("Cantidad");
-		//model.addColumn("Precio");
-		//model.addColumn("Oferta (%)");
-		model.addColumn("Precio Final"); //Con oferta aplicada
-		model.addColumn("Precio Total"); //Total de los articulos
-
+		model.addColumn("Precio Final");
+		model.addColumn("Precio Total");
 
 		float totalCompra = 0;
 
-	
 		for (Articulo art : carrito.values()) {
-			int cantidadSeleccionada = art.getStock(); 
+			int cantidadSeleccionada = art.getStock();
 			float descuento = (art.getOferta() / 100) * art.getPrecio();
 			float precioFinal = art.getPrecio() - descuento;
 			float precioTotal = precioFinal * cantidadSeleccionada;
-			totalCompra += precioTotal; 
+			totalCompra += precioTotal;
 
-			model.addRow(new Object[] { 
-				art.getNombre(), 
-				cantidadSeleccionada, 
-				//art.getPrecio(), 
-				//art.getOferta(), 
-				precioFinal, 
-				precioTotal 
-			});
+			model.addRow(new Object[] { art.getNombre(), cantidadSeleccionada,
+
+					precioFinal, precioTotal });
 		}
-		
-		pedido.setTotal(totalCompra); 
 
-		
-		model.addRow(new Object[] { "Total Compra", 
-				"", 
-				//"", 
-				//"",
-				"",
-				totalCompra 
-		});
+		pedido.setTotal(totalCompra);
+
+		model.addRow(new Object[] { "Total Compra", "",
+				// "",
+				// "",
+				"", totalCompra });
 
 		JLabel lblTitulo = new JLabel("CARRITO");
 		lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 16));
@@ -113,8 +101,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		gbc_lblTitulo.gridy = 0;
 		getContentPane().add(lblTitulo, gbc_lblTitulo);
 
-		
-		tableCarrito = new JTable(model); 
+		tableCarrito = new JTable(model);
 		JScrollPane scrollPane = new JScrollPane(tableCarrito);
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		gbc_scrollPane.gridwidth = 2;
@@ -122,7 +109,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		gbc_scrollPane.insets = new Insets(0, 0, 5, 5);
 		gbc_scrollPane.gridx = 0;
 		gbc_scrollPane.gridy = 1;
-		getContentPane().add(scrollPane, gbc_scrollPane); 
+		getContentPane().add(scrollPane, gbc_scrollPane);
 
 		btnVolver = new JButton("BACK");
 		btnVolver.setFont(new Font("Tahoma", Font.BOLD, 16));
@@ -148,74 +135,39 @@ public class VistaCarrito extends JDialog implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		
-	    if (e.getSource().equals(btnComprar)) {
-	        // Obtener el total de la compra
-	        float totalCompra = pedido.getTotal();
-	        // Obtener el usuario actual (suponiendo que tienes el ID del usuario logueado)
-	        int idUsuario = clienteActual.getId_usu();
 
-	        // Obtener la fecha actual
-	        LocalDateTime now = LocalDateTime.now();
-	        // Crear una instancia de DaoImplementMySQL
-	        Dao dao = new DaoImplementMySQL();
-	        // Guardar el pedido en la base de datos
-	        int idPedido = 0;
+		if (e.getSource().equals(btnComprar)) {
+			int idPedido = 0;
+			float totalCompra = pedido.getTotal();
+			int idUsuario = clienteActual.getId_usu();
+			LocalDateTime now = LocalDateTime.now();
 			try {
-				idPedido = dao.guardarPedido(idUsuario, totalCompra, now);
+				idPedido = Principal.guardarPedido(idUsuario, totalCompra, now);
+
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 
-	        // Registrar los artículos en el pedido
-	        for (Articulo art : carrito.values()) {
-	        	int idArticulo = art.getId_art();
-	            int cantidad = art.getStock();  // O la cantidad que se seleccionó en el carrito
-	            // Depuración: Imprimir los valores de id_art y cantidad
-	            System.out.println("Guardando artículo: ID = " + idArticulo + ", Cantidad = " + cantidad);
+			for (Articulo art : carrito.values()) {
+				int idArticulo = art.getId_art();
+				int cantidad = art.getStock();
 
-	            try {
-					dao.guardarCompra(idPedido, art.getId_art(), cantidad);
+				System.out.println("Guardando artículo: ID = " + idArticulo + ", Cantidad = " + cantidad);
+
+				try {
+					Principal.guardarCompra(idPedido, art.getId_art(), cantidad);
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-	        }
+			}
 
-	        // Mostrar mensaje de éxito o cerrar el carrito
-	        JOptionPane.showMessageDialog(this, "¡Compra realizada con éxito!");
-	        this.dispose(); // Cierra la ventana del carrito
-	    } else if (e.getSource().equals(btnVolver)) {
-	        this.dispose(); // Vuelve a la pantalla anterior
-	    }
-	}
-    
-
-
-	private void cargarArticulos() {
-
-		DefaultTableModel model = new DefaultTableModel();
-		model.addColumn("Nombre");
-		model.addColumn("Cantidad");
-		model.addColumn("Precio");
-		model.addColumn("Precio Total Compra");
-
-		float totalCompra = 0;
-
-		
-		for (Articulo art : carrito.values()) {
-			float precioTotal = art.getPrecio() * art.getStock();
-			totalCompra += precioTotal; 
-
-			model.addRow(new Object[] { art.getNombre(), 
-					art.getStock(), 
-					art.getPrecio(), 
-					precioTotal
-			});
+			JOptionPane.showMessageDialog(this, "¡Compra realizada con éxito!");
+			this.dispose();
+		} else if (e.getSource().equals(btnVolver)) {
+			this.dispose();
 		}
-
 	}
-	
-	
+
 }

@@ -30,12 +30,13 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 
-public class VistaTienda extends JDialog implements ActionListener{
+public class VistaTienda extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	private JTable tableArticulo;
 	private JButton btnUsuario, btnCompra, btnAdmin;
 	private Cliente cambio;
+
 	/**
 	 * Create the dialog.
 	 */
@@ -44,224 +45,116 @@ public class VistaTienda extends JDialog implements ActionListener{
 		super.setModal(modal);
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
-		
-		this.cambio= clien;
 
-	  
+		this.cambio = clien;
+
 		JLabel lblTitulo = new JLabel("DYE TOOLS");
 		lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblTitulo.setBounds(157, 10, 106, 38);
 		getContentPane().add(lblTitulo);
-		
-		/*tableProductos = new JTable();
-		tableProductos.setBounds(30, 62, 360, 115);
-		getContentPane().add(tableProductos);*/
-		
-		 btnUsuario = new JButton("USER");
+
+		btnUsuario = new JButton("USER");
 		btnUsuario.setFont(new Font("Tahoma", Font.BOLD, 12));
 		btnUsuario.setBounds(10, 232, 85, 21);
 		getContentPane().add(btnUsuario);
 		btnUsuario.addActionListener(this);
-		
-		 btnAdmin = new JButton("ADMIN");
+
+		btnAdmin = new JButton("ADMIN");
 		btnAdmin.setFont(new Font("Tahoma", Font.BOLD, 12));
 		btnAdmin.setBounds(109, 233, 85, 21);
 		getContentPane().add(btnAdmin);
-		
-		 btnCompra = new JButton("BUY");
+
+		btnCompra = new JButton("BUY");
 		btnCompra.setFont(new Font("Tahoma", Font.BOLD, 12));
 		btnCompra.setBounds(341, 233, 85, 21);
 		getContentPane().add(btnCompra);
 		btnCompra.addActionListener(this);
-			
-		
+
 		tableArticulo = new JTable();
 
-	
 		JScrollPane scrollPane = new JScrollPane(tableArticulo);
-		scrollPane.setBounds(51, 88, 327, 85); 
-		getContentPane().add(scrollPane); 
-		
-		
-		
-		DefaultTableModel model = new DefaultTableModel(new Object[]{ "Nombre", "Descripción", "Precio", "Oferta", "Stock", "Cantidad"}, 0) {
-		    @Override
-		    public Class<?> getColumnClass(int columnIndex) {
-		        if (columnIndex == 2 || columnIndex == 3) { 
-		            return Float.class;
-		        } else if (columnIndex == 4 || columnIndex == 5) { 
-		            return Integer.class;
-		        }
-		        return String.class;
-		    }
+		scrollPane.setBounds(51, 88, 327, 85);
+		getContentPane().add(scrollPane);
 
-		    @Override
-		    public boolean isCellEditable(int row, int column) {
-		        return column == 5; // Solo la columna de cantidad es editable
-		    }
+		DefaultTableModel model = new DefaultTableModel(
+				new Object[] { "Nombre", "Descripción", "Precio", "Oferta", "Stock", "Cantidad" }, 0) {
+			@Override
+			public Class<?> getColumnClass(int columnIndex) {
+				if (columnIndex == 2 || columnIndex == 3) {
+					return Float.class;
+				} else if (columnIndex == 4 || columnIndex == 5) {
+					return Integer.class;
+				}
+				return String.class;
+			}
+
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return column == 5; // Solo la columna de cantidad es editable
+			}
 		};
-		/*// Crear un modelo de tabla vacío
-		DefaultTableModel model = new DefaultTableModel(); 
-        model.addColumn("");
-        model.addColumn("Nombre");
-		model.addColumn("Descripción");
-		model.addColumn("Precio");
-		model.addColumn("Oferta");
-		model.addColumn("Stock");
-	    model.addColumn("Cantidad");*/
-
 
 		Dao dao = new DaoImplementMySQL();
 		Map<Integer, Articulo> articulos = dao.obtenerTodosArticulos();
 
-		// Agregar los datos de los artículos al modelo de la tabla
 		for (Articulo art : articulos.values()) {
-			if (art.getStock()!=0) {
-		    model.addRow(new Object[]{
-		    	//false,
-		        art.getNombre(),
-		        art.getDescripcion(),
-		        art.getPrecio(),
-		        art.getOferta(),
-		        art.getStock(),
-		        0
-		    });
+			if (art.getStock() != 0) {
+				model.addRow(new Object[] {
+						// false,
+						art.getNombre(), art.getDescripcion(), art.getPrecio(), art.getOferta(), art.getStock(), 0 });
 			}
 		}
 
-		
 		tableArticulo.setModel(model);
 
-     
-        TableColumn selectColumn = tableArticulo.getColumnModel().getColumn(0);
-        JCheckBox checkBox = new JCheckBox();
-        checkBox.setHorizontalAlignment(JCheckBox.CENTER);
-        selectColumn.setCellEditor(new DefaultCellEditor(checkBox));
-/*
-		   // Configurar la columna "Seleccionar" para mostrar checkboxes
-        TableColumn selectColumn = tableArticulo.getColumnModel().getColumn(0);
-        JCheckBox checkBox = new JCheckBox();
-        selectColumn.setCellEditor(new DefaultCellEditor(checkBox));
-
-        // Configurar la columna "Cantidad" para ser editable con un JTextField
-        TableColumn quantityColumn = tableArticulo.getColumnModel().getColumn(6);
-        quantityColumn.setCellEditor(new DefaultCellEditor(new JTextField()));
-    }*/
-		
-
-		// Configurar la columna "Seleccionar" para mostrar checkboxes
-		//TableColumn selectColumn = tableArticulo.getColumnModel().getColumn(0);
-
-		/*// Crear un JCheckBox como editor de la celda (para poder marcar/desmarcar)
+		TableColumn selectColumn = tableArticulo.getColumnModel().getColumn(0);
 		JCheckBox checkBox = new JCheckBox();
-		checkBox.setHorizontalAlignment(JCheckBox.CENTER);  // Centrar el checkbox
+		checkBox.setHorizontalAlignment(JCheckBox.CENTER);
 		selectColumn.setCellEditor(new DefaultCellEditor(checkBox));
-*/
-		// Configurar el renderizador para que se muestre un tick (✔) cuando está marcado
-		/*selectColumn.setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
-		    @Override
-		    public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-		        JCheckBox checkBox = new JCheckBox();
-		        checkBox.setSelected(value != null && (Boolean) value); // Marca el checkbox si el valor es true
-		        return checkBox;
-		    }
-		});*/
-	}
 
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-	    if (e.getSource().equals(btnUsuario)) {
-            VistaUsuario vistaUsuario = new VistaUsuario(this.cambio, this, true);
-            vistaUsuario.setVisible(true);
-            this.dispose();
-        } else if (e.getSource().equals(btnCompra)) {
-            abrirCarrito();
-        }
-	}
-	
-	  private void abrirCarrito() {
-	        Map<Integer, Articulo> seleccionados = obtenerArticulosSeleccionados();
-	        VistaCarrito carrito = new VistaCarrito(cambio, this, true, seleccionados);
-	        carrito.setVisible(true);
-	    }
-	
-	
-	  /*private Map<Integer, Articulo> obtenerArticulosSeleccionados() {
-		    Map<Integer, Articulo> seleccionados = new HashMap<>();
-		    DefaultTableModel model = (DefaultTableModel) tableArticulo.getModel();
-
-		    for (int i = 0; i < model.getRowCount(); i++) {
-//		        Boolean seleccionado = (Boolean) model.getValueAt(i, 0);  // Columna de checkbox
-		        int valor = (Integer) model.getValueAt(i, 6);  
-		        if (valor!=0) {
-		            
-		            String nombre = (String) model.getValueAt(i, 1);  
-		            float precio = (Float) model.getValueAt(i, 3); 
-		            float oferta = (Float) model.getValueAt(i, 4);
-		            int cantidad = (Integer) model.getValueAt(i, 6);  
-
-		            if (cantidad > 0) {
-		                Articulo articulo = new Articulo(0, nombre, "", cantidad, precio,oferta, null);  
-		                articulo.setStock(cantidad);  
-		                seleccionados.put(seleccionados.size() + 1, articulo);  
-		            }
-		        }
-		    }
-		    return seleccionados;
-		}*/
-	  
-	 /* private Map<Integer, Articulo> obtenerArticulosSeleccionados() {
-		    Map<Integer, Articulo> seleccionados = new HashMap<>();
-		    DefaultTableModel model = (DefaultTableModel) tableArticulo.getModel();
-
-		    for (int i = 0; i < model.getRowCount(); i++) {
-		        int cantidad = (Integer) model.getValueAt(i, 5); // Nueva posición de la columna cantidad
-		        if (cantidad > 0) {
-		            String nombre = (String) model.getValueAt(i, 0);
-		            String descripcion = (String) model.getValueAt(i, 1);
-		            float precio = (Float) model.getValueAt(i, 2);
-		            float oferta = (Float) model.getValueAt(i, 3);
-
-		            Articulo articulo = new Articulo(0, nombre, descripcion, cantidad, precio, oferta, null);
-		            seleccionados.put(seleccionados.size() + 1, articulo);
-		        }
-		    }
-		    return seleccionados;
-		}*/
-	  
-	  private Map<Integer, Articulo> obtenerArticulosSeleccionados() {
-		    Map<Integer, Articulo> seleccionados = new HashMap<>();
-		    DefaultTableModel model = (DefaultTableModel) tableArticulo.getModel();
-		    
-		    Dao dao = new DaoImplementMySQL();
-		    Map<Integer, Articulo> todosLosArticulos = dao.obtenerTodosArticulos(); // Obtener artículos originales desde BD
-
-		    for (int i = 0; i < model.getRowCount(); i++) {
-		        int cantidad = (Integer) model.getValueAt(i, 5); // Nueva posición de la columna cantidad
-		        if (cantidad > 0) {
-		            String nombre = (String) model.getValueAt(i, 0);
-		            
-		            // Buscar el artículo original por nombre para obtener su ID real
-		            for (Articulo art : todosLosArticulos.values()) {
-		                if (art.getNombre().equals(nombre)) {
-		                    Articulo articulo = new Articulo(
-		                        art.getId_art(), // Aquí se usa el ID real en lugar de 0
-		                        art.getNombre(),
-		                        art.getDescripcion(),
-		                        cantidad, // Cantidad seleccionada
-		                        art.getPrecio(),
-		                        art.getOferta(),
-		                        art.getSeccion()
-		                    );
-		                    
-		                    seleccionados.put(art.getId_art(), articulo);
-		                    break; // Detener búsqueda tras encontrar el artículo
-		                }
-		            }
-		        }
-		    }
-		    return seleccionados;
+		if (e.getSource().equals(btnUsuario)) {
+			VistaUsuario vistaUsuario = new VistaUsuario(this.cambio, this, true);
+			vistaUsuario.setVisible(true);
+			this.dispose();
+		} else if (e.getSource().equals(btnCompra)) {
+			abrirCarrito();
 		}
+	}
+
+	private void abrirCarrito() {
+		Map<Integer, Articulo> seleccionados = obtenerArticulosSeleccionados();
+		VistaCarrito carrito = new VistaCarrito(cambio, this, true, seleccionados);
+		carrito.setVisible(true);
+	}
+
+	private Map<Integer, Articulo> obtenerArticulosSeleccionados() {
+		Map<Integer, Articulo> seleccionados = new HashMap<>();
+		DefaultTableModel model = (DefaultTableModel) tableArticulo.getModel();
+
+		Dao dao = new DaoImplementMySQL();
+		Map<Integer, Articulo> todosLosArticulos = dao.obtenerTodosArticulos(); // Obtener artículos originales desde BD
+
+		for (int i = 0; i < model.getRowCount(); i++) {
+			int cantidad = (Integer) model.getValueAt(i, 5); // Nueva posición de la columna cantidad
+			if (cantidad > 0) {
+				String nombre = (String) model.getValueAt(i, 0);
+
+				for (Articulo art : todosLosArticulos.values()) {
+					if (art.getNombre().equals(nombre)) {
+						Articulo articulo = new Articulo(art.getId_art(), art.getNombre(), art.getDescripcion(),
+								cantidad, art.getPrecio(), art.getOferta(), art.getSeccion());
+
+						seleccionados.put(art.getId_art(), articulo);
+						break;
+					}
+				}
+			}
+		}
+		return seleccionados;
+	}
 }
