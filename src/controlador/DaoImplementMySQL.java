@@ -6,12 +6,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.sql.Statement;
-import java.sql.Timestamp;
 
 //import com.mysql.cj.xdevapi.Statement;
 
@@ -21,7 +22,6 @@ import excepciones.AltaError;
 import excepciones.DropError;
 import excepciones.LoginError;
 import excepciones.modifyError;
-import modelo.Articulo;
 import modelo.Cliente;
 import modelo.Compra;
 import modelo.Metodo;
@@ -35,35 +35,28 @@ public class DaoImplementMySQL implements Dao {
 	// Atributos
 	private Connection con;
 	private PreparedStatement stmt;
-
 	// Sentencias SQL CLIENTE
 	final String LOGIN = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
 	final String INSERTAR_CLIENTE = "INSERT INTO cliente(id_clien, usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?,?)";
-
 	// Sentencias SQL
 	final String login = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
-
 	final String ELIMINAR_CLIENTE = "DELETE from cliente where id_clien=?";
-
 	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?;";
-	// final String newIdCliente = "SELECT MAX(id_clien) FROM cliente";
-	// SENTENCIAS SQL PEDIDO Y COMPRA
 	final String INTRODUCIR_PEDIDO = "INSERT INTO pedido (id_ped, id_clien, total, fecha_compra) VALUES (?, ?, ?, ?)";
 	final String INTRODUCIR_COMPRA = "INSERT INTO compra(id_art, id_ped, cantidad) VALUES (?, ?, ?)";
-
 	final String select_cliente = "select * from cliente";
 	final String pedido_cliente = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?)";
-
+	final String pedido_compra = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?)";
 	final String TODOS_ARTICULOS = "SELECT * FROM articulo";
-
 	final String newIdPedido = "SELECT MAX(id_ped) FROM pedido";
 	final String CREAR_PEDIDO_CLIENTE = "insert into pedido (id_clien,fecha_compra) values (?,?)";
 	final String CANTIDAD_COMPRA = "UPDATE articulo SET stock = stock - ? WHERE id_art = ?";
-
 	final String crear_pediod_cliente = "insert into pedido (id_clien,fecha_compra) values (?,?)";
-
 	final String newIdCliente = "SELECT MAX(id_clien) FROM cliente";
 	final String busca_articulo = "SELECT * FROM articulo where id_art=?";
+	final String pedidos_cliente = "SELECT * FROM pedido where id_clien=?";
+	
+	//Falta insert values de pedido y compra en pedido tiene que haber un for para ir metiendo las compras
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -194,7 +187,7 @@ public class DaoImplementMySQL implements Dao {
 		ResultSet rs = null;
 
 		try {
-			stmt = con.prepareStatement(pedido_cliente);
+			stmt = con.prepareStatement(pedido_compra);
 			stmt.setInt(1, id);
 			rs = stmt.executeQuery();
 
@@ -211,12 +204,6 @@ public class DaoImplementMySQL implements Dao {
 		}
 		return paraCargar;
 	}
-
-//	@Override
-//	public Map<String, Pedido> listarPedidoCli() {
-//		
-//		return null;
-//	}
 
 	@Override
 	public void altaCliente(Cliente clien) throws AltaError {
@@ -399,22 +386,21 @@ public class DaoImplementMySQL implements Dao {
 	}
 
 	@Override
-	public Pedido crearPedidoUsuario(int id_usu) {
+	public void crearPedidoUsuario(Pedido nuevoBD) {
 		openConnection();
 		try {
 			stmt = con.prepareStatement(crear_pediod_cliente);
 
-			stmt.setInt(1, id_usu);
-			// Convertir LocalDateTime a Timestamp
-			Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-			stmt.setTimestamp(2, timestamp);
+			stmt.setInt(1, nuevoBD.getId_ped());
+			stmt.setInt(2, nuevoBD.getId_usu());
+			stmt.setFloat(3, nuevoBD.getTotal());
+			// Convertir LocalDateTime a Timestamp correctamente
+			stmt.setTimestamp(4, Timestamp.valueOf(nuevoBD.getFecha_compra()));
 
-			stmt.executeQuery();
+			stmt.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
-		return null;
 	}
 
 	@Override
@@ -497,5 +483,43 @@ public class DaoImplementMySQL implements Dao {
 			}
 		}
 		return ultimoId + 1;
+	}
+
+	@Override
+	public List<Articulo> obtenerArticulosPedido(int id_clien) {
+		List<Compra> listaCompra = new ArrayList<>();
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Pedido> obtenerPedidosCliente(int id_usu) {
+		List<Pedido> listaPedidos = new ArrayList<>();
+		// TODO Auto-generated method stub
+
+		openConnection();
+		ResultSet rs = null;
+		try {
+			stmt = con.prepareStatement(pedidos_cliente);
+			stmt.setInt(1, id_usu);
+			rs = stmt.executeQuery();
+			while (rs.next()) {
+				Pedido ped = new Pedido();
+				ped.setId_ped(rs.getInt("id_ped"));
+				ped.setId_usu(id_usu);
+				ped.setTotal(rs.getFloat("total"));
+				// Obtener timestamp y convertirlo a LocalDateTime
+				Timestamp timestamp = rs.getTimestamp("fecha_compra");
+				if (timestamp != null) {
+					ped.setFecha_compra(timestamp.toLocalDateTime());
+				}
+				listaPedidos.add(ped);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return listaPedidos;
 	}
 }

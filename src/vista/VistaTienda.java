@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
@@ -102,7 +102,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 
 			@Override
 			public Class<?> getColumnClass(int columnIndex) {
-				return columnIndex == 6 ? Integer.class : String.class; // CheckBox en la primera columna
+				return columnIndex == 6 ? Integer.class : String.class;
 			}
 		};
 		model.addColumn("id_art");
@@ -119,13 +119,16 @@ public class VistaTienda extends JDialog implements ActionListener {
 		for (Articulo art : articulos.values()) {
 			if (art.getStock() != 0) {
 				model.addRow(new Object[] { art.getId_art(), art.getNombre(), art.getDescripcion(), art.getPrecio(),
-						art.getOferta(), art.getStock(), 0 });
+						art.getOferta(), art.getStock(), null });
 			}
 		}
 
 		tableArticulo.setModel(model);
 		// 🔹 OCULTAR LA COLUMNA ID_ART
 		tableArticulo.removeColumn(tableArticulo.getColumnModel().getColumn(0));
+		// Aplicar el comportamiento del clic en la celda
+		tableArticulo.setCellSelectionEnabled(true); // Permitir selección de celdas
+		tableArticulo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Solo seleccionar una celda a la vez
 		// Agregar el listener después de inicializar la tabla
 		model.addTableModelListener(new TableModelListener() {
 
@@ -175,45 +178,59 @@ public class VistaTienda extends JDialog implements ActionListener {
 	}
 
 	private void abrirCarrito() {
-		Map<Integer, Articulo> seleccionados = obtenerArticulosSeleccionados();
-		VistaCarrito carrito = new VistaCarrito(cambio, this, true, seleccionados);
-		carrito.setVisible(true);
-	}
-
-	private Map<Integer, Articulo> obtenerArticulosSeleccionados() {
-		Map<Integer, Articulo> seleccionados = new HashMap<>();
-		DefaultTableModel model = (DefaultTableModel) tableArticulo.getModel();
-
-		Map<Integer, Articulo> todosLosArticulos = Principal.obtenerTodosArticulos(); // Obtener artículos originales
-																						// desde BD
-
-		for (int i = 0; i < model.getRowCount(); i++) {
-			int cantidad = (Integer) model.getValueAt(i, 5); // Nueva posición de la columna cantidad
-			if (cantidad > 0) {
-				String nombre = (String) model.getValueAt(i, 0);
-
-				for (Articulo art : todosLosArticulos.values()) {
-					if (art.getNombre().equals(nombre)) {
-						Articulo articulo = new Articulo(art.getId_art(), art.getNombre(), art.getDescripcion(),
-								cantidad, art.getPrecio(), art.getOferta(), art.getSeccion());
-
-						seleccionados.put(art.getId_art(), articulo);
-						break;
-					}
-				}
-			}
+		// Forzar que la celda en edición se guarde antes de continuar
+		if (tableArticulo.isEditing()) {
+			tableArticulo.getCellEditor().stopCellEditing();
 		}
-		return seleccionados;
+
+		Pedido preSetCompra = new Pedido(Principal.obtenerUltimoIdPed(), localClien.getId_usu(), 0,
+				LocalDateTime.now());
+
+		this.setVisible(false);
+
+		VistaCarrito carritoNoCompra = new VistaCarrito(this, cargaPedCom(preSetCompra), preSetCompra);
+
+		carritoNoCompra.setVisible(true);
+
+		this.setVisible(true);
 	}
+
+//	private Map<Integer, Articulo> obtenerArticulosSeleccionados() {
+//		Map<Integer, Articulo> seleccionados = new HashMap<>();
+//		DefaultTableModel model = (DefaultTableModel) tableArticulo.getModel();
+//
+//		Map<Integer, Articulo> todosLosArticulos = Principal.obtenerTodosArticulos(); // Obtener artículos originales
+//																						// desde BD
+//
+//		for (int i = 0; i < model.getRowCount(); i++) {
+//			int cantidad = (Integer) model.getValueAt(i, 5); // Nueva posición de la columna cantidad
+//			if (cantidad > 0) {
+//				String nombre = (String) model.getValueAt(i, 0);
+//
+//				for (Articulo art : todosLosArticulos.values()) {
+//					if (art.getNombre().equals(nombre)) {
+//						Articulo articulo = new Articulo(art.getId_art(), art.getNombre(), art.getDescripcion(),
+//								cantidad, art.getPrecio(), art.getOferta(), art.getSeccion());
+//
+//						seleccionados.put(art.getId_art(), articulo);
+//						break;
+//					}
+//				}
+//			}
+//		}
+//		return seleccionados;
+//	}
 
 	private List<Compra> cargaPedCom(Pedido preSetCompra) {
 		List<Compra> listaCompra = new ArrayList<>();
 		for (int i = 0; i < model.getRowCount(); i++) {
-			int selecionado = (Integer) model.getValueAt(i, 6);
-			if (selecionado != 0) {
-				Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), preSetCompra.getId_usu(),
-						(Integer) model.getValueAt(i, 6));
-				listaCompra.add(palCarro);
+			if (model.getValueAt(i, 6) != null) {
+				int selecionado = (Integer) model.getValueAt(i, 6);
+				if (selecionado != 0) {
+					Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), preSetCompra.getId_usu(),
+							(Integer) model.getValueAt(i, 6));
+					listaCompra.add(palCarro);
+				}
 			}
 		}
 		return listaCompra;

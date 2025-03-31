@@ -2,6 +2,7 @@ package controlador;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import excepciones.AltaError;
@@ -26,7 +27,6 @@ public class Principal {
 		return dao.login(cli);
 	}
 
-
 	public static Map<Integer, Cliente> listarCliente() {
 		return dao.listarClientesTod();
 	}
@@ -40,17 +40,14 @@ public class Principal {
 	}
 
 	public static void bajaCliente(Cliente clien) throws DropError {
-
 		dao.bajaCliente(clien);
 	}
-
 
 	public static void guardarCompra(int idPedido, int idArticulo, int cantidad) throws SQLException {
 		dao.guardarCompra(idPedido, idArticulo, cantidad);
 	}
 
 	public static int guardarPedido(int idUsuario, float totalCompra, LocalDateTime fechaCompra) throws SQLException {
-		
 		return dao.guardarPedido(idUsuario, totalCompra, fechaCompra);
 	}
 
@@ -58,8 +55,8 @@ public class Principal {
 		return dao.obtenerTodosArticulos();
 	}
 
-	public static Pedido crearPedidoUsuario(int id_usu) {
-		return dao.crearPedidoUsuario(id_usu);
+	public static void crearPedidoUsuario(Pedido id_usu) {
+		dao.crearPedidoUsuario(id_usu);
 	}
 
 	public static Articulo buscarArticulo(int id_art) {
@@ -68,5 +65,17 @@ public class Principal {
 
 	public static int obtenerNewIdCliente() {
 		return dao.obtenerNewIdCliente();
+	}
+
+	public static List<Articulo> obtenerArticulosPedido(int i) {
+		return dao.obtenerArticulosPedido(i);
+	}
+
+	public static List<Pedido> obtenerPedidosCliente(int id_usu) {
+		return dao.obtenerPedidosCliente(id_usu);
+	}
+
+	public static int obtenerUltimoIdPed() {
+		return 0;
 	}
 }

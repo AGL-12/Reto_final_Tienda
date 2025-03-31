@@ -14,23 +14,13 @@ import controlador.DaoImplementMySQL;
 import controlador.Principal;
 import modelo.Articulo;
 import modelo.Cliente;
+import modelo.Compra;
 import modelo.Pedido;
 
 import java.awt.BorderLayout;
 
-import javax.swing.table.DefaultTableModel;
-
-import controlador.Principal;
-import modelo.Articulo;
-import modelo.Compra;
-import modelo.Pedido;
-
-
 import java.awt.Font;
 import javax.swing.JButton;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -40,154 +30,117 @@ import java.util.Map;
 
 import java.util.List;
 
-
 public class VistaCarrito extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
-	private Map<Integer, Articulo> carrito;
-	private JTable tableCarrito;
-	private Pedido pedido;
-	private JButton btnVolver, btnComprar;
-	private Cliente clienteActual;
+	private JButton btnComprar, btnVolver;
+	private DefaultTableModel model;
+	private JTable tablaCarrito;
 
 	/**
 	 * @param seleccionados
 	 * @param preSetCompra
 	 */
 
-	public VistaCarrito(Cliente clien, JDialog vista, boolean modal, Map<Integer, Articulo> seleccionados) {
+	public VistaCarrito(JDialog vistaTienda, List<Compra> listaCompra, Pedido preSetCompra) {
 
+		super(vistaTienda);
+		super.setModal(true);
+		setBounds(100, 100, 849, 608);
+		getContentPane().setLayout(null);
 
-		super(vista);
-
-		super.setModal(modal);
-		this.clienteActual = clien;
-		setBounds(100, 100, 747, 335);
-
-		carrito = seleccionados;
-		pedido = new Pedido();
-
-	
-		GridBagLayout gridBagLayout = new GridBagLayout();
-
-		gridBagLayout.columnWidths = new int[] { 400, 113, 0 };
-		gridBagLayout.rowHeights = new int[] { 45, 150, 47, 0 };
-		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
-
-		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
-		getContentPane().setLayout(gridBagLayout);
-
-
-		DefaultTableModel model = new DefaultTableModel();
+		model = new DefaultTableModel();
 		model.addColumn("Nombre");
 		model.addColumn("Cantidad");
+		model.addColumn("Descuento oferta");
 		model.addColumn("Precio Final");
 		model.addColumn("Precio Total");
 
 		float totalCompra = 0;
 
-		for (Articulo art : carrito.values()) {
-			int cantidadSeleccionada = art.getStock();
-			float descuento = (art.getOferta() / 100) * art.getPrecio();
-			float precioFinal = art.getPrecio() - descuento;
-			float precioTotal = precioFinal * cantidadSeleccionada;
-			totalCompra += precioTotal;
+		for (Compra com : listaCompra) {
+			Articulo arti = Principal.buscarArticulo(com.getId_art());
+			float descontado = (arti.getOferta() / 100) * arti.getPrecio();
+			float precioFinal = arti.getPrecio() - descontado;
+			float precioTotal = precioFinal * com.getCantidad();
+			totalCompra += precioFinal;
 
-			model.addRow(new Object[] { art.getNombre(), cantidadSeleccionada,
-
-					precioFinal, precioTotal });
+			model.addRow(new Object[] { arti.getNombre(), com.getCantidad(), descontado, precioFinal, precioTotal });
 		}
+		preSetCompra.setTotal(totalCompra);
 
-		pedido.setTotal(totalCompra);
+		tablaCarrito = new JTable(model);
+		// Crear el JScrollPane con la tabla correctamente inicializada
+		JScrollPane scrollPane = new JScrollPane(tablaCarrito);
+		scrollPane.setBounds(0, 0, 536, 335); // Ubicación y tamaño del JScrollPane
+		getContentPane().add(scrollPane); // Agregar el JScrollPane a la ventana
 
-		model.addRow(new Object[] { "Total Compra", "",
-				// "",
-				// "",
-				"", totalCompra });
-
+		model.addRow(new Object[] { "Total Compra", "", "", "", totalCompra });
 
 		JLabel lblTitulo = new JLabel("CARRITO");
+		lblTitulo.setBounds(632, 0, 205, 90);
 		lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 16));
-		GridBagConstraints gbc_lblTitulo = new GridBagConstraints();
-		gbc_lblTitulo.gridwidth = 2;
-		gbc_lblTitulo.fill = GridBagConstraints.VERTICAL;
-		gbc_lblTitulo.insets = new Insets(0, 0, 5, 5);
-		gbc_lblTitulo.gridx = 0;
-		gbc_lblTitulo.gridy = 0;
-		getContentPane().add(lblTitulo, gbc_lblTitulo);
+		getContentPane().add(lblTitulo);
 
-
-		tableCarrito = new JTable(model);
-		JScrollPane scrollPane = new JScrollPane(tableCarrito);
-		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
-		gbc_scrollPane.gridwidth = 2;
-		gbc_scrollPane.fill = GridBagConstraints.BOTH;
-		gbc_scrollPane.insets = new Insets(0, 0, 5, 5);
-		gbc_scrollPane.gridx = 0;
-		gbc_scrollPane.gridy = 1;
-		getContentPane().add(scrollPane, gbc_scrollPane);
+		tablaCarrito = new JTable(model);
+		getContentPane().add(scrollPane);
 
 		btnVolver = new JButton("BACK");
+		btnVolver.setBounds(315, 407, 181, 103);
 		btnVolver.setFont(new Font("Tahoma", Font.BOLD, 16));
-		GridBagConstraints gbc_btnVolver = new GridBagConstraints();
-		gbc_btnVolver.anchor = GridBagConstraints.WEST;
-		gbc_btnVolver.fill = GridBagConstraints.VERTICAL;
-		gbc_btnVolver.insets = new Insets(0, 0, 0, 5);
-		gbc_btnVolver.gridx = 0;
-		gbc_btnVolver.gridy = 2;
-		getContentPane().add(btnVolver, gbc_btnVolver);
+		getContentPane().add(btnVolver);
 		btnVolver.addActionListener(this);
 
-
-
 		btnComprar = new JButton("BUY");
+		btnComprar.setBounds(40, 407, 198, 103);
 		btnComprar.setFont(new Font("Tahoma", Font.BOLD, 16));
-		GridBagConstraints gbc_btnComprar = new GridBagConstraints();
-		gbc_btnComprar.fill = GridBagConstraints.BOTH;
-		gbc_btnComprar.gridx = 1;
-		gbc_btnComprar.gridy = 2;
-		getContentPane().add(btnComprar, gbc_btnComprar);
+		getContentPane().add(btnComprar);
 		btnComprar.addActionListener(this);
 
 	}
 
+	public VistaCarrito() {
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
 		if (e.getSource().equals(btnComprar)) {
-			int idPedido = 0;
-			float totalCompra = pedido.getTotal();
-			int idUsuario = clienteActual.getId_usu();
-			LocalDateTime now = LocalDateTime.now();
-			try {
-				idPedido = Principal.guardarPedido(idUsuario, totalCompra, now);
+			fullCompra();
+		} else if (e.getSource().equals(btnVolver)) {
+			this.dispose();
 
+		}
+	}
+
+	private void fullCompra() {
+		int idPedido = 0;
+		float totalCompra = pedido.getTotal();
+		int idUsuario = clienteActual.getId_usu();
+		LocalDateTime now = LocalDateTime.now();
+		try {
+			idPedido = Principal.guardarPedido(idUsuario, totalCompra, now);
+
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		for (Articulo art : carrito.values()) {
+			int idArticulo = art.getId_art();
+			int cantidad = art.getStock();
+
+			System.out.println("Guardando artículo: ID = " + idArticulo + ", Cantidad = " + cantidad);
+
+			try {
+				Principal.guardarCompra(idPedido, art.getId_art(), cantidad);
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+		}
 
-			for (Articulo art : carrito.values()) {
-				int idArticulo = art.getId_art();
-				int cantidad = art.getStock();
-
-				System.out.println("Guardando artículo: ID = " + idArticulo + ", Cantidad = " + cantidad);
-
-				try {
-					Principal.guardarCompra(idPedido, art.getId_art(), cantidad);
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-
-			JOptionPane.showMessageDialog(this, "¡Compra realizada con éxito!");
-			this.dispose();
-		} else if (e.getSource().equals(btnVolver)) {
-			this.dispose();
-
+		JOptionPane.showMessageDialog(this, "¡Compra realizada con éxito!");
+		this.dispose();
 	}
-
-	}
-	
 }

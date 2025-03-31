@@ -19,18 +19,11 @@ import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import java.awt.GridLayout;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.ImageIcon;
-
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentListener;
-import java.net.URL;
 import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JRadioButton;
@@ -447,7 +440,8 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	}
 
 	private void mostrarPedidos() {
-//		Principal.listarPedidosCliente(localClien);
+		VerPedidosCliente vistaPedidoClien= new VerPedidosCliente(this, localClien);
+		vistaPedidoClien.setVisible(true);
 	}
 
 	private void baja() {

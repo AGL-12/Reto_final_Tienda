@@ -1,8 +1,8 @@
 package controlador;
 
-import java.security.Timestamp;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import excepciones.AltaError;
@@ -18,7 +18,6 @@ public interface Dao {
 	public Cliente login(Cliente usu) throws LoginError;
 
 	public Map<Integer, Cliente> listarClientesTod();
-//	public Map<String, Pedido> listarPedidoCli();
 
 	public void altaCliente(Cliente clien) throws AltaError;
 
@@ -30,13 +29,18 @@ public interface Dao {
 
 	public void guardarCompra(int idPedido, int idArticulo, int cantidad) throws SQLException;
 
-	public int obtenerNewIdCliente();
-
 	public int obtenerUltimoIdPed() throws SQLException;
 
 	public Map<Integer, Articulo> obtenerTodosArticulos();
 
-	public Pedido crearPedidoUsuario(int id_usu);
+	public void crearPedidoUsuario(Pedido nuenoBD);
 
 	public Articulo buscarArticulo(int id_art);
+
+	public int obtenerNewIdCliente();
+
+	public List<Articulo> obtenerArticulosPedido(int i);
+
+	public List<Pedido> obtenerPedidosCliente(int id_usu);
+
 }
