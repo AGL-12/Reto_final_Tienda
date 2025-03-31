@@ -38,8 +38,8 @@ public class DaoImplementMySQL implements Dao {
 	final String pedido_cliente = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?)";
 	final String TODOS_ARTICULOS = "SELECT * FROM articulo";
 	final String crear_pediod_cliente = "insert into pedido (id_clien,fecha_compra) values (?,?)";
-	final String maxIdPedido = "SELECT MAX(id) FROM pedido";
-
+	final String maxIdPedido = "SELECT MAX(id_ped) FROM pedido";
+	final String busca_articulo = "SELECT * FROM articulo where id_art=?";
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -61,7 +61,7 @@ public class DaoImplementMySQL implements Dao {
 		}
 	}
 
-	private void closeConnection() throws SQLException {
+	private void closeConnection() {
 		try {
 			if (stmt != null)
 				stmt.close();
@@ -111,13 +111,7 @@ public class DaoImplementMySQL implements Dao {
 		} catch (SQLException e) {
 			throw new LoginError("Error con el SQL");
 		} finally {
-			// Cerrar el ResultSet
-			try {
-				rs.close();
-				closeConnection();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			closeConnection();
 		}
 		return usuarioAutenticado;
 	}
@@ -222,12 +216,7 @@ public class DaoImplementMySQL implements Dao {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			try {
-				closeConnection();
-			} catch (SQLException e) {
-				e.printStackTrace();
-
-			}
+			closeConnection();
 		}
 	}
 
@@ -252,12 +241,7 @@ public class DaoImplementMySQL implements Dao {
 		} catch (SQLException e) {
 			throw new modifyError("Error al modificar el perfil");
 		} finally {
-			try {
-				closeConnection();
-			} catch (SQLException e) {
-				e.printStackTrace();
-
-			}
+			closeConnection();
 		}
 	}
 
@@ -272,11 +256,7 @@ public class DaoImplementMySQL implements Dao {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			try {
-				closeConnection();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			closeConnection();
 		}
 	}
 
@@ -336,10 +316,10 @@ public class DaoImplementMySQL implements Dao {
 	public int obtenerUltimoIdPed() {
 		int ultimoId = 0;
 		ResultSet rs = null;
+		openConnection();
 		try {
-			openConnection();
 			stmt = con.prepareStatement(maxIdPedido);
-			rs=stmt.executeQuery();
+			rs = stmt.executeQuery();
 
 			if (rs.next()) {
 				ultimoId = rs.getInt(1);
@@ -356,6 +336,34 @@ public class DaoImplementMySQL implements Dao {
 				e.printStackTrace();
 			}
 		}
-		return ultimoId;
+		return ultimoId + 1;
+	}
+
+	@Override
+	public Articulo buscarArticulo(int id_art) {
+		openConnection();
+		ResultSet rs;
+		Articulo busca = null;
+
+		try {
+			stmt = con.prepareStatement(busca_articulo);
+			stmt.setInt(1, id_art);
+			rs = stmt.executeQuery();
+			if (rs.next()) {
+				// Recuperamos los datos del usuario autenticado
+				busca = new Articulo();
+				busca.setId_art(id_art);
+				busca.setNombre(rs.getString("nombre"));
+				busca.setDescripcion(rs.getString("descripcion"));
+				busca.setStock(rs.getInt("stock"));
+				busca.setPrecio(rs.getFloat("precio"));
+				busca.setOferta(rs.getFloat("oferta"));
+				busca.setSeccion(Seccion.valueOf(rs.getString("seccion")));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return busca;
 	}
 }

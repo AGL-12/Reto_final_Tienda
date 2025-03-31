@@ -8,6 +8,7 @@ import modelo.Pedido;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
 import java.awt.Font;
@@ -19,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 import controlador.Principal;
@@ -66,11 +70,11 @@ public class VistaTienda extends JDialog implements ActionListener {
 		btnCompra = new JButton("BUY");
 		btnCompra.setFont(new Font("Tahoma", Font.BOLD, 12));
 		btnCompra.setBounds(341, 233, 85, 21);
+		btnCompra.addActionListener(this);
 		getContentPane().add(btnCompra);
 
 		// Crear la tabla antes de usarla en JScrollPane
 		tableArticulo = new JTable();
-
 		if (clien.isEsAdmin()) {
 			btnAdmin.setVisible(true);
 		}
@@ -83,16 +87,10 @@ public class VistaTienda extends JDialog implements ActionListener {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public boolean isCellEditable(int row, int column) {
-				return column == 0; // Solo la primera columna (checkbox) es editable
-			}
-
-			@Override
 			public Class<?> getColumnClass(int columnIndex) {
-				return columnIndex == 0 ? Boolean.class : String.class; // CheckBox en la primera columna
+				return columnIndex == 6 ? Integer.class : String.class; // CheckBox en la primera columna
 			}
 		};
-		model.addColumn("Seleccionar");
 		model.addColumn("id_art");
 		model.addColumn("Nombre");
 		model.addColumn("Descripción");
@@ -106,8 +104,8 @@ public class VistaTienda extends JDialog implements ActionListener {
 
 		// Agregar los datos de los artículos al modelo de la tabla
 		for (Articulo art : articulos.values()) {
-			if (art.getStock()!=0) {
-				model.addRow(new Object[] { false, art.getId_art(), art.getNombre(), art.getDescripcion(), art.getPrecio(),
+			if (art.getStock() != 0) {
+				model.addRow(new Object[] { art.getId_art(), art.getNombre(), art.getDescripcion(), art.getPrecio(),
 						art.getOferta(), art.getStock(), 0 });
 			}
 		}
@@ -115,7 +113,29 @@ public class VistaTienda extends JDialog implements ActionListener {
 		// Establecer el modelo de la tabla con los datos
 		tableArticulo.setModel(model);
 		// 🔹 OCULTAR LA COLUMNA ID_ART
-		tableArticulo.removeColumn(tableArticulo.getColumnModel().getColumn(1));
+		tableArticulo.removeColumn(tableArticulo.getColumnModel().getColumn(0));
+		// Agregar el listener después de inicializar la tabla
+		model.addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				// Verifica que el cambio sea en la columna de "Cantidad" (última columna)
+				if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) {
+					int fila = e.getFirstRow(); // Obtener la fila modificada
+					int cantidadIngresada = (Integer) model.getValueAt(fila, 6);
+					int stockDisponible = (Integer) model.getValueAt(fila, 5); // Columna de Stock
+
+					// Verifica si la cantidad excede el stock
+					if (cantidadIngresada > stockDisponible) {
+						// Mostrar mensaje de advertencia
+						JOptionPane.showMessageDialog(null, "La cantidad ingresada supera el stock disponible.",
+								"Error", JOptionPane.WARNING_MESSAGE);
+
+						// Restablecer la cantidad al valor máximo permitido (el stock)
+						model.setValueAt(stockDisponible, fila, 6);
+					}
+				}
+			}
+		});
 	}
 
 	@Override
@@ -138,12 +158,13 @@ public class VistaTienda extends JDialog implements ActionListener {
 			this.setVisible(true);
 		} else if (e.getSource().equals(btnCompra)) {
 
-			Pedido preSetCompra = new Pedido(Principal.obtenerUltimoIdPed() + 1, localClien.getId_usu(), 0,
+			Pedido preSetCompra = new Pedido(Principal.obtenerUltimoIdPed(), localClien.getId_usu(), 0,
 					LocalDateTime.now());
 
 			this.setVisible(false);
 
 			VistaCarrito carritoNoCompra = new VistaCarrito(this, cargaPedCom(preSetCompra), preSetCompra);
+
 			carritoNoCompra.setVisible(true);
 
 			this.setVisible(true);
@@ -153,9 +174,10 @@ public class VistaTienda extends JDialog implements ActionListener {
 	private List<Compra> cargaPedCom(Pedido preSetCompra) {
 		List<Compra> listaCompra = new ArrayList<>();
 		for (int i = 0; i < model.getRowCount(); i++) {
-			boolean isChecked = (Boolean) model.getValueAt(i, 0);
-			if (isChecked && (Integer) model.getValueAt(i, 7) != 0) {
-				Compra palCarro = new Compra((Integer) model.getValueAt(i, 2), preSetCompra.getId_usu(), i);
+			int selecionado = (Integer) model.getValueAt(i, 6);
+			if (selecionado != 0) {
+				Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), preSetCompra.getId_usu(),
+						(Integer) model.getValueAt(i, 6));
 				listaCompra.add(palCarro);
 			}
 		}

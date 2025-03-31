@@ -55,4 +55,8 @@ public class Principal {
 	public static int obtenerUltimoIdPed() {
 		return dao.obtenerUltimoIdPed();
 	}
+
+	public static Articulo buscarArticulo(int id_art) {
+		return dao.buscarArticulo(id_art);
+	}
 }

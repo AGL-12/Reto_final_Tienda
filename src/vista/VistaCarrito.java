@@ -1,9 +1,11 @@
 package vista;
 
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.table.DefaultTableModel;
 
+import controlador.Principal;
+import modelo.Articulo;
 import modelo.Compra;
 import modelo.Pedido;
 
@@ -23,7 +25,8 @@ public class VistaCarrito extends JDialog implements ActionListener {
 
 	/**
 	 * Create the dialog.
-	 * @param preSetCompra 
+	 * 
+	 * @param preSetCompra
 	 */
 	public VistaCarrito(JDialog vista, List<Compra> listaCompra, Pedido preSetCompra) {
 		super(vista);
@@ -35,6 +38,24 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		getContentPane().setLayout(gridBagLayout);
+
+		// Crear el modelo de la tabla con las columnas necesarias
+		DefaultTableModel model = new DefaultTableModel();
+		model.addColumn("Nombre");
+		model.addColumn("Cantidad");
+		model.addColumn("Precio");
+		model.addColumn("Oferta (%)");
+		model.addColumn("Precio Final");
+		model.addColumn("Precio Total");
+
+		for (Compra com : listaCompra) {
+			Articulo arti = Principal.buscarArticulo(com.getId_art());
+			model.addRow(new Object[] {
+					arti.getNombre(),
+					com.getCantidad(),
+					arti.getPrecio(),
+			});
+		}
 
 		JLabel lblTitulo = new JLabel("CARRITO");
 		lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 16));

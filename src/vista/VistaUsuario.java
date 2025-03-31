@@ -443,8 +443,6 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		} catch (modifyError e) {
 			e.visualizarMen();
 		}
-
-		dispose();
 	}
 
 	private void mostrarPedidos() {

@@ -21,6 +21,9 @@ public class Articulo {
 		this.seccion = seccion;
 	}
 
+	public Articulo() {
+	}
+
 	public int getId_art() {
 		return id_art;
 	}
