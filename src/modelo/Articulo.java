@@ -8,9 +8,9 @@ public class Articulo {
 	private float precio;
 	private float oferta;
 	private Seccion seccion;
-	
+
 	public Articulo() {
-		
+
 	}
 
 	public Articulo(int id_art, String nombre, String descripcion, int stock, float precio, float oferta,
@@ -86,7 +86,5 @@ public class Articulo {
 		return "Articulo [id_art=" + id_art + ", nombre=" + nombre + ", descripcion=" + descripcion + ", stock=" + stock
 				+ ", precio=" + precio + ", oferta=" + oferta + ", seccion=" + seccion + "]";
 	}
-
-	
 
 }

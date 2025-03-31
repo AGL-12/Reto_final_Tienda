@@ -28,13 +28,15 @@ public class Principal {
 	public static void modificarArticulo(Articulo art) throws modifyError {
 		dao.modificarArticulo(art);
 	}
+
 	public static void eliminarArticulo(Articulo art) throws modifyError {
 		dao.eliminarArticulo(art);
 	}
+
 	public static void añadirArticulo(Articulo art) throws modifyError {
 		dao.añadirArticulo(art);
-		}
-	
+	}
+
 //	public static void Alta(Propietario propi) throws InsertError {
 //		dao.altaPropietario(propi);
 //	}
