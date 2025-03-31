@@ -36,13 +36,19 @@ public class DaoImplementMySQL implements Dao {
 	// Atributos
 	private Connection con;
 	private PreparedStatement stmt;
-	// Sentencias SQL
+	// Sentencias SQL CLIENTE
 	final String LOGIN = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
 	final String INSERTAR_CLIENTE = "INSERT INTO cliente(usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?)";
 	final String ELIMINAR_CLIENTE = "DELETE from cliente where id_clien=?";
 	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?;";
+	
+	//SENTENCIAS SQL PEDIDO Y COMPRA
+	 final String INTRODUCIR_PEDIDO = "INSERT INTO pedido(id_clien, total, fecha_compra) VALUES (?, ?, ?)";
+	 final String INTRODUCIR_COMPRA = "INSERT INTO compra(id_art, id_ped, cantidad) VALUES (?, ?, ?)";
+	 final String TODOS_ARTICULOS = "SELECT * FROM articulo";
+	 
+	final String  CANTIDAD_COMPRA = "UPDATE articulo SET stock = stock - ? WHERE id_art = ?";
 
-	final String TODOS_ARTICULOS = "SELECT * FROM articulo";
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
 		this.urlBD = this.configFile.getString("Conn");
@@ -90,32 +96,26 @@ public class DaoImplementMySQL implements Dao {
 			stmt.setString(2, cli.getContra());
 
 			rs = stmt.executeQuery();
-			// Leemos de uno en uno los propietarios devueltos en el ResultSet
+		
 			if (!rs.next()) {
 				throw new LoginError("Usuario o password incorrecto");
 			} else {
-				// Recuperamos los datos del usuario autenticado
+				
 				usuarioAutenticado = new Cliente();
-				usuarioAutenticado.setId_usu(rs.getInt("id_clien")); // Asegúrate de que el nombre de la columna sea
-																		// "id_usu"
-				usuarioAutenticado.setUsuario(rs.getString("usuario")); // Asegúrate de que el nombre de la columna sea
-																		// "id_usu"
-				usuarioAutenticado.setContra(rs.getString("contra")); // Asegúrate de que el nombre de la columna sea
-																		// "id_usu"
+				usuarioAutenticado.setId_usu(rs.getInt("id_clien")); 
+				usuarioAutenticado.setUsuario(rs.getString("usuario")); 
+				usuarioAutenticado.setContra(rs.getString("contra")); 
 				usuarioAutenticado.setDni(rs.getString("dni"));
 				usuarioAutenticado.setCorreo(rs.getString("correo"));
 				usuarioAutenticado.setDireccion(rs.getString("direccion"));
-				usuarioAutenticado.setMetodo_pago(Metodo.valueOf(rs.getString("metodo_pago"))); // Asegúrate de que
-																								// coincida con la
-																								// estructura de la base
-																								// de datos
+				usuarioAutenticado.setMetodo_pago(Metodo.valueOf(rs.getString("metodo_pago")));
 				usuarioAutenticado.setNum_cuenta(rs.getString("num_cuenta"));
-				usuarioAutenticado.setEsAdmin(rs.getBoolean("esAdmin")); // Suponiendo que hay una columna "rol"
+				usuarioAutenticado.setEsAdmin(rs.getBoolean("esAdmin")); 
 			}
 		} catch (SQLException e) {
 			throw new LoginError("Error con el SQL");
 		} finally {
-			// Cerrar el ResultSet
+			
 			try {
 				rs.close();
 				closeConnection();
@@ -286,11 +286,12 @@ public class DaoImplementMySQL implements Dao {
 	@Override
 	public int guardarPedido(int idUsuario, float totalCompra, LocalDateTime fechaCompra) throws SQLException {
 	    int idPedido = -1;
-	    String query = "INSERT INTO pedido(id_clien, total, fecha_compra) VALUES (?, ?, ?)";
+	    //String query = "INSERT INTO pedido(id_clien, total, fecha_compra) VALUES (?, ?, ?)";
 
 	    try {
 	        openConnection();
-	        stmt = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+	        stmt = con.prepareStatement(INTRODUCIR_PEDIDO);
+	        stmt = con.prepareStatement(INTRODUCIR_PEDIDO, Statement.RETURN_GENERATED_KEYS);
 	        stmt.setInt(1, idUsuario);
 	        stmt.setFloat(2, totalCompra);
 	        stmt.setObject(3, fechaCompra); // Usamos setObject para pasar LocalDateTime
@@ -314,11 +315,11 @@ public class DaoImplementMySQL implements Dao {
 
 	
 	public void guardarCompra(int idPedido, int idArticulo, int cantidad) throws SQLException {
-	    String query = "INSERT INTO compra(id_art, id_ped, cantidad) VALUES (?, ?, ?)";
+	   // String query = "INSERT INTO compra(id_art, id_ped, cantidad) VALUES (?, ?, ?)";
 	    
 	    try {
 	        openConnection();
-	        stmt = con.prepareStatement(query);
+	        stmt = con.prepareStatement(INTRODUCIR_COMPRA);
 	        stmt.setInt(1, idArticulo);
 	        stmt.setInt(2, idPedido);
 	        stmt.setInt(3, cantidad);
@@ -336,11 +337,12 @@ public class DaoImplementMySQL implements Dao {
 	
 	
 	    public void actualizarStock(int idArticulo, int cantidadComprada) throws SQLException {
-	        String query = "UPDATE articulo SET stock = stock - ? WHERE id_art = ?";
+	      // String query = "UPDATE articulo SET stock = stock - ? WHERE id_art = ?";
 	        
 	        try {
 	            openConnection();
-	            stmt = con.prepareStatement(query);
+	            stmt = con.prepareStatement(CANTIDAD_COMPRA);
+	         
 	            stmt.setInt(1, cantidadComprada);
 	            stmt.setInt(2, idArticulo);
 	            
