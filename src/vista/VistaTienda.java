@@ -28,6 +28,8 @@ import javax.swing.table.DefaultTableModel;
 import controlador.Principal;
 
 import javax.swing.JButton;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class VistaTienda extends JDialog implements ActionListener {
 
@@ -44,6 +46,15 @@ public class VistaTienda extends JDialog implements ActionListener {
 	 */
 	public VistaTienda(Cliente clien, JFrame vista) {
 		super(vista, "Bienvendido", true);
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowActivated(WindowEvent e) {
+				System.out.println("Creando Tabla");
+				creandoTabla();
+			}
+
+
+		});
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
 
@@ -183,5 +194,9 @@ public class VistaTienda extends JDialog implements ActionListener {
 		}
 		return listaCompra;
 	}
-
+	
+	private void creandoTabla() {
+		// TODO Auto-generated method stub
+		
+	}
 }

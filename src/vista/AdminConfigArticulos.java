@@ -32,6 +32,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 	private JButton btnModify;
 	private JButton btnSalir;
 	private JComboBox comboBoxSeccion;
+	JDialog VentanaIntermedia;
 
 	/**
 	 * Create the dialog.
@@ -205,6 +206,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 	}
 
 	private void cerrar() {
+		
 		dispose();
 	}
 
