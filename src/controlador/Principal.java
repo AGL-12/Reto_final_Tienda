@@ -59,4 +59,8 @@ public class Principal {
 	public static Articulo buscarArticulo(int id_art) {
 		return dao.buscarArticulo(id_art);
 	}
+
+	public static int obtenerNewIdCliente() {
+		return dao.obtenerNewIdCliente();
+	}
 }

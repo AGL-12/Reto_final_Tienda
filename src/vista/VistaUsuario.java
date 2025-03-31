@@ -395,6 +395,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 
 	private void alta() {
 		Cliente clien = new Cliente();
+		clien.setId_usu(Principal.obtenerNewIdCliente());
 		clien.setUsuario(textUser.getText());
 		clien.setContra(new String(passwordFieldContra.getPassword()));
 		clien.setCorreo(textEmail.getText());

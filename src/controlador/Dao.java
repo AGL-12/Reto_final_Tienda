@@ -30,4 +30,6 @@ public interface Dao {
 	public int obtenerUltimoIdPed();
 
 	public Articulo buscarArticulo(int id_art);
+
+	public int obtenerNewIdCliente();
 }

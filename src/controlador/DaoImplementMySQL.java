@@ -31,14 +31,15 @@ public class DaoImplementMySQL implements Dao {
 	private PreparedStatement stmt;
 	// Sentencias SQL
 	final String login = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
-	final String INSERTAR_CLIENTE = "INSERT INTO cliente(usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?)";
+	final String INSERTAR_CLIENTE = "INSERT INTO cliente(id_clien,usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?,?)";
 	final String ELIMINAR_CLIENTE = "DELETE from cliente where id_clien=?";
 	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?";
 	final String select_cliente = "select * from cliente";
 	final String pedido_cliente = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?)";
 	final String TODOS_ARTICULOS = "SELECT * FROM articulo";
 	final String crear_pediod_cliente = "insert into pedido (id_clien,fecha_compra) values (?,?)";
-	final String maxIdPedido = "SELECT MAX(id_ped) FROM pedido";
+	final String newIdPedido = "SELECT MAX(id_ped) FROM pedido";
+	final String newIdCliente = "SELECT MAX(id_clien) FROM cliente";
 	final String busca_articulo = "SELECT * FROM articulo where id_art=?";
 
 	public DaoImplementMySQL() {
@@ -204,13 +205,15 @@ public class DaoImplementMySQL implements Dao {
 
 		try {
 			stmt = con.prepareStatement(INSERTAR_CLIENTE);
-			stmt.setString(1, clien.getUsuario());
-			stmt.setString(2, clien.getContra());
-			stmt.setString(3, clien.getDni());
-			stmt.setString(4, clien.getCorreo());
-			stmt.setString(5, clien.getDireccion());
-			stmt.setString(6, clien.getMetodo_pago().name());
-			stmt.setString(7, clien.getNum_cuenta());
+			
+			stmt.setInt(1, clien.getId_usu());
+			stmt.setString(2, clien.getUsuario());
+			stmt.setString(3, clien.getContra());
+			stmt.setString(4, clien.getDni());
+			stmt.setString(5, clien.getCorreo());
+			stmt.setString(6, clien.getDireccion());
+			stmt.setString(7, clien.getMetodo_pago().name());
+			stmt.setString(8, clien.getNum_cuenta());
 			stmt.executeUpdate();
 
 		} catch (SQLException e) {
@@ -318,7 +321,7 @@ public class DaoImplementMySQL implements Dao {
 		ResultSet rs = null;
 		openConnection();
 		try {
-			stmt = con.prepareStatement(maxIdPedido);
+			stmt = con.prepareStatement(newIdPedido);
 			rs = stmt.executeQuery();
 
 			if (rs.next()) {
@@ -365,5 +368,32 @@ public class DaoImplementMySQL implements Dao {
 		}
 
 		return busca;
+	}
+
+	@Override
+	public int obtenerNewIdCliente() {
+		int ultimoId = 0;
+		ResultSet rs = null;
+		openConnection();
+		try {
+			stmt = con.prepareStatement(newIdCliente);
+			rs = stmt.executeQuery();
+
+			if (rs.next()) {
+				ultimoId = rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null)
+					rs.close();
+				closeConnection();
+			} catch (SQLException e) {
+				System.err.println("Error al cerrar la conexión: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		return ultimoId + 1;
 	}
 }
