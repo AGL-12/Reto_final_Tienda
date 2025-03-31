@@ -114,6 +114,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
 	}
 	//Admin la ventana configurar usuarios. Lista de usuarios combobox o tabla para seleccionarlo, 
 	//seleccionar uno abrir sus datos boton ver datos ahi ver solo modificar y drop
+	//Ultimo
 	private void fullCompra() {
 		int idPedido = 0;
 		float totalCompra = pedido.getTotal();
