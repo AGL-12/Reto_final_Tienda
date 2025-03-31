@@ -49,7 +49,7 @@ public class DaoImplementMySQL implements Dao {
 	final String pedido_cliente = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?)";
 	final String TODOS_ARTICULOS = "SELECT * FROM articulo";
 	final String crear_pediod_cliente = "insert into pedido (id_clien,fecha_compra) values (?,?)";
-	final String maxIdPedido = "SELECT MAX(id) FROM pedido";
+	final String maxIdPedido = "SELECT MAX(id_ped) FROM pedido";
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -107,8 +107,7 @@ public class DaoImplementMySQL implements Dao {
 																		// "id_usu"
 				usuarioAutenticado.setUsuario(rs.getString("usuario")); // Asegúrate de que el nombre de la columna sea
 																		// "id_usu"
-				usuarioAutenticado.setContra(rs.getString("contra")); // Asegúrate de que el nombre de la columna sea
-																		// "id_usu"
+				usuarioAutenticado.setContra(rs.getString("contra")); // Asegúrate de que el nombre de la columna sea														// "id_usu"
 				usuarioAutenticado.setDni(rs.getString("dni"));
 				usuarioAutenticado.setCorreo(rs.getString("correo"));
 				usuarioAutenticado.setDireccion(rs.getString("direccion"));
@@ -135,6 +134,31 @@ public class DaoImplementMySQL implements Dao {
 
 	@Override
 	public void modificarArticulo(Articulo art) throws modifyError {
+		openConnection();
+
+		try {
+			stmt = con.prepareStatement(MODIFICAR_ARTICULO);
+			stmt.setInt(1, art.getId_art());
+			stmt.setString(2, art.getNombre());
+			stmt.setString(3, art.getDescripcion());
+			stmt.setInt(4, art.getStock());
+			stmt.setFloat(5, art.getPrecio());
+			stmt.setFloat(6, art.getOferta());
+			stmt.setString(7, art.getSeccion().name());
+			stmt.executeUpdate();
+
+
+		} catch (SQLException e) {
+			throw new modifyError("Error al modificar el perfil");
+		} finally {
+			try {
+				closeConnection();
+			} catch (SQLException e) {
+				e.printStackTrace();
+
+			}
+		}
+	
 
 	}
 

@@ -1,6 +1,7 @@
 package vista;
 
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JTextField;
@@ -8,6 +9,7 @@ import javax.swing.JTextField;
 import controlador.Principal;
 import excepciones.modifyError;
 import modelo.Articulo;
+import modelo.Cliente;
 import modelo.Seccion;
 
 import javax.swing.JButton;
@@ -35,7 +37,9 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 	 * Create the dialog.
 	 * @param ventanaIntermedia 
 	 */
-	public AdminConfigArticulos(JDialog ventanaIntermedia) {
+	public AdminConfigArticulos(JDialog VentanaIntermedia) {
+		super(VentanaIntermedia, "Bienvendido", true);
+		this.setModal(true);
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
 

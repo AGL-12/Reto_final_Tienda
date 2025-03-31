@@ -103,16 +103,11 @@ public class VistaLogIn extends JFrame implements ActionListener {
 
 		// comprobar login correcto
 		try {
-			Principal.login(clien);
+			this.setVisible(false);
+
 			clien = Principal.login(clien);
 			VistaTienda tienda = new VistaTienda(clien, this);
 			tienda.setVisible(true);
-			clien = Principal.login(clien);
-
-			this.setVisible(false);
-
-			VistaTienda tienda2 = new VistaTienda(clien, this);
-			tienda2.setVisible(true);
 
 			this.setVisible(true);
 		} catch (LoginError e) {
