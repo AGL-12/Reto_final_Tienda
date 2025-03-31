@@ -25,10 +25,6 @@ public interface Dao {
 
 	public void bajaCliente(Cliente clien) throws DropError;
 
-	public int guardarPedido(int idUsuario, float totalCompra, LocalDateTime fechaCompra) throws SQLException;
-
-	public void guardarCompra(int idPedido, int idArticulo, int cantidad) throws SQLException;
-
 	public int obtenerUltimoIdPed() throws SQLException;
 
 	public Map<Integer, Articulo> obtenerTodosArticulos();
@@ -42,5 +38,7 @@ public interface Dao {
 	public List<Articulo> obtenerArticulosPedido(int i);
 
 	public List<Pedido> obtenerPedidosCliente(int id_usu);
+
+	public void guardarPedido(Pedido ped) throws SQLException;
 
 }

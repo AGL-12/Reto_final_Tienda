@@ -55,8 +55,9 @@ public class DaoImplementMySQL implements Dao {
 	final String newIdCliente = "SELECT MAX(id_clien) FROM cliente";
 	final String busca_articulo = "SELECT * FROM articulo where id_art=?";
 	final String pedidos_cliente = "SELECT * FROM pedido where id_clien=?";
-	
-	//Falta insert values de pedido y compra en pedido tiene que haber un for para ir metiendo las compras
+
+	// Falta insert values de pedido y compra en pedido tiene que haber un for para
+	// ir metiendo las compras
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -323,18 +324,16 @@ public class DaoImplementMySQL implements Dao {
 	 * (SQLException e) { throw new SQLException("Error al insertar el pedido", e);
 	 * } finally { closeConnection(); } return idPedido; }
 	 */
-
-	public int guardarPedido(int idUsuario, float totalCompra, LocalDateTime fechaCompra) throws SQLException {
-		int nuevoIdPedido = obtenerUltimoIdPed();
+	public void guardarPedido(Pedido ped) throws SQLException {
 
 		try {
 			openConnection();
 
 			stmt = con.prepareStatement(INTRODUCIR_PEDIDO);
-			stmt.setInt(1, nuevoIdPedido);
-			stmt.setInt(2, idUsuario);
-			stmt.setFloat(3, totalCompra);
-			stmt.setObject(4, fechaCompra);
+			stmt.setInt(1, ped.getId_ped());
+			stmt.setInt(2, ped.getId_usu());
+			stmt.setFloat(3, ped.getTotal());
+			stmt.setObject(4, ped.getFecha_compra());
 
 			stmt.executeUpdate();
 
@@ -344,19 +343,20 @@ public class DaoImplementMySQL implements Dao {
 			closeConnection();
 		}
 
-		return nuevoIdPedido;
 	}
 
-	public void guardarCompra(int idPedido, int idArticulo, int cantidad) throws SQLException {
+	public void guardarCompra(List<Compra>listaCompra) throws SQLException {
 
 		try {
 			openConnection();
 			stmt = con.prepareStatement(INTRODUCIR_COMPRA);
-			stmt.setInt(1, idArticulo);
-			stmt.setInt(2, idPedido);
-			stmt.setInt(3, cantidad);
+			for (Compra com : listaCompra) {
+				stmt.setInt(1, com.getId_art());
+				stmt.setInt(2, com.getId_ped());
+				stmt.setInt(3, com.getCantidad());
 
-			stmt.executeUpdate();
+				stmt.executeUpdate();
+			}
 		} catch (SQLException e) {
 			System.err.println("Error SQL: " + e.getMessage());
 			System.err.println("Código de error SQL: " + e.getErrorCode());
@@ -522,4 +522,5 @@ public class DaoImplementMySQL implements Dao {
 
 		return listaPedidos;
 	}
+
 }

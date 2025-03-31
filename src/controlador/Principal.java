@@ -43,14 +43,6 @@ public class Principal {
 		dao.bajaCliente(clien);
 	}
 
-	public static void guardarCompra(int idPedido, int idArticulo, int cantidad) throws SQLException {
-		dao.guardarCompra(idPedido, idArticulo, cantidad);
-	}
-
-	public static int guardarPedido(int idUsuario, float totalCompra, LocalDateTime fechaCompra) throws SQLException {
-		return dao.guardarPedido(idUsuario, totalCompra, fechaCompra);
-	}
-
 	public static Map<Integer, Articulo> obtenerTodosArticulos() {
 		return dao.obtenerTodosArticulos();
 	}
@@ -77,5 +69,9 @@ public class Principal {
 
 	public static int obtenerUltimoIdPed() {
 		return 0;
+	}
+
+	public static void guardarPedido(Pedido ped) throws SQLException {
+		dao.guardarPedido(ped);
 	}
 }

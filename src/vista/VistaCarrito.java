@@ -143,4 +143,5 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		JOptionPane.showMessageDialog(this, "¡Compra realizada con éxito!");
 		this.dispose();
 	}
+	
 }
