@@ -32,9 +32,17 @@ public class Cliente {
 		this.listaCompra = listaCompra;
 	}
 
+
+
+
+
 	public Cliente() {
-		this.listaCompra = new HashMap<>();
+		// TODO Auto-generated constructor stub
 	}
+
+
+
+
 
 	public int getId_usu() {
 		return id_usu;

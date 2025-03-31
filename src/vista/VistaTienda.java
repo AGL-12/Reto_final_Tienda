@@ -36,7 +36,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 	private JTable tableArticulo;
 
 	private JButton btnUsuario, btnCompra, btnAdmin;
-	private Cliente cambio;
+
 
 	private Cliente localClien;
 
@@ -49,9 +49,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 		super(vista, "Bienvendido", true);
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
-
-		this.cambio = clien;
-
+		localClien = clien; 
 		JLabel lblTitulo = new JLabel("DYE TOOLS");
 		lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblTitulo.setBounds(157, 10, 106, 38);
@@ -179,9 +177,14 @@ public class VistaTienda extends JDialog implements ActionListener {
 
 	private void abrirCarrito() {
 		// Forzar que la celda en edición se guarde antes de continuar
+		  if (localClien == null) {
+		        JOptionPane.showMessageDialog(this, "Error: No se ha seleccionado un cliente.", "Error", JOptionPane.ERROR_MESSAGE);
+		        return; // Evita seguir si el cliente es null
+		    }
 		if (tableArticulo.isEditing()) {
 			tableArticulo.getCellEditor().stopCellEditing();
-		}
+		} 
+
 
 		Pedido preSetCompra = new Pedido(Principal.obtenerUltimoIdPed(), localClien.getId_usu(), 0,
 				LocalDateTime.now());

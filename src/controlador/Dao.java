@@ -11,6 +11,7 @@ import excepciones.LoginError;
 import excepciones.modifyError;
 import modelo.Articulo;
 import modelo.Cliente;
+import modelo.Compra;
 import modelo.Pedido;
 
 public interface Dao {
@@ -41,4 +42,7 @@ public interface Dao {
 
 	public void guardarPedido(Pedido ped) throws SQLException;
 
+	public void guardarCompra(List<Compra>listaCompra) throws SQLException;
+
+	public void actualizarStock(int idArticulo, int cantidadComprada) throws SQLException;
 }

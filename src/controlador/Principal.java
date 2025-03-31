@@ -2,6 +2,7 @@ package controlador;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import excepciones.LoginError;
 import excepciones.modifyError;
 import modelo.Articulo;
 import modelo.Cliente;
+import modelo.Compra;
 import modelo.Pedido;
 import vista.VistaLogIn;
 
@@ -73,5 +75,47 @@ public class Principal {
 
 	public static void guardarPedido(Pedido ped) throws SQLException {
 		dao.guardarPedido(ped);
+	}
+
+	/*public static void guardarCompra(int idPedido, int id_art, int cantidad) {
+		// TODO Auto-generated method stub
+		   List<Compra> listaCompra = new ArrayList<>();
+		    listaCompra.add(new Compra(id_art, idPedido, cantidad));
+		try {
+			dao.guardarCompra(listaCompra);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}*/
+
+	public static void guardarPedido(int idUsuario, float totalCompra, LocalDateTime now, Pedido ped) {
+		// TODO Auto-generated method stub
+		try {
+			dao.guardarPedido(ped);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public static void actualizarStock(int id_art, int cantidad) {
+		// TODO Auto-generated method stub
+		try {
+			dao.actualizarStock(id_art, cantidad);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public static void guardarCompra(List<Compra> localListaCompra) {
+		// TODO Auto-generated method stub
+		try {
+			dao.guardarCompra(localListaCompra);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
