@@ -23,6 +23,8 @@ public class VistaCarrito extends JDialog implements ActionListener {
 	private JButton btnComprar, btnVolver;
 	private DefaultTableModel model;
 	private JTable tablaCarrito;
+	private Pedido localPedido;
+	private List<Compra> localListaCompra;
 
 	/**
 	 * Create the dialog.
@@ -54,6 +56,8 @@ public class VistaCarrito extends JDialog implements ActionListener {
 			model.addRow(new Object[] { arti.getNombre(), com.getCantidad(), descontado, precioFinal, precioTotal });
 		}
 		preSetCompra.setTotal(totalCompra);
+		localListaCompra = listaCompra;
+		localPedido = preSetCompra;
 
 		tablaCarrito = new JTable(model);
 		// Crear el JScrollPane con la tabla correctamente inicializada
@@ -90,6 +94,8 @@ public class VistaCarrito extends JDialog implements ActionListener {
 	}
 
 	private void fullCompra() {
+		Principal.insertPedido(localPedido);
+		Principal.insertListCompra(localListaCompra);
 		
 	}
 }

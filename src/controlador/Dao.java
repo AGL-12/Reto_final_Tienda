@@ -9,6 +9,7 @@ import excepciones.LoginError;
 import excepciones.modifyError;
 import modelo.Articulo;
 import modelo.Cliente;
+import modelo.Compra;
 import modelo.Pedido;
 
 public interface Dao {
@@ -36,5 +37,9 @@ public interface Dao {
 	public List<Articulo> obtenerArticulosPedido(int i);
 
 	public List<Pedido> obtenerPedidosCliente(int id_usu);
+
+	public void insertListCompra(List<Compra> localListaCompra);
+
+	public void insertPedido(Pedido localPedido);
 
 }

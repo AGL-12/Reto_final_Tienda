@@ -9,6 +9,7 @@ import excepciones.LoginError;
 import excepciones.modifyError;
 import modelo.Articulo;
 import modelo.Cliente;
+import modelo.Compra;
 import modelo.Pedido;
 import vista.VistaLogIn;
 
@@ -67,5 +68,13 @@ public class Principal {
 
 	public static List<Pedido> obtenerPedidosCliente(int id_usu) {
 		return dao.obtenerPedidosCliente(id_usu);
+	}
+
+	public static void insertPedido(Pedido localPedido) {
+		dao.insertPedido(localPedido);
+	}
+
+	public static void insertListCompra(List<Compra> localListaCompra) {
+		dao.insertListCompra(localListaCompra);
 	}
 }

@@ -175,6 +175,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 			carritoNoCompra.setVisible(true);
 
 			this.setVisible(true);
+			
 		}
 	}
 

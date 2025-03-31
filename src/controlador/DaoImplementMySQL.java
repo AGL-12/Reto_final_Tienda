@@ -43,6 +43,8 @@ public class DaoImplementMySQL implements Dao {
 	final String newIdCliente = "SELECT MAX(id_clien) FROM cliente";
 	final String busca_articulo = "SELECT * FROM articulo where id_art=?";
 	final String pedidos_cliente = "SELECT * FROM pedido where id_clien=?";
+	final String insert_perdido = "insert into pedido values (?,?,?,?)";
+	final String insert_listaCompra = "insert into compra values (?,?,?)";
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -422,5 +424,43 @@ public class DaoImplementMySQL implements Dao {
 		}
 
 		return listaPedidos;
+	}
+
+	@Override
+	public void insertListCompra(List<Compra> localListaCompra) {
+		openConnection();
+
+		try {
+			stmt = con.prepareStatement(insert_listaCompra);
+			
+			for (Compra com : localListaCompra) {
+				stmt.setInt(1, com.getId_art());
+				stmt.setInt(2, com.getId_ped());
+				stmt.setInt(3, com.getCantidad());
+				stmt.executeUpdate();
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void insertPedido(Pedido localPedido) {
+		openConnection();
+		
+		try {
+			stmt=con.prepareStatement(insert_perdido);
+			
+			stmt.setInt(1, localPedido.getId_ped());
+			stmt.setInt(1, localPedido.getId_usu());
+			stmt.setFloat(1, localPedido.getTotal());
+			stmt.setTimestamp(1,Timestamp.valueOf(localPedido.getFecha_compra()));
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
