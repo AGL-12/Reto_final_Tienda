@@ -1,18 +1,18 @@
 Para usar este programa necesitas poner lo siguiente en la base de datos;
 
-create database tienda_brico;
-use tienda_brico;
-create table cliente(
-id_clien int primary key,
-usuario varchar(50),
-contra varchar(50),
-dni char(9) not null,
-correo varchar(320) not null,
-direccion varchar(200),
-metodo_pago enum("visa","mastercard","paypal"),
-num_cuenta char(16),
-esAdmin boolean default false
-);
+create database tienda_brico;<br>
+use tienda_brico;<br>
+create table cliente(<br>
+id_clien int primary key,<br>
+usuario varchar(50),<br>
+contra varchar(50),<br>
+dni char(9) not null,<br>
+correo varchar(320) not null,<br>
+direccion varchar(200),<br>
+metodo_pago enum("visa","mastercard","paypal"),<br>
+num_cuenta char(16),<br>
+esAdmin boolean default false<br>
+);<br>
 create table pedido(
 id_ped int primary key,
 id_clien int,
