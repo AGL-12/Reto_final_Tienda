@@ -49,8 +49,11 @@ public class VistaTienda extends JDialog implements ActionListener {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowActivated(WindowEvent e) {
-				System.out.println("Creando Tabla");
-				creandoTabla();
+				//cada vez que se vuelva a esta ventana, se realizara un refresh a la tabla para que se puedan ver los cambios
+				if(tableArticulo!=null) {
+					System.out.println("Refrescando tabla");
+					creandoTabla();
+				}
 			}
 
 
@@ -84,11 +87,12 @@ public class VistaTienda extends JDialog implements ActionListener {
 		btnCompra.addActionListener(this);
 		getContentPane().add(btnCompra);
 
-		// Crear la tabla antes de usarla en JScrollPane
-		tableArticulo = new JTable();
+		
 		if (clien.isEsAdmin()) {
 			btnAdmin.setVisible(true);
 		}
+		// Crear la tabla antes de usarla en JScrollPane
+				tableArticulo = new JTable();
 		// Crear el JScrollPane con la tabla correctamente inicializada
 		JScrollPane scrollPane = new JScrollPane(tableArticulo);
 		scrollPane.setBounds(51, 88, 327, 85); // Ubicación y tamaño del JScrollPane
@@ -109,17 +113,8 @@ public class VistaTienda extends JDialog implements ActionListener {
 		model.addColumn("Oferta");
 		model.addColumn("Stock");
 		model.addColumn("Cantidad");
-
-		// Obtener los artículos del DAO
-		Map<Integer, Articulo> articulos = Principal.obtenerTodosArticulos();
-
-		// Agregar los datos de los artículos al modelo de la tabla
-		for (Articulo art : articulos.values()) {
-			if (art.getStock() != 0) {
-				model.addRow(new Object[] { art.getId_art(), art.getNombre(), art.getDescripcion(), art.getPrecio(),
-						art.getOferta(), art.getStock(), 0 });
-			}
-		}
+		//Primera creacion de tabla sin haber introducido posteriormente nada
+		creandoTabla();
 
 		// Establecer el modelo de la tabla con los datos
 		tableArticulo.setModel(model);
@@ -196,7 +191,17 @@ public class VistaTienda extends JDialog implements ActionListener {
 	}
 	
 	private void creandoTabla() {
-		// TODO Auto-generated method stub
+
+		// Obtener los artículos del DAO
+		Map<Integer, Articulo> articulos = Principal.obtenerTodosArticulos();
+
+		// Agregar los datos de los artículos al modelo de la tabla
+		for (Articulo art : articulos.values()) {
+			if (art.getStock() != 0) {
+				model.addRow(new Object[] { art.getId_art(), art.getNombre(), art.getDescripcion(), art.getPrecio(),
+						art.getOferta(), art.getStock(), 0 });
+			}
+		}
 		
 	}
 }
