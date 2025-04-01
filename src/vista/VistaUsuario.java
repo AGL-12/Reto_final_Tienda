@@ -446,8 +446,14 @@ public class VistaUsuario extends JDialog implements ActionListener {
 
 	private void baja() {
 		try {
-			Principal.bajaCliente(localClien);
-			JOptionPane.showMessageDialog(this, "Baja exitosa", "Mensaje", DISPOSE_ON_CLOSE);
+			int res = JOptionPane.showConfirmDialog(this, "Estas seguro que quieres borrar el usuario", "Titulo", JOptionPane.YES_NO_OPTION);
+			if (res == 0) {
+				Principal.bajaCliente(localClien);
+				JOptionPane.showMessageDialog(this, "Baja exitosa", "Mensaje", DISPOSE_ON_CLOSE);
+			}else {
+				JOptionPane.showMessageDialog(this, "No se ha realizado la baja", "Baja cancelada", DISPOSE_ON_CLOSE);
+			}
+				
 		} catch (DropError e) {
 			e.printStackTrace();
 		}

@@ -21,7 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
 public class AdminConfigUsuario extends JDialog implements ActionListener{
-
+	//JoptionPane Showconfig dialog mirar usos
 	private static final long serialVersionUID = 1L;
 
 	private DefaultTableModel model;
@@ -49,7 +49,7 @@ public class AdminConfigUsuario extends JDialog implements ActionListener{
 		});
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
-		//localClien = clien;
+	
 		
 
 		JLabel lblTitulo = new JLabel("SELECT USER");
@@ -57,8 +57,7 @@ public class AdminConfigUsuario extends JDialog implements ActionListener{
 		getContentPane().add(lblTitulo);
 		
 		tableListaUsuarios = new JTable();
-		//tableListaUsuarios.setBounds(48, 62, 285, 143);
-		//getContentPane().add(tableListaUsuarios);
+		
 		
 		 btnSeleccionarUsuario = new JButton("SELECT USER");
 		btnSeleccionarUsuario.setBounds(124, 209, 148, 33);
@@ -92,16 +91,16 @@ public class AdminConfigUsuario extends JDialog implements ActionListener{
 	    model.addColumn("direccion");
 	    model.addColumn("Total de compras");
 
-	    // Crear la tabla con el modelo
+	 
 	    tableListaUsuarios = new JTable(model);
 	    tableListaUsuarios.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
-	    // Agregar los datos a la tabla
+	   
 	    refrescarTabla();
 
-	    // Agregar un JScrollPane para que sea desplazable
+	  
 	    JScrollPane scrollPane = new JScrollPane(tableListaUsuarios);
-	    scrollPane.setBounds(10, 46, 418, 179); // Ubicación y tamaño del JScrollPane
+	    scrollPane.setBounds(10, 46, 418, 179); 
 	    getContentPane().add(scrollPane);
 
 	}
