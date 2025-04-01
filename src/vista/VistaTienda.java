@@ -109,7 +109,6 @@ public class VistaTienda extends JDialog implements ActionListener {
 			public void windowActivated(WindowEvent e) {
 				//cada vez que se vuelva a esta ventana, se realizara un refresh a la tabla para que se puedan ver los cambios
 				if(tableArticulo!=null) {
-					System.out.println("Refrescando tabla");
 					cargarTabla();
 				}
 			}
