@@ -13,6 +13,8 @@ import javax.swing.JButton;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Map;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
@@ -33,11 +35,22 @@ public class AdminConfigUsuario extends JDialog implements ActionListener{
 	 */
 	public AdminConfigUsuario( JDialog ventanaIntermedia) {
 		super(ventanaIntermedia, "Lista de todos los clientes", true);
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowActivated(WindowEvent e) {
+				//cada vez que se vuelva a esta ventana, se realizara un refresh a la tabla para que se puedan ver los cambios
+				if(listaClienteTod!=null) {
+					System.out.println("Refrescando tabla");
+					refrescarTabla();
+				}
+			}
+
+
+		});
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
 		//localClien = clien;
-		// Llamamos al DAO para obtener los vehículos del propietario
-		listaClienteTod = Principal.listarCliente();
+		
 
 		JLabel lblTitulo = new JLabel("SELECT USER");
 		lblTitulo.setBounds(134, 10, 115, 25);
@@ -52,78 +65,44 @@ public class AdminConfigUsuario extends JDialog implements ActionListener{
 		getContentPane().add(btnSeleccionarUsuario);
 		btnSeleccionarUsuario.addActionListener(this);
 		
-		model = new DefaultTableModel() {
-			private static final long serialVersionUID = 1L;
+		 // Llamamos al DAO para obtener los clientes
+	    listaClienteTod = Principal.listarCliente();
 
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				return column == 0; // Solo la primera columna (checkbox) es editable
-			}
+	    // Configurar el modelo de la tabla
+	    model = new DefaultTableModel() {
+	        private static final long serialVersionUID = 1L;
 
-			@Override
-			public Class<?> getColumnClass(int columnIndex) {
-				return columnIndex == 0 ? Boolean.class : String.class; // CheckBox en la primera columna
-			}
-		};
-		// Definir las columnas de la tabla
-		model.addColumn("Seleccionar");
-		model.addColumn("id_clien");
-		model.addColumn("usuario");
-//		model.addColumn("contra");
-		model.addColumn("dni");
-		model.addColumn("correo");
-		model.addColumn("direccion");
-//		model.addColumn("metodo_pago");
-//		model.addColumn("num_cuenta");
-//		model.addColumn("esAdmin");
-		model.addColumn("Total de compras");
-		
-		// Agregar los datos de los vehículos al modelo de la tabla
-		for (Cliente cliens : listaClienteTod.values()) {
-			model.addRow(new Object[] { false, cliens.getId_usu(), cliens.getUsuario(), cliens.getDni(),
-					cliens.getCorreo(), cliens.getDireccion(), cliens.getListaCompra().size() });
+	        @Override
+	        public boolean isCellEditable(int row, int column) {
+	            return column == 0; // Solo la primera columna (checkbox) es editable
+	        }
 
-		}
-		// Establecer el modelo de la tabla con los datos
-		tableListaUsuarios = new JTable(model);
-		tableListaUsuarios.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-		
+	        @Override
+	        public Class<?> getColumnClass(int columnIndex) {
+	            return columnIndex == 0 ? Boolean.class : String.class; // CheckBox en la primera columna
+	        }
+	    };
 
-		// Agregar un listener para detectar la selección del checkbox
-		tableListaUsuarios.getModel().addTableModelListener(e -> {
-			int row = e.getFirstRow();
-			boolean isSelected = (boolean) model.getValueAt(row, 0);
+	    // Definir las columnas de la tabla
+	    model.addColumn("Seleccionar");
+	    model.addColumn("id_clien");
+	    model.addColumn("usuario");
+	    model.addColumn("dni");
+	    model.addColumn("correo");
+	    model.addColumn("direccion");
+	    model.addColumn("Total de compras");
 
-			if (isSelected) {
-				// Obtener los datos del cliente seleccionado
-				int idCliente = (int) model.getValueAt(row, 1);
-				String usuario = (String) model.getValueAt(row, 2);
-				String dni = (String) model.getValueAt(row, 3);
-				String correo = (String) model.getValueAt(row, 4);
-				String direccion = (String) model.getValueAt(row, 5);
-				int totalCompras = (int) model.getValueAt(row, 6);
-				
-				
-				// Buscar el cliente en la lista original
-				//localClien = listaClienteTod.getOrDefault(idCliente, null);	// Buscar el cliente en la lista original
-			
-				// Desmarcar otros checkboxes
-				for (int i = 0; i < model.getRowCount(); i++) {
-					if (i != row) {
-						model.setValueAt(false, i, 0);
-					}
-				}
-			} else {
-				localClien = null;
-			}
-		});
+	    // Crear la tabla con el modelo
+	    tableListaUsuarios = new JTable(model);
+	    tableListaUsuarios.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
-		
-		JScrollPane scrollPane = new JScrollPane(tableListaUsuarios);
-		scrollPane.setBounds(10, 46, 418, 179); // Ubicación y tamaño del JScrollPane
-		getContentPane().add(scrollPane); // Añadir el JScrollPane al panel
-		
-		
+	    // Agregar los datos a la tabla
+	    refrescarTabla();
+
+	    // Agregar un JScrollPane para que sea desplazable
+	    JScrollPane scrollPane = new JScrollPane(tableListaUsuarios);
+	    scrollPane.setBounds(10, 46, 418, 179); // Ubicación y tamaño del JScrollPane
+	    getContentPane().add(scrollPane);
 
 	}
 	
@@ -141,17 +120,40 @@ public class AdminConfigUsuario extends JDialog implements ActionListener{
 		            if (isSelected) {
 		                // Si el checkbox está marcado, obtener los datos de esa fila
 		                int idCliente = (int) model.getValueAt(row, 1);
-		                localClien = listaClienteTod.get(idCliente); // Buscar el cliente en la lista
+		                localClien = listaClienteTod.get(idCliente); 
 
-		                // Si encontramos un cliente, mostrar la vista
+		               
 		                if (localClien != null) {
 		                    VistaUsuario vista = new VistaUsuario(localClien, this);
 		                    vista.setVisible(true);
 		                }
-		                break; // Romper el ciclo después de encontrar el primer cliente seleccionado
+		                break; 
 		            }
 		        
 		    }
 		    }
+	}
+	
+
+	
+	private void refrescarTabla() {
+	  
+	    model.setRowCount(0);
+	    
+	 // Llamamos al DAO para obtener los vehículos del propietario
+	 		listaClienteTod = Principal.listarCliente();
+	
+	    for (Cliente cliens : listaClienteTod.values()) {
+	        model.addRow(new Object[] { 
+	            false, 
+	            cliens.getId_usu(), 
+	            cliens.getUsuario(), 
+	            cliens.getDni(),
+	            cliens.getCorreo(), 
+	            cliens.getDireccion(), 
+	            cliens.getListaCompra().size() 
+	        });
+	    }
+	
 	}
 }
