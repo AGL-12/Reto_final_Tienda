@@ -2,6 +2,7 @@ package vista;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
@@ -29,9 +30,9 @@ public class VistaCarrito extends JDialog implements ActionListener {
 	/**
 	 * Create the dialog.
 	 * 
-	 * @param preSetCompra
+	 * @param preSetPedido
 	 */
-	public VistaCarrito(JDialog vista, List<Compra> listaCompra, Pedido preSetCompra) {
+	public VistaCarrito(JDialog vista, List<Compra> listaCompra, Pedido preSetPedido) {
 		super(vista);
 		super.setModal(true);
 		setBounds(100, 100, 849, 608);
@@ -55,9 +56,9 @@ public class VistaCarrito extends JDialog implements ActionListener {
 
 			model.addRow(new Object[] { arti.getNombre(), com.getCantidad(), descontado, precioFinal, precioTotal });
 		}
-		preSetCompra.setTotal(totalCompra);
+		preSetPedido.setTotal(totalCompra);
 		localListaCompra = listaCompra;
-		localPedido = preSetCompra;
+		localPedido = preSetPedido;
 
 		tablaCarrito = new JTable(model);
 		// Crear el JScrollPane con la tabla correctamente inicializada
@@ -94,8 +95,12 @@ public class VistaCarrito extends JDialog implements ActionListener {
 	}
 
 	private void fullCompra() {
-		Principal.insertPedido(localPedido);
-		Principal.insertListCompra(localListaCompra);
-		
+		int res = JOptionPane.showConfirmDialog(this, "Estas seguro de confimar compra", "confirmacion de compra",
+				JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null);
+
+		if (res == 0) {
+			Principal.insertPedido(localPedido);
+			Principal.insertListCompra(localListaCompra);
+		}
 	}
 }

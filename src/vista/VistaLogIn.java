@@ -17,6 +17,9 @@ import java.awt.event.ActionEvent;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 public class VistaLogIn extends JFrame implements ActionListener {
 
@@ -32,9 +35,9 @@ public class VistaLogIn extends JFrame implements ActionListener {
 	 * Create the frame.
 	 */
 	public VistaLogIn() {
+
 		setTitle("Hola Mundo");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 489, 350);
 		setResizable(false);
 
 		contentPane = new JPanel();
@@ -56,6 +59,7 @@ public class VistaLogIn extends JFrame implements ActionListener {
 
 		btnSignIn = new JButton("Registrarte");
 		btnSignIn.addActionListener(this);
+
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(gl_contentPane.createParallelGroup(Alignment.LEADING).addGroup(
 				Alignment.TRAILING,
@@ -140,4 +144,5 @@ public class VistaLogIn extends JFrame implements ActionListener {
 
 		this.setVisible(true);
 	}
+
 }

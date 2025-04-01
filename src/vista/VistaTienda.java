@@ -14,6 +14,8 @@ import javax.swing.JScrollPane;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,40 +46,22 @@ public class VistaTienda extends JDialog implements ActionListener {
 	 */
 	public VistaTienda(Cliente clien, JFrame vista) {
 		super(vista, "Bienvendido", true);
+		this.localClien = clien;
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowActivated(WindowEvent e) {
+				// cada vez que se vuelva a esta ventana, se realizara un refresh a la tabla
+				// para que se puedan ver los cambios
+				if (tableArticulo != null) {
+					cargaConteTabla();
+				}
+			}
+		});
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
 
-		this.localClien = clien;
-
-		JLabel lblTitulo = new JLabel("DYE TOOLS");
-		lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblTitulo.setBounds(157, 10, 106, 38);
-		getContentPane().add(lblTitulo);
-
-		btnUsuario = new JButton("USER");
-		btnUsuario.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnUsuario.setBounds(10, 232, 85, 21);
-		getContentPane().add(btnUsuario);
-		btnUsuario.addActionListener(this);
-
-		btnAdmin = new JButton("ADMIN");
-		btnAdmin.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnAdmin.setBounds(109, 233, 85, 21);
-		btnAdmin.addActionListener(this);
-		btnAdmin.setVisible(false);
-		getContentPane().add(btnAdmin);
-
-		btnCompra = new JButton("BUY");
-		btnCompra.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnCompra.setBounds(341, 233, 85, 21);
-		btnCompra.addActionListener(this);
-		getContentPane().add(btnCompra);
-
 		// Crear la tabla antes de usarla en JScrollPane
 		tableArticulo = new JTable();
-		if (clien.isEsAdmin()) {
-			btnAdmin.setVisible(true);
-		}
 		// Crear el JScrollPane con la tabla correctamente inicializada
 		JScrollPane scrollPane = new JScrollPane(tableArticulo);
 		scrollPane.setBounds(51, 88, 327, 85); // Ubicación y tamaño del JScrollPane
@@ -98,17 +82,6 @@ public class VistaTienda extends JDialog implements ActionListener {
 		model.addColumn("Oferta");
 		model.addColumn("Stock");
 		model.addColumn("Cantidad");
-
-		// Obtener los artículos del DAO
-		Map<Integer, Articulo> articulos = Principal.obtenerTodosArticulos();
-
-		// Agregar los datos de los artículos al modelo de la tabla
-		for (Articulo art : articulos.values()) {
-			if (art.getStock() != 0) {
-				model.addRow(new Object[] { art.getId_art(), art.getNombre(), art.getDescripcion(), art.getPrecio(),
-						art.getOferta(), art.getStock(), null });
-			}
-		}
 
 		// Establecer el modelo de la tabla con los datos
 		tableArticulo.setModel(model);
@@ -139,6 +112,34 @@ public class VistaTienda extends JDialog implements ActionListener {
 				}
 			}
 		});
+
+		JLabel lblTitulo = new JLabel("DYE TOOLS");
+		lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblTitulo.setBounds(157, 10, 106, 38);
+		getContentPane().add(lblTitulo);
+
+		btnUsuario = new JButton("USER");
+		btnUsuario.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnUsuario.setBounds(10, 232, 85, 21);
+		getContentPane().add(btnUsuario);
+		btnUsuario.addActionListener(this);
+
+		btnAdmin = new JButton("ADMIN");
+		btnAdmin.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnAdmin.setBounds(109, 233, 85, 21);
+		btnAdmin.addActionListener(this);
+		btnAdmin.setVisible(false);
+		getContentPane().add(btnAdmin);
+
+		btnCompra = new JButton("BUY");
+		btnCompra.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnCompra.setBounds(341, 233, 85, 21);
+		btnCompra.addActionListener(this);
+		getContentPane().add(btnCompra);
+
+		if (clien.isEsAdmin()) {
+			btnAdmin.setVisible(true);
+		}
 	}
 
 	@Override
@@ -165,33 +166,47 @@ public class VistaTienda extends JDialog implements ActionListener {
 				tableArticulo.getCellEditor().stopCellEditing();
 			}
 
-			Pedido preSetCompra = new Pedido(Principal.obtenerUltimoIdPed(), localClien.getId_usu(), 0,
+			Pedido preSetPedido = new Pedido(Principal.obtenerUltimoIdPed(), localClien.getId_usu(), 0,
 					LocalDateTime.now());
 
 			this.setVisible(false);
 
-			VistaCarrito carritoNoCompra = new VistaCarrito(this, cargaPedCom(preSetCompra), preSetCompra);
+			VistaCarrito carritoNoCompra = new VistaCarrito(this, cargaPedCom(preSetPedido), preSetPedido);
 
 			carritoNoCompra.setVisible(true);
 
 			this.setVisible(true);
-			
+
 		}
 	}
 
-	private List<Compra> cargaPedCom(Pedido preSetCompra) {
+	private List<Compra> cargaPedCom(Pedido preSetPedido) {
 		List<Compra> listaCompra = new ArrayList<>();
 		for (int i = 0; i < model.getRowCount(); i++) {
 			if (model.getValueAt(i, 6) != null) {
 				int selecionado = (Integer) model.getValueAt(i, 6);
 				if (selecionado != 0) {
-					Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), preSetCompra.getId_usu(),
+					Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), preSetPedido.getId_ped(),
 							(Integer) model.getValueAt(i, 6));
 					listaCompra.add(palCarro);
 				}
 			}
 		}
 		return listaCompra;
+	}
+
+	private void cargaConteTabla() {
+		model.setRowCount(0);
+		// Obtener los artículos del DAO
+		Map<Integer, Articulo> articulos = Principal.obtenerTodosArticulos();
+
+		// Agregar los datos de los artículos al modelo de la tabla
+		for (Articulo art : articulos.values()) {
+			if (art.getStock() != 0) {
+				model.addRow(new Object[] { art.getId_art(), art.getNombre(), art.getDescripcion(), art.getPrecio(),
+						art.getOferta(), art.getStock(), null });
+			}
+		}
 	}
 
 }
