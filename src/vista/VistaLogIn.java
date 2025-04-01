@@ -33,6 +33,7 @@ public class VistaLogIn extends JFrame implements ActionListener {
 	 * Create the frame.
 	 */
 	public VistaLogIn() {
+		setLocationRelativeTo(null);
 		setTitle("Hola Mundo");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 489, 350);

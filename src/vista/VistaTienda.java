@@ -30,6 +30,7 @@ import controlador.Principal;
 import javax.swing.JButton;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.SQLException;
 
 public class VistaTienda extends JDialog implements ActionListener {
 
@@ -46,18 +47,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 	 */
 	public VistaTienda(Cliente clien, JFrame vista) {
 		super(vista, "Bienvendido", true);
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowActivated(WindowEvent e) {
-				//cada vez que se vuelva a esta ventana, se realizara un refresh a la tabla para que se puedan ver los cambios
-				if(tableArticulo!=null) {
-					System.out.println("Refrescando tabla");
-					creandoTabla();
-				}
-			}
 
-
-		});
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
 
@@ -114,7 +104,18 @@ public class VistaTienda extends JDialog implements ActionListener {
 		model.addColumn("Stock");
 		model.addColumn("Cantidad");
 		//Primera creacion de tabla sin haber introducido posteriormente nada
-		creandoTabla();
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowActivated(WindowEvent e) {
+				//cada vez que se vuelva a esta ventana, se realizara un refresh a la tabla para que se puedan ver los cambios
+				if(tableArticulo!=null) {
+					System.out.println("Refrescando tabla");
+					cargarTabla();
+				}
+			}
+
+
+		});
 
 		// Establecer el modelo de la tabla con los datos
 		tableArticulo.setModel(model);
@@ -190,11 +191,11 @@ public class VistaTienda extends JDialog implements ActionListener {
 		return listaCompra;
 	}
 	
-	private void creandoTabla() {
-
+	private void cargarTabla() {
+		//Borrado de todas las filas de la tabla
+		model.setRowCount(0);
 		// Obtener los artículos del DAO
 		Map<Integer, Articulo> articulos = Principal.obtenerTodosArticulos();
-
 		// Agregar los datos de los artículos al modelo de la tabla
 		for (Articulo art : articulos.values()) {
 			if (art.getStock() != 0) {
