@@ -12,5 +12,6 @@ public class LoginError extends Exception {
 
 	public void visualizarMen() {
 		JOptionPane.showMessageDialog(null, this.mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+		
 	}
 }
