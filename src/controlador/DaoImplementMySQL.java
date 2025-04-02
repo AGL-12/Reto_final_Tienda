@@ -35,7 +35,7 @@ public class DaoImplementMySQL implements Dao {
 	private Connection con;
 	private PreparedStatement stmt;
 	// Sentencias SQL
-
+	final String BAJA_ARTICULO = "DELETE FROM articulo  WHERE ID_ART= ?";
 	final String ALTA_ARTICULO = "INSERT INTO articulo  VALUES (?, ?, ?, ?, ?, ?, ?)";
 	final String MODIFICAR_ARTICULO = "UPDATE articulo SET nombre = ?, descripcion = ?, stock = ?, precio = ?, oferta = ?, seccion = ? WHERE id_art = ?";
 
@@ -164,7 +164,23 @@ public class DaoImplementMySQL implements Dao {
 
 	@Override
 	public void eliminarArticulo(Articulo art) throws modifyError {
+		
+		openConnection();
+		try {
+			stmt = con.prepareStatement(BAJA_ARTICULO);
+			stmt.setInt(1, art.getId_art());
+			stmt.executeUpdate();
 
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				closeConnection();
+			} catch (SQLException e) {
+				e.printStackTrace();
+
+			}
+		}
 	}
 
 	@Override

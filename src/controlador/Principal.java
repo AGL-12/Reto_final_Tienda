@@ -37,10 +37,6 @@ public class Principal {
 		dao.añadirArticulo(art);
 	}
 
-//	public static void Alta(Propietario propi) throws InsertError {
-//		dao.altaPropietario(propi);
-//	}
-//
 	public static Map<Integer, Cliente> listarCliente() {
 		return dao.listarClientesTod();
 	}

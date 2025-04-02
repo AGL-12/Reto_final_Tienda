@@ -83,8 +83,7 @@ public class Articulo {
 
 	@Override
 	public String toString() {
-		return "Articulo [id_art=" + id_art + ", nombre=" + nombre + ", descripcion=" + descripcion + ", stock=" + stock
-				+ ", precio=" + precio + ", oferta=" + oferta + ", seccion=" + seccion + "]";
+		return id_art +"-"+ nombre ;
 	}
 
 }

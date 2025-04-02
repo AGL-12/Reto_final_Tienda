@@ -3,6 +3,8 @@ package vista;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.JTextField;
 
@@ -12,11 +14,14 @@ import modelo.Articulo;
 import modelo.Cliente;
 import modelo.Seccion;
 
+import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Map;
+
 import javax.swing.JComboBox;
 
 public class AdminConfigArticulos extends JDialog implements ActionListener {
@@ -32,7 +37,9 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 	private JButton btnModify;
 	private JButton btnSalir;
 	private JComboBox comboBoxSeccion;
-	JDialog VentanaIntermedia;
+	private JDialog VentanaIntermedia;
+	private JComboBox comboBoxArticulo;
+	private Map<Integer, Articulo> articulos=Principal.obtenerTodosArticulos();;
 
 	/**
 	 * Create the dialog.
@@ -46,58 +53,59 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 
 		JLabel lblNombre = new JLabel("Name");
 		lblNombre.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		lblNombre.setBounds(59, 31, 46, 28);
+		lblNombre.setBounds(61, 52, 46, 28);
 		getContentPane().add(lblNombre);
 
 		textNombre = new JTextField();
-		textNombre.setBounds(117, 38, 161, 20);
+		textNombre.setBounds(117, 59, 183, 20);
 		getContentPane().add(textNombre);
 		textNombre.setColumns(10);
 
 		JLabel lblDescripcion = new JLabel("Description");
 		lblDescripcion.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		lblDescripcion.setBounds(17, 62, 88, 28);
+		lblDescripcion.setBounds(19, 84, 88, 28);
 		getContentPane().add(lblDescripcion);
 
 		textDescripcion = new JTextField();
 		textDescripcion.setColumns(10);
-		textDescripcion.setBounds(117, 69, 161, 20);
+		textDescripcion.setBounds(117, 91, 183, 20);
 		getContentPane().add(textDescripcion);
 
 		textStock = new JTextField();
 		textStock.setColumns(10);
-		textStock.setBounds(117, 103, 161, 20);
+		textStock.setBounds(117, 122, 183, 20);
 		getContentPane().add(textStock);
 
 		textPrecio = new JTextField();
 		textPrecio.setColumns(10);
-		textPrecio.setBounds(117, 136, 161, 20);
+		textPrecio.setBounds(117, 153, 183, 20);
 		getContentPane().add(textPrecio);
 
 		textOferta = new JTextField();
 		textOferta.setColumns(10);
-		textOferta.setBounds(117, 167, 161, 20);
+		textOferta.setBounds(115, 184, 185, 20);
 		getContentPane().add(textOferta);
 
 		JLabel lblStock = new JLabel("Stock");
 		lblStock.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		lblStock.setBounds(59, 95, 46, 28);
+		lblStock.setBounds(59, 120, 46, 28);
 		getContentPane().add(lblStock);
 
 		JLabel lblPrecio = new JLabel("Price");
 		lblPrecio.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		lblPrecio.setBounds(57, 128, 48, 28);
+		lblPrecio.setBounds(59, 148, 48, 28);
 		getContentPane().add(lblPrecio);
 
 		JLabel lblOferta = new JLabel("Offer");
 		lblOferta.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		lblOferta.setBounds(57, 159, 48, 28);
+		lblOferta.setBounds(59, 177, 48, 28);
 		getContentPane().add(lblOferta);
 
 		JLabel lblSeccion = new JLabel("Section");
 		lblSeccion.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		lblSeccion.setBounds(48, 195, 57, 28);
+		lblSeccion.setBounds(48, 213, 57, 28);
 		getContentPane().add(lblSeccion);
+
 
 		btnAlta = new JButton("Add");
 		btnAlta.addMouseListener(new MouseAdapter() {
@@ -124,6 +132,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		btnBaja.setBounds(329, 84, 97, 23);
 		getContentPane().add(btnBaja);
 		btnBaja.addActionListener(this);
+		btnBaja.setEnabled(false);
 
 		btnModify = new JButton("Modify");
 		btnModify.addMouseListener(new MouseAdapter() {
@@ -135,7 +144,8 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		btnModify.setBounds(329, 135, 97, 23);
 		getContentPane().add(btnModify);
 		btnModify.addActionListener(this);
-
+		btnModify.setEnabled(false);
+		
 		btnSalir = new JButton("Exit");
 		btnSalir.addMouseListener(new MouseAdapter() {
 			@Override
@@ -147,11 +157,44 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		getContentPane().add(btnSalir);
 
 		comboBoxSeccion = new JComboBox<>(Seccion.values());
-		comboBoxSeccion.setBounds(117, 201, 161, 22);
+		comboBoxSeccion.setBounds(117, 219, 183, 22);
 		getContentPane().add(comboBoxSeccion);
 		comboBoxSeccion.setSelectedIndex(-1);
+		
+		comboBoxArticulo = new JComboBox();
+		comboBoxArticulo.setBounds(117, 26, 183, 22);
+		añadirArticuloCombo();
+		getContentPane().add(comboBoxArticulo);
+		comboBoxArticulo.setSelectedIndex(0);
+        comboBoxArticulo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	if(comboBoxArticulo.getSelectedIndex()!=0) {
+        			btnAlta.setEnabled(false);
+            	}else {
+        			btnAlta.setEnabled(true);
+
+            	}
+    			enseñarInfo();
+            }
+        });
+		
+		JLabel lblArticulo = new JLabel("Articulo");
+		lblArticulo.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		lblArticulo.setBounds(48, 20, 59, 28);
+		getContentPane().add(lblArticulo);
 		btnSalir.addActionListener(this);
 
+	}
+
+	private void añadirArticuloCombo() {
+		articulos= Principal.obtenerTodosArticulos();
+		Articulo artDefault= new Articulo(0,"Selecciona un artículo","",0,0,0,null);
+		comboBoxArticulo.removeAllItems();
+        comboBoxArticulo.addItem(artDefault);
+        for (Articulo articulo : articulos.values()) {
+            comboBoxArticulo.addItem(articulo);
+        }
 	}
 
 	@Override
@@ -159,16 +202,50 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 
 		if (e.getSource().equals(btnAlta)) {
 			añadir();
+			añadirArticuloCombo();
 		}
 		if (e.getSource().equals(btnBaja)) {
 			eliminar();
+			añadirArticuloCombo();
 		}
 		if (e.getSource().equals(btnSalir)) {
 			cerrar();
 		}
 		if (e.getSource().equals(btnModify)) {
 			modificar();
+			añadirArticuloCombo();
 		}
+	}
+
+	private Articulo enseñarInfo() {
+		Articulo art=null;
+		if(comboBoxArticulo.getSelectedIndex()>0) {
+			btnBaja.setEnabled(true);
+			btnModify.setEnabled(true);
+			art=(Articulo) (comboBoxArticulo.getSelectedItem());
+			textNombre.setText(art.getNombre());
+			textDescripcion.setText(art.getDescripcion());
+			textStock.setText(String.valueOf(art.getStock())); 
+			textPrecio.setText(String.valueOf(art.getPrecio())); 
+			textOferta.setText(String.valueOf(art.getOferta()));
+			
+			if (art.getSeccion()==Seccion.pintura) {
+				comboBoxSeccion.setSelectedIndex(0);
+			} else if (art.getSeccion()==Seccion.jardineria) {
+				comboBoxSeccion.setSelectedIndex(1);
+			} else if (art.getSeccion()==Seccion.fontaneria) {
+				comboBoxSeccion.setSelectedIndex(2);
+			} else if (art.getSeccion()==Seccion.soldadura) {
+				comboBoxSeccion.setSelectedIndex(3);
+			} else if (art.getSeccion()==Seccion.carpinteria) {
+				comboBoxSeccion.setSelectedIndex(4);
+			}
+		}else {
+			btnBaja.setEnabled(false);
+			btnModify.setEnabled(false);
+			limpiar();
+		}
+		return art;
 	}
 
 	private void modificar() {
@@ -179,30 +256,34 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 			e.printStackTrace();
 		} finally {
 			limpiar();
+			comboBoxArticulo.setSelectedIndex(0);
 		}
 	}
 
 	private void eliminar() {
-		Articulo art = recopilarInformacion();
+		Articulo art= enseñarInfo();
 		try {
-			Principal.eliminarArticulo(art);
+			if(art!=null) {
+				Principal.eliminarArticulo(art);
+			}else {
+				JOptionPane.showMessageDialog(null, "El articulo seleccionado no ha sido eliminado", "Error", JOptionPane.ERROR_MESSAGE);
+			}
 		} catch (modifyError e) {
 			e.printStackTrace();
 		} finally {
 			limpiar();
+			comboBoxArticulo.setSelectedIndex(0);
+
 		}
 	}
 
 	private void limpiar() {
 		textNombre.setText("");
-		;
 		textDescripcion.setText("");
-		;
 		textStock.setText("");
 		textPrecio.setText("");
 		textOferta.setText("");
 		comboBoxSeccion.setSelectedIndex(-1);
-
 	}
 
 	private void cerrar() {
