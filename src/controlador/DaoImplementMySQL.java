@@ -55,6 +55,7 @@ public class DaoImplementMySQL implements Dao {
 	final String newIdCliente = "SELECT MAX(id_clien) FROM cliente";
 	final String busca_articulo = "SELECT * FROM articulo where id_art=?";
 	final String pedidos_cliente = "SELECT * FROM pedido where id_clien=?";
+	final String OBTENER_ARTICULOS = "SELECT a.id_art, a.nombre, a.precio, a.oferta, c.cantidad FROM articulo a JOIN compra c ON a.id_art = c.id_art WHERE c.id_ped = ?";
 
 	// Falta insert values de pedido y compra en pedido tiene que haber un for para
 	// ir metiendo las compras
@@ -488,8 +489,38 @@ public class DaoImplementMySQL implements Dao {
 	@Override
 	public List<Articulo> obtenerArticulosPedido(int id_clien) {
 		List<Compra> listaCompra = new ArrayList<>();
+		List<Articulo> listaArticulo = new ArrayList<>();
 		// TODO Auto-generated method stub
-		return null;
+		openConnection();
+		ResultSet rs = null;
+		
+		
+		try {
+			stmt = con.prepareStatement(OBTENER_ARTICULOS);
+			stmt.setInt(1, id_clien);
+			rs = stmt.executeQuery();
+			while (rs.next()) {
+				Articulo art = new Articulo();
+		           art.setId_art(rs.getInt("id_art"));
+		            art.setNombre(rs.getString("nombre"));
+		            art.setPrecio(rs.getFloat("precio"));
+		            art.setOferta(rs.getFloat("oferta"));
+		            
+	            listaArticulo.add(art);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+	        try {
+	            if (rs != null) rs.close();
+	            closeConnection();
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+		}
+		
+		return listaArticulo;
 	}
 
 	@Override
@@ -521,6 +552,24 @@ public class DaoImplementMySQL implements Dao {
 		}
 
 		return listaPedidos;
+	}
+	
+	public int obtenerCantidadArticuloEnPedido(int idPedido, int idArticulo) {
+	    int cantidad = 0;
+	    openConnection();
+	    String sql = "SELECT cantidad FROM compra WHERE id_ped = ? AND id_art = ?";
+	    try  {
+	    	stmt = con.prepareStatement(sql);
+	        stmt.setInt(1, idPedido);
+	        stmt.setInt(2, idArticulo);
+	        ResultSet rs = stmt.executeQuery();
+	        if (rs.next()) {
+	            cantidad = rs.getInt("cantidad");
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return cantidad;
 	}
 
 }

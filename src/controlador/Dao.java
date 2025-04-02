@@ -45,4 +45,5 @@ public interface Dao {
 	public void guardarCompra(List<Compra>listaCompra) throws SQLException;
 
 	public void actualizarStock(int idArticulo, int cantidadComprada) throws SQLException;
+	public int obtenerCantidadArticuloEnPedido(int idPedido, int idArticulo);
 }

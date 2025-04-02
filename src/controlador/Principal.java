@@ -118,4 +118,14 @@ public class Principal {
 			e.printStackTrace();
 		}
 	}
+
+	public static List<Articulo> obtenerArticulosPorPedido(int idPedido) {
+		// TODO Auto-generated method stub
+		return dao.obtenerArticulosPedido(idPedido);
+	}
+
+	public static int obtenerCantidadArticuloEnPedido(int idPedido, int id_art) {
+		// TODO Auto-generated method stub
+		return dao.obtenerCantidadArticuloEnPedido(idPedido, id_art);
+	}
 }

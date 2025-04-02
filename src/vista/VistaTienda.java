@@ -127,29 +127,29 @@ public class VistaTienda extends JDialog implements ActionListener {
 		// Aplicar el comportamiento del clic en la celda
 		tableArticulo.setCellSelectionEnabled(true); // Permitir selección de celdas
 		tableArticulo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Solo seleccionar una celda a la vez
-		// Agregar el listener después de inicializar la tabla
-		model.addTableModelListener(new TableModelListener() {
+	
+			// Agregar el listener después de inicializar la tabla
+			model.addTableModelListener(new TableModelListener() {
+			    @Override
+			    public void tableChanged(TableModelEvent e) {
+			        // Verifica que el cambio sea en la columna de "Cantidad" (última columna)
+			        if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) {
+			            int fila = e.getFirstRow(); // Obtener la fila modificada
+			            int cantidadIngresada = (Integer) model.getValueAt(fila, 6);
+			            int stockDisponible = (Integer) model.getValueAt(fila, 5); // Columna de Stock
 
-			@Override
-			public void tableChanged(TableModelEvent e) {
-				// Verifica que el cambio sea en la columna de "Cantidad" (última columna)
-				if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) {
-					int fila = e.getFirstRow(); // Obtener la fila modificada
-					int cantidadIngresada = (Integer) model.getValueAt(fila, 6);
-					int stockDisponible = (Integer) model.getValueAt(fila, 5); // Columna de Stock
-					// Verifica si la cantidad excede el stock
-					if (cantidadIngresada > stockDisponible) {
-						// Mostrar mensaje de advertencia
-						JOptionPane.showMessageDialog(null, "La cantidad ingresada supera el stock disponible.",
-								"Error", JOptionPane.WARNING_MESSAGE);
+			            // Verifica si la cantidad excede el stock
+			            if (cantidadIngresada > stockDisponible) {
+			                // Mostrar mensaje de advertencia
+			                JOptionPane.showMessageDialog(null, "La cantidad ingresada supera el stock disponible.",
+			                        "Error", JOptionPane.WARNING_MESSAGE);
 
-						// Restablecer la cantidad al valor máximo permitido (el stock)
-						model.setValueAt(stockDisponible, fila, 6);
-					}
-				}
-			}
-
-		});
+			                // Restablecer la cantidad al valor máximo permitido (el stock)
+			                model.setValueAt(stockDisponible, fila, 6);
+			            }
+			        }
+			    }
+			});
 	}
 
 	@Override
