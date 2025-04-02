@@ -75,6 +75,7 @@ public class VerPedidosCliente extends JDialog {
 	}
 	
 	
+	
 	  private void agregarPestañaArticulos(int idPedido) {
 	        JPanel panelArticulos = new JPanel(new BorderLayout());
 	        
