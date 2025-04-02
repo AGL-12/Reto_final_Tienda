@@ -134,17 +134,17 @@ public class DaoImplementMySQL implements Dao {
 
 	@Override
 	public void modificarArticulo(Articulo art) throws modifyError {
+		System.out.println(art.toString());
 		openConnection();
-
 		try {
 			stmt = con.prepareStatement(MODIFICAR_ARTICULO);
-			stmt.setInt(1, art.getId_art());
-			stmt.setString(2, art.getNombre());
-			stmt.setString(3, art.getDescripcion());
-			stmt.setInt(4, art.getStock());
-			stmt.setFloat(5, art.getPrecio());
-			stmt.setFloat(6, art.getOferta());
-			stmt.setString(7, art.getSeccion().name());
+			stmt.setString(1, art.getNombre());
+			stmt.setString(2, art.getDescripcion());
+			stmt.setInt(3,art.getStock());
+			stmt.setFloat(4,art.getPrecio());
+			stmt.setFloat(5,art.getOferta());
+			stmt.setString(6,art.getSeccion().name());
+			stmt.setInt(7, art.getId_art());
 			stmt.executeUpdate();
 
 

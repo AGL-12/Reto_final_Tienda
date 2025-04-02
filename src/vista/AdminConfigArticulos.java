@@ -250,6 +250,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 
 	private void modificar() {
 		Articulo art = recopilarInformacion();
+
 		try {
 			Principal.modificarArticulo(art);
 		} catch (modifyError e) {
@@ -260,14 +261,14 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		}
 	}
 
+
 	private void eliminar() {
 		Articulo art= enseñarInfo();
 		try {
 			if(art!=null) {
 				Principal.eliminarArticulo(art);
-			}else {
-				JOptionPane.showMessageDialog(null, "El articulo seleccionado no ha sido eliminado", "Error", JOptionPane.ERROR_MESSAGE);
 			}
+
 		} catch (modifyError e) {
 			e.printStackTrace();
 		} finally {
@@ -308,7 +309,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		String oferta = textOferta.getText();
 		int posicion = comboBoxSeccion.getSelectedIndex();
 		Articulo art = new Articulo();
-
+		art=(Articulo)comboBoxArticulo.getSelectedItem();
 		art.setNombre(textNombre.getText());
 		art.setDescripcion(textDescripcion.getText());
 		art.setStock(Integer.valueOf(stockSin));
