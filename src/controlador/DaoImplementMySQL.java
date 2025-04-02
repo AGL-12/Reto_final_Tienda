@@ -326,7 +326,8 @@ public class DaoImplementMySQL implements Dao {
 	 * } finally { closeConnection(); } return idPedido; }
 	 */
 	public void guardarPedido(Pedido ped) throws SQLException {
-
+		  int nuevoId = obtenerUltimoIdPed();
+		    ped.setId_ped(nuevoId); 
 		try {
 			openConnection();
 
@@ -413,9 +414,15 @@ public class DaoImplementMySQL implements Dao {
 			stmt = con.prepareStatement(newIdPedido);
 			rs = stmt.executeQuery();
 
-			if (rs.next()) {
-				ultimoId = rs.getInt(1);
-			}
+			  if (rs.next()) {
+		            ultimoId = rs.getInt(1);  // Obtiene el último ID
+		            if (rs.wasNull()) {  // Si la tabla está vacía
+		                ultimoId = 0;
+		            }
+		        }
+
+		        System.out.println("Último ID en la BD: " + ultimoId);  // Debug
+		       
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {

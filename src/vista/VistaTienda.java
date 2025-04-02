@@ -185,7 +185,8 @@ public class VistaTienda extends JDialog implements ActionListener {
 			tableArticulo.getCellEditor().stopCellEditing();
 		} 
 
-
+		
+	 
 		Pedido preSetCompra = new Pedido(Principal.obtenerUltimoIdPed(), localClien.getId_usu(), 0,
 				LocalDateTime.now());
 
@@ -224,13 +225,14 @@ public class VistaTienda extends JDialog implements ActionListener {
 //		return seleccionados;
 //	}
 
-	private List<Compra> cargaPedCom(Pedido preSetCompra) {
+	
+	private List<Compra> cargaPedCom(Pedido preSetPedido) {
 		List<Compra> listaCompra = new ArrayList<>();
 		for (int i = 0; i < model.getRowCount(); i++) {
 			if (model.getValueAt(i, 6) != null) {
 				int selecionado = (Integer) model.getValueAt(i, 6);
 				if (selecionado != 0) {
-					Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), preSetCompra.getId_usu(),
+					Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), preSetPedido.getId_ped(),
 							(Integer) model.getValueAt(i, 6));
 					listaCompra.add(palCarro);
 				}
@@ -238,5 +240,4 @@ public class VistaTienda extends JDialog implements ActionListener {
 		}
 		return listaCompra;
 	}
-
 }
