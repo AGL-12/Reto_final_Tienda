@@ -258,17 +258,18 @@ public class VistaTienda extends JDialog implements ActionListener {
 					valor = textField.getText();
 				}
 			}
-
-			// Verificar si el valor es válido antes de hacer el cast
-			try {
-				int seleccionado = Integer.parseInt(valor.toString());
-				if (seleccionado > 0) {
-					Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), preSetPedido.getId_ped(),
-							seleccionado);
-					listaCompra.add(palCarro);
+			if (valor != null) {
+				// Verificar si el valor es válido antes de hacer el cast
+				try {
+					int seleccionado = Integer.parseInt(valor.toString());
+					if (seleccionado > 0) {
+						Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), preSetPedido.getId_ped(),
+								seleccionado);
+						listaCompra.add(palCarro);
+					}
+				} catch (NumberFormatException e) {
+					model.setValueAt(null, i, 6);
 				}
-			} catch (NumberFormatException e) {
-				model.setValueAt(null, i, 6);
 			}
 
 		}
