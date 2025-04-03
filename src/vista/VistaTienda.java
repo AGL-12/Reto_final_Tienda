@@ -8,10 +8,12 @@ import modelo.Pedido;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
+import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -22,13 +24,17 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 import controlador.Principal;
 
+import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 
 public class VistaTienda extends JDialog implements ActionListener {
@@ -47,16 +53,6 @@ public class VistaTienda extends JDialog implements ActionListener {
 	public VistaTienda(Cliente clien, JFrame vista) {
 		super(vista, "Bienvendido", true);
 		this.localClien = clien;
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowActivated(WindowEvent e) {
-				// cada vez que se vuelva a esta ventana, se realizara un refresh a la tabla
-				// para que se puedan ver los cambios
-				if (tableArticulo != null) {
-					cargaConteTabla();
-				}
-			}
-		});
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
 
@@ -71,10 +67,27 @@ public class VistaTienda extends JDialog implements ActionListener {
 			private static final long serialVersionUID = 1L;
 
 			@Override
+			public boolean isCellEditable(int row, int column) {
+				// La columna 6 es editable, el resto no
+				return column == 6;
+			}
+
+			@Override
 			public Class<?> getColumnClass(int columnIndex) {
 				return columnIndex == 6 ? Integer.class : String.class;
 			}
 		};
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowActivated(WindowEvent e) {
+				// cada vez que se vuelva a esta ventana, se realizara un refresh a la tabla
+				// para que se puedan ver los cambios
+				if (tableArticulo != null) {
+					cargaConteTabla();
+				}
+			}
+		});
+
 		model.addColumn("id_art");
 		model.addColumn("Nombre");
 		model.addColumn("Descripción");
@@ -89,25 +102,76 @@ public class VistaTienda extends JDialog implements ActionListener {
 		tableArticulo.removeColumn(tableArticulo.getColumnModel().getColumn(0));
 		// Aplicar el comportamiento del clic en la celda
 		tableArticulo.setCellSelectionEnabled(true); // Permitir selección de celdas
-		tableArticulo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Solo seleccionar una celda a la vez
+		tableArticulo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		// Asignar un DocumentListener al editor de la celda para la columna de
+		// "Cantidad"
+		tableArticulo.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(new JTextField()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+					int column) {
+				JTextField field = (JTextField) super.getTableCellEditorComponent(table, value, isSelected, row,
+						column);
+
+				// Crear un DocumentListener para detectar cambios mientras se escribe
+				field.getDocument().addDocumentListener(new DocumentListener() {
+					@Override
+					public void insertUpdate(DocumentEvent e) {
+						verificarNumero(field);
+					}
+
+					@Override
+					public void removeUpdate(DocumentEvent e) {
+						verificarNumero(field);
+					}
+
+					@Override
+					public void changedUpdate(DocumentEvent e) {
+						verificarNumero(field);
+					}
+
+					// Verificar si el valor es numérico
+					private void verificarNumero(JTextField field) {
+						String text = field.getText();
+
+						// Si el texto no es un número, deshabilitar el botón
+						if (!text.matches("[0-9]*")) {
+							field.setForeground(Color.RED);
+							btnCompra.setEnabled(false); // Deshabilitar el botón
+						} else {
+							field.setForeground(Color.BLACK);
+							btnCompra.setEnabled(true); // Habilitar el botón
+						}
+					}
+				});
+
+				return field; // Devolver el JTextField para que funcione como editor de la celda
+			}
+		});
+
 		// Agregar el listener después de inicializar la tabla
 		model.addTableModelListener(new TableModelListener() {
 			@Override
 			public void tableChanged(TableModelEvent e) {
-				// Verifica que el cambio sea en la columna de "Cantidad" (última columna)
-				if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) {
-					int fila = e.getFirstRow(); // Obtener la fila modificada
-					int cantidadIngresada = (Integer) model.getValueAt(fila, 6);
-					int stockDisponible = (Integer) model.getValueAt(fila, 5); // Columna de Stock
+				if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) { // columna real en el modelo
+					int fila = e.getFirstRow();
 
-					// Verifica si la cantidad excede el stock
-					if (cantidadIngresada > stockDisponible) {
-						// Mostrar mensaje de advertencia
-						JOptionPane.showMessageDialog(null, "La cantidad ingresada supera el stock disponible.",
-								"Error", JOptionPane.WARNING_MESSAGE);
+					Object cantidadObj = model.getValueAt(fila, 6);
+					Object stockObj = model.getValueAt(fila, 5); // columna stock
 
-						// Restablecer la cantidad al valor máximo permitido (el stock)
-						model.setValueAt(stockDisponible, fila, 6);
+					if (cantidadObj != null && stockObj != null) {
+						try {
+							int cantidadIngresada = Integer.parseInt(cantidadObj.toString());
+							int stockDisponible = Integer.parseInt(stockObj.toString());
+
+							if (cantidadIngresada > stockDisponible) {
+								// Solo corregimos, sin parar edición
+								model.setValueAt(stockDisponible, fila, 6);
+							}
+						} catch (NumberFormatException ex) {
+							model.setValueAt(null, fila, 6);
+						}
 					}
 				}
 			}
@@ -116,6 +180,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 		JLabel lblTitulo = new JLabel("DYE TOOLS");
 		lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblTitulo.setBounds(157, 10, 106, 38);
+
 		getContentPane().add(lblTitulo);
 
 		btnUsuario = new JButton("USER");
@@ -182,24 +247,49 @@ public class VistaTienda extends JDialog implements ActionListener {
 
 	private List<Compra> cargaPedCom(Pedido preSetPedido) {
 		List<Compra> listaCompra = new ArrayList<>();
+
 		for (int i = 0; i < model.getRowCount(); i++) {
-			if (model.getValueAt(i, 6) != null) {
-				int selecionado = (Integer) model.getValueAt(i, 6);
-				if (selecionado != 0) {
-					Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), preSetPedido.getId_ped(),
-							(Integer) model.getValueAt(i, 6));
-					listaCompra.add(palCarro);
+			Object valor = model.getValueAt(i, 6);
+
+			// Si la celda está en edición, obtener el valor del editor en lugar del modelo
+			if (tableArticulo.isEditing() && tableArticulo.getEditingRow() == i) {
+				Component editor = tableArticulo.getEditorComponent();
+				if (editor instanceof JTextField textField) {
+					valor = textField.getText();
 				}
 			}
+
+			// Verificar si el valor es válido antes de hacer el cast
+			try {
+				int seleccionado = Integer.parseInt(valor.toString());
+				if (seleccionado > 0) {
+					Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), preSetPedido.getId_ped(),
+							seleccionado);
+					listaCompra.add(palCarro);
+				}
+			} catch (NumberFormatException e) {
+				model.setValueAt(null, i, 6);
+			}
+
 		}
+//		for (int i = 0; i < model.getRowCount(); i++) {
+//			if (model.getValueAt(i, 6) != null) {
+//				int selecionado = (Integer) model.getValueAt(i, 6);
+//				if (selecionado != 0) {
+//					Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), preSetPedido.getId_ped(),
+//							(Integer) model.getValueAt(i, 6));
+//					listaCompra.add(palCarro);
+//				}
+//			}
+//		}
 		return listaCompra;
+
 	}
 
 	private void cargaConteTabla() {
 		model.setRowCount(0);
 		// Obtener los artículos del DAO
 		Map<Integer, Articulo> articulos = Principal.obtenerTodosArticulos();
-
 		// Agregar los datos de los artículos al modelo de la tabla
 		for (Articulo art : articulos.values()) {
 			if (art.getStock() != 0) {
