@@ -1,462 +1,497 @@
 package vista;
 
+import modelo.Cliente;
 import modelo.Metodo;
-
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
 import controlador.Principal;
 import excepciones.AltaError;
 import excepciones.DropError;
 import excepciones.modifyError;
-import modelo.Cliente;
 
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
+// Imports de Swing y AWT
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder; // Para agrupar radio buttons
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.Font;
-import javax.swing.JTextField;
-import javax.swing.JRadioButton;
-import javax.swing.JPasswordField;
+import java.net.URL; // Para cargar iconos
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+// Import de MigLayout (Asegúrate de tener la librería en tu proyecto)
+import net.miginfocom.swing.MigLayout;
 
 public class VistaUsuario extends JDialog implements ActionListener {
 
-	private static final long serialVersionUID = 1L;
-	private final JPanel contentPanel = new JPanel();
-	private JLabel lblUsuario, lblTitulo, lblPassword, lblDni, lblDireccion, lblMetodoPago, lblNumeroCuenta, lblEmail,
-			label_1, label_2, label_3, label_4, label_5, label_6, label_8, label_9;
-	private JTextField textUser, textDni, textEmail, textDireccion, textNumeroCuenta;
-	private JButton btnMostrarPedidos;
-	private JButton btnRegistrarse;
-	private JButton btnModificar;
-	private JRadioButton rdbtnVisa;
-	private JRadioButton rdbtnMastercard;
-	private JRadioButton rdbtnPaypal;
-	private JPasswordField passwordFieldContra;
-	private ButtonGroup rdGroup;
-	private Cliente localClien;
-	private JButton btnDrop;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * @wbp.parser.constructor
-	 */
-	public VistaUsuario(Cliente clien, Object ventPadre) {
-		super(ventPadre instanceof JFrame ? (JFrame) ventPadre
-				: ventPadre instanceof JDialog ? (JDialog) ventPadre : null);
-		localClien = clien;
+    // --- Componentes de la UI ---
+    private JTextField textUser, textDni, textEmail, textDireccion, textNumeroCuenta;
+    private JPasswordField passwordFieldContra;
+    private JRadioButton rdbtnVisa, rdbtnMastercard, rdbtnPaypal;
+    private ButtonGroup paymentMethodGroup; // Grupo para radio buttons
+    private JButton btnRegistrarse, btnModificar, btnDrop, btnMostrarPedidos;
+    private JLabel lblTitulo;
 
-		setModal(true);
+    // --- Datos ---
+    private Cliente localClien; // El cliente actual (null si es registro)
 
-		inicializarComponentes();
+    // --- Constantes de Estilo (Ajusta según tus preferencias) ---
+    private static final Font FONT_TITULO = new Font("Segoe UI", Font.BOLD, 18);
+    private static final Font FONT_LABEL = new Font("Segoe UI", Font.BOLD, 12);
+    private static final Font FONT_TEXTO = new Font("Segoe UI", Font.PLAIN, 12);
+    private static final Font FONT_BOTON = new Font("Segoe UI", Font.BOLD, 14);
+    private static final int PADDING_GENERAL = 15; // Espaciado exterior
+    private static final String GAP_LABEL_COMPONENT = "rel"; // Espacio entre etiqueta y campo
+    private static final String GAP_ROW = "unrel";        // Espacio entre filas
 
-		configureButtons(clien);
+    /**
+     * Constructor para la ventana de datos de Usuario (Registro o Modificación).
+     * @param clien El cliente a modificar, o null si es un nuevo registro.
+     * @param ventPadre La ventana padre (JFrame o JDialog).
+     */
+    public VistaUsuario(Cliente clien, Window ventPadre) { // Acepta Window (JFrame o JDialog)
+        super(ventPadre, clien == null ? "Registro de Usuario" : "Mis Datos", ModalityType.APPLICATION_MODAL); // Título dinámico y modal
+        this.localClien = clien;
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-	}
+        initComponents();    // Inicializa y organiza los componentes
+        configureView();   // Carga datos si es modificación, ajusta botones
+        pack();              // Ajusta tamaño al contenido
+        setMinimumSize(getSize()); // Evita que sea más pequeña
+        setLocationRelativeTo(ventPadre); // Centra respecto al padre
+    }
 
-	private void configureButtons(Cliente clien) {
-		if (clien == null) {
-			btnModificar.setEnabled(false);
-			btnMostrarPedidos.setEnabled(false);
-			btnDrop.setEnabled(false);
-		} else {
-			btnRegistrarse.setEnabled(false);
-			textUser.setText(clien.getUsuario());
-			passwordFieldContra.setText(clien.getContra());
-			textDni.setText(clien.getDni());
-			textEmail.setText(clien.getCorreo());
-			textDireccion.setText(clien.getDireccion());
-			if (clien.getMetodo_pago() == Metodo.visa) {
-				rdbtnVisa.setSelected(true);
-			} else if (clien.getMetodo_pago() == Metodo.mastercard) {
-				rdbtnMastercard.setSelected(true);
-			} else if (clien.getMetodo_pago() == Metodo.paypal) {
-				rdbtnPaypal.setSelected(true);
-			}
-			textNumeroCuenta.setText(clien.getNum_cuenta());
-		}
-	}
+    /**
+     * Inicializa y organiza los componentes usando MigLayout.
+     */
+    private void initComponents() {
+        // --- Panel Principal con BorderLayout ---
+        JPanel mainPanel = new JPanel(new BorderLayout(0, PADDING_GENERAL)); // Espacio vertical entre secciones
+        mainPanel.setBorder(new EmptyBorder(PADDING_GENERAL, PADDING_GENERAL, PADDING_GENERAL, PADDING_GENERAL));
+        setContentPane(mainPanel); // Establece este como el panel principal del JDialog
 
-	private void inicializarComponentes() {
-		setBounds(100, 100, 702, 392);
-		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
-		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		getContentPane().add(contentPanel);
-		GridBagLayout gbl_contentPanel = new GridBagLayout();
-		gbl_contentPanel.columnWidths = new int[] { 114, 131, 114, 81, 213, 0 };
-		gbl_contentPanel.rowHeights = new int[] { 26, 3, 26, 26, 26, 26, 26, 31, 28, 26, 71, 0 };
-		gbl_contentPanel.columnWeights = new double[] { 0.0, 1.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
-		gbl_contentPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-				Double.MIN_VALUE };
-		contentPanel.setLayout(gbl_contentPanel);
+        // --- Título (NORTH) ---
+        lblTitulo = new JLabel(localClien == null ? "NUEVO USUARIO" : "DATOS DEL USUARIO", JLabel.CENTER);
+        lblTitulo.setFont(FONT_TITULO);
+        // lblTitulo.setIcon(cargarIcono("/iconos/usuario_titulo.png")); // Icono opcional para el título
+        mainPanel.add(lblTitulo, BorderLayout.NORTH);
 
-		addComponetes(gbl_contentPanel);
-	}
+        // --- Panel de Formulario (CENTER) con MigLayout ---
+        // "fillx": Hace que el panel ocupe el ancho disponible.
+        // "wrap 2": Indica que después de 2 componentes (label + field), salte a la siguiente fila.
+        // "[]": Define las propiedades de las filas (sin restricciones especiales aquí).
+        // "[align label]": Define la columna de etiquetas (alineadas a la derecha por defecto).
+        // "[]": Define las propiedades de las columnas de espacio entre label y componente.
+        // "[grow]": Define la columna de componentes (que crezcan horizontalmente).
+        JPanel formPanel = new JPanel(new MigLayout(
+                "fillx, insets 0",                 // Layout constraints: fill horizontalmente, sin insets propios
+                "[align label]" + GAP_LABEL_COMPONENT + "[grow, fill]", // Column constraints: label, gap, component (grow+fill)
+                ""                                 // Row constraints: default gaps defined by unrel below
+        ));
+        mainPanel.add(formPanel, BorderLayout.CENTER);
 
-	private void addComponetes(GridBagLayout gbl_contentPanel) {
-		label_2 = new JLabel("");
+        // --- Campos del Formulario ---
+        // Usuario
+        JLabel lblUsuario = new JLabel("Usuario:");
+        lblUsuario.setFont(FONT_LABEL);
+        formPanel.add(lblUsuario);
+        textUser = new JTextField();
+        textUser.setFont(FONT_TEXTO);
+        formPanel.add(textUser, "wrap " + GAP_ROW); // wrap: ir a nueva línea, unrel: espacio vertical
 
-		label_1 = new JLabel("");
+        // Contraseña
+        JLabel lblPassword = new JLabel("Contraseña:");
+        lblPassword.setFont(FONT_LABEL);
+        formPanel.add(lblPassword);
+        passwordFieldContra = new JPasswordField();
+        passwordFieldContra.setFont(FONT_TEXTO);
+        formPanel.add(passwordFieldContra, "wrap " + GAP_ROW);
 
-		lblTitulo = new JLabel("USUARIO");
-		lblTitulo.setToolTipText("");
-		lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 14));
+        // DNI/NIE
+        JLabel lblDni = new JLabel("DNI/NIE:");
+        lblDni.setFont(FONT_LABEL);
+        formPanel.add(lblDni);
+        textDni = new JTextField();
+        textDni.setFont(FONT_TEXTO);
+        formPanel.add(textDni, "wrap " + GAP_ROW);
 
-		GridBagConstraints gbc_lblTitulo = new GridBagConstraints();
-		gbc_lblTitulo.fill = GridBagConstraints.VERTICAL;
-		gbc_lblTitulo.insets = new Insets(0, 0, 5, 5);
-		gbc_lblTitulo.gridheight = 2;
-		gbc_lblTitulo.gridx = 2;
-		gbc_lblTitulo.gridy = 0;
-		contentPanel.add(lblTitulo, gbc_lblTitulo);
-		GridBagConstraints gbc_label_1 = new GridBagConstraints();
-		gbc_label_1.fill = GridBagConstraints.BOTH;
-		gbc_label_1.insets = new Insets(0, 0, 5, 0);
-		gbc_label_1.gridwidth = 2;
-		gbc_label_1.gridx = 3;
-		gbc_label_1.gridy = 0;
-		contentPanel.add(label_1, gbc_label_1);
-		GridBagConstraints gbc_label_2 = new GridBagConstraints();
-		gbc_label_2.fill = GridBagConstraints.BOTH;
-		gbc_label_2.insets = new Insets(0, 0, 5, 0);
-		gbc_label_2.gridheight = 2;
-		gbc_label_2.gridx = 4;
-		gbc_label_2.gridy = 1;
-		contentPanel.add(label_2, gbc_label_2);
+        // Email
+        JLabel lblEmail = new JLabel("Email:");
+        lblEmail.setFont(FONT_LABEL);
+        formPanel.add(lblEmail);
+        textEmail = new JTextField();
+        textEmail.setFont(FONT_TEXTO);
+        formPanel.add(textEmail, "wrap " + GAP_ROW);
 
-		lblUsuario = new JLabel("User");
-		lblUsuario.setFont(new Font("Tahoma", Font.BOLD, 12));
+        // Dirección
+        JLabel lblDireccion = new JLabel("Dirección:");
+        lblDireccion.setFont(FONT_LABEL);
+        formPanel.add(lblDireccion);
+        textDireccion = new JTextField();
+        textDireccion.setFont(FONT_TEXTO);
+        formPanel.add(textDireccion, "wrap " + GAP_ROW);
 
-		GridBagConstraints gbc_lblUsuario = new GridBagConstraints();
-		gbc_lblUsuario.fill = GridBagConstraints.VERTICAL;
-		gbc_lblUsuario.insets = new Insets(0, 0, 5, 5);
-		gbc_lblUsuario.gridx = 0;
-		gbc_lblUsuario.gridy = 3;
-		contentPanel.add(lblUsuario, gbc_lblUsuario);
+        // --- Sección Método de Pago (Panel anidado) ---
+        JPanel paymentPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_GENERAL / 2, 0)); // FlowLayout para los radio buttons
+        // Añadir un borde con título para agrupar visualmente
+        paymentPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(), // Tipo de borde
+                "Método de Pago",                 // Título
+                TitledBorder.LEFT,                  // Alineación del título
+                TitledBorder.TOP,                   // Posición del título
+                FONT_LABEL                          // Fuente del título
+        ));
 
-		label_3 = new JLabel("");
+        rdbtnVisa = new JRadioButton("Visa");
+        rdbtnVisa.setFont(FONT_TEXTO);
+        rdbtnMastercard = new JRadioButton("Mastercard");
+        rdbtnMastercard.setFont(FONT_TEXTO);
+        rdbtnPaypal = new JRadioButton("PayPal");
+        rdbtnPaypal.setFont(FONT_TEXTO);
 
-		textUser = new JTextField();
-		textUser.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		textUser.setColumns(10);
-		GridBagConstraints gbc_textUser = new GridBagConstraints();
-		gbc_textUser.gridwidth = 3;
-		gbc_textUser.insets = new Insets(0, 0, 5, 5);
-		gbc_textUser.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textUser.gridx = 1;
-		gbc_textUser.gridy = 3;
-		contentPanel.add(textUser, gbc_textUser);
+        paymentMethodGroup = new ButtonGroup(); // Asegura que solo uno esté seleccionado
+        paymentMethodGroup.add(rdbtnVisa);
+        paymentMethodGroup.add(rdbtnMastercard);
+        paymentMethodGroup.add(rdbtnPaypal);
 
-		GridBagConstraints gbc_label_3 = new GridBagConstraints();
-		gbc_label_3.fill = GridBagConstraints.BOTH;
-		gbc_label_3.insets = new Insets(0, 0, 5, 0);
-		gbc_label_3.gridx = 4;
-		gbc_label_3.gridy = 3;
-		contentPanel.add(label_3, gbc_label_3);
+        paymentPanel.add(rdbtnVisa);
+        paymentPanel.add(rdbtnMastercard);
+        paymentPanel.add(rdbtnPaypal);
 
-		label_4 = new JLabel("");
+        // Añadir el panel de pago al formulario principal, ocupando todo el ancho (span)
+        formPanel.add(paymentPanel, "span 2, growx, wrap " + GAP_ROW); // span 2: ocupa 2 columnas, growx: crece horizontalmente
 
-		lblPassword = new JLabel("Password");
-		lblPassword.setFont(new Font("Tahoma", Font.BOLD, 12));
+        // Número de Cuenta/Tarjeta
+        JLabel lblNumeroCuenta = new JLabel("Nº Tarjeta/Cuenta:");
+        lblNumeroCuenta.setFont(FONT_LABEL);
+        formPanel.add(lblNumeroCuenta);
+        textNumeroCuenta = new JTextField();
+        textNumeroCuenta.setFont(FONT_TEXTO);
+        formPanel.add(textNumeroCuenta, "wrap " + GAP_ROW);
 
-		GridBagConstraints gbc_lblPassword = new GridBagConstraints();
-		gbc_lblPassword.fill = GridBagConstraints.VERTICAL;
-		gbc_lblPassword.insets = new Insets(0, 0, 5, 5);
-		gbc_lblPassword.gridx = 0;
-		gbc_lblPassword.gridy = 4;
-		contentPanel.add(lblPassword, gbc_lblPassword);
+        // --- Panel de Botones (SOUTH) ---
+        // Usamos MigLayout también para controlar el flujo y posible alineación
+        JPanel buttonPanel = new JPanel(new MigLayout(
+                "fillx, insets 0", // Ocupa ancho, sin márgenes propios
+                "[grow, left][right]" // Dos grupos de columnas: una que crece a la izq, otra a la derecha
+        ));
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-		passwordFieldContra = new JPasswordField();
-		GridBagConstraints gbc_passwordFieldContra = new GridBagConstraints();
-		gbc_passwordFieldContra.gridwidth = 3;
-		gbc_passwordFieldContra.insets = new Insets(0, 0, 5, 5);
-		gbc_passwordFieldContra.fill = GridBagConstraints.HORIZONTAL;
-		gbc_passwordFieldContra.gridx = 1;
-		gbc_passwordFieldContra.gridy = 4;
-		contentPanel.add(passwordFieldContra, gbc_passwordFieldContra);
+        // Botones de Acción (Modificar/Registrar/Baja) - Agrupados a la izquierda
+        JPanel actionButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_GENERAL / 2, 0));
+        btnRegistrarse = new JButton("Registrar");
+        btnRegistrarse.setFont(FONT_BOTON);
+        btnRegistrarse.setIcon(cargarIcono("/iconos/register.png")); // Placeholder
+        btnRegistrarse.addActionListener(this);
+        actionButtonPanel.add(btnRegistrarse);
 
-		GridBagConstraints gbc_label_4 = new GridBagConstraints();
-		gbc_label_4.fill = GridBagConstraints.BOTH;
-		gbc_label_4.insets = new Insets(0, 0, 5, 0);
-		gbc_label_4.gridx = 4;
-		gbc_label_4.gridy = 4;
-		contentPanel.add(label_4, gbc_label_4);
-		lblDni = new JLabel("DNI/NIE");
-		lblDni.setFont(new Font("Tahoma", Font.BOLD, 12));
-		GridBagConstraints gbc_lblDni = new GridBagConstraints();
-		gbc_lblDni.fill = GridBagConstraints.VERTICAL;
-		gbc_lblDni.insets = new Insets(0, 0, 5, 5);
-		gbc_lblDni.gridx = 0;
-		gbc_lblDni.gridy = 5;
-		contentPanel.add(lblDni, gbc_lblDni);
+        btnModificar = new JButton("Guardar Cambios");
+        btnModificar.setFont(FONT_BOTON);
+        btnModificar.setIcon(cargarIcono("/iconos/save.png")); // Placeholder
+        btnModificar.addActionListener(this);
+        actionButtonPanel.add(btnModificar);
 
-		textDni = new JTextField();
-		textDni.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		textDni.setColumns(10);
-		GridBagConstraints gbc_textDni = new GridBagConstraints();
-		gbc_textDni.gridwidth = 3;
-		gbc_textDni.insets = new Insets(0, 0, 5, 5);
-		gbc_textDni.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textDni.gridx = 1;
-		gbc_textDni.gridy = 5;
-		contentPanel.add(textDni, gbc_textDni);
+        btnDrop = new JButton("Dar de Baja");
+        btnDrop.setFont(FONT_BOTON);
+        btnDrop.setIcon(cargarIcono("/iconos/delete.png")); // Placeholder
+        // Estilo "peligroso" (si usas FlatLaf, puedes añadir propiedades)
+        // btnDrop.putClientProperty("JButton.buttonType", "danger"); // Ejemplo FlatLaf
+        btnDrop.setForeground(Color.RED); // Color básico si no usas FlatLaf
+        btnDrop.addActionListener(this);
+        actionButtonPanel.add(btnDrop);
 
-		label_6 = new JLabel("");
+        buttonPanel.add(actionButtonPanel, "cell 0 0"); // Añadir al primer grupo de columnas (izquierda)
 
-		GridBagConstraints gbc_label_6 = new GridBagConstraints();
-		gbc_label_6.fill = GridBagConstraints.BOTH;
-		gbc_label_6.insets = new Insets(0, 0, 5, 0);
-		gbc_label_6.gridx = 4;
-		gbc_label_6.gridy = 5;
-		contentPanel.add(label_6, gbc_label_6);
+        // Botón Mostrar Pedidos - A la derecha
+        btnMostrarPedidos = new JButton("Mis Pedidos");
+        btnMostrarPedidos.setFont(FONT_BOTON);
+        btnMostrarPedidos.setIcon(cargarIcono("/iconos/orders.png")); // Placeholder
+        btnMostrarPedidos.addActionListener(this);
+        buttonPanel.add(btnMostrarPedidos, "cell 1 0, align right"); // Añadir al segundo grupo (derecha)
 
-		lblEmail = new JLabel("EMAIL");
-		lblEmail.setFont(new Font("Tahoma", Font.BOLD, 12));
-		GridBagConstraints gbc_lblEmail = new GridBagConstraints();
-		gbc_lblEmail.insets = new Insets(0, 0, 5, 5);
-		gbc_lblEmail.gridx = 0;
-		gbc_lblEmail.gridy = 6;
-		contentPanel.add(lblEmail, gbc_lblEmail);
+    }
 
-		textEmail = new JTextField();
-		textEmail.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		textEmail.setColumns(10);
-		GridBagConstraints gbc_textEmail = new GridBagConstraints();
-		gbc_textEmail.gridwidth = 3;
-		gbc_textEmail.insets = new Insets(0, 0, 5, 5);
-		gbc_textEmail.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textEmail.gridx = 1;
-		gbc_textEmail.gridy = 6;
-		contentPanel.add(textEmail, gbc_textEmail);
+    /**
+     * Configura la visibilidad/estado de los botones y carga los datos del cliente
+     * si estamos en modo modificación.
+     */
+    private void configureView() {
+        if (localClien == null) { // Modo Registro
+            btnModificar.setVisible(false);
+            btnMostrarPedidos.setVisible(false);
+            btnDrop.setVisible(false);
+            btnRegistrarse.setVisible(true);
+            // Opcional: Poner un método de pago por defecto
+            rdbtnVisa.setSelected(true);
+        } else { // Modo Modificación
+            btnRegistrarse.setVisible(false);
+            btnModificar.setVisible(true);
+            btnMostrarPedidos.setVisible(true);
+            btnDrop.setVisible(true);
 
-		label_8 = new JLabel("");
+            // Cargar datos del cliente en los campos
+            textUser.setText(localClien.getUsuario());
+            // Por seguridad, no solemos precargar la contraseña existente en un campo editable.
+            // Dejarlo vacío para que el usuario la introduzca si quiere cambiarla.
+            // Si quieres mostrarla (no recomendado): passwordFieldContra.setText(localClien.getContra());
+            textDni.setText(localClien.getDni());
+            textEmail.setText(localClien.getCorreo());
+            textDireccion.setText(localClien.getDireccion());
+            textNumeroCuenta.setText(localClien.getNum_cuenta());
 
-		GridBagConstraints gbc_label_8 = new GridBagConstraints();
-		gbc_label_8.fill = GridBagConstraints.BOTH;
-		gbc_label_8.insets = new Insets(0, 0, 5, 0);
-		gbc_label_8.gridx = 4;
-		gbc_label_8.gridy = 6;
-		contentPanel.add(label_8, gbc_label_8);
-		lblDireccion = new JLabel("ADRESS");
-		lblDireccion.setFont(new Font("Tahoma", Font.BOLD, 12));
-		GridBagConstraints gbc_lblDireccion = new GridBagConstraints();
-		gbc_lblDireccion.fill = GridBagConstraints.VERTICAL;
-		gbc_lblDireccion.insets = new Insets(0, 0, 5, 5);
-		gbc_lblDireccion.gridx = 0;
-		gbc_lblDireccion.gridy = 7;
-		contentPanel.add(lblDireccion, gbc_lblDireccion);
+            // Seleccionar el método de pago guardado
+            Metodo metodo = localClien.getMetodo_pago();
+            if (metodo == Metodo.visa) {
+                rdbtnVisa.setSelected(true);
+            } else if (metodo == Metodo.mastercard) {
+                rdbtnMastercard.setSelected(true);
+            } else if (metodo == Metodo.paypal) {
+                rdbtnPaypal.setSelected(true);
+            } else {
+                paymentMethodGroup.clearSelection(); // Ninguno si no coincide o es null
+            }
 
-		textDireccion = new JTextField();
-		textDireccion.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		textDireccion.setColumns(10);
-		GridBagConstraints gbc_textDireccion = new GridBagConstraints();
-		gbc_textDireccion.gridwidth = 3;
-		gbc_textDireccion.insets = new Insets(0, 0, 5, 5);
-		gbc_textDireccion.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textDireccion.gridx = 1;
-		gbc_textDireccion.gridy = 7;
-		contentPanel.add(textDireccion, gbc_textDireccion);
+            // Opcional: Hacer campos no modificables (ej. DNI, email si son clave)
+            // textUser.setEditable(false); // Ejemplo: no permitir cambiar nombre de usuario
+        }
+    }
 
-		label_9 = new JLabel("");
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Object source = e.getSource();
+        if (source == btnRegistrarse) {
+            alta();
+        } else if (source == btnModificar) {
+            modificar();
+        } else if (source == btnMostrarPedidos) {
+            mostrarPedidos();
+        } else if (source == btnDrop) {
+            baja();
+        }
+    }
 
-		GridBagConstraints gbc_label_9 = new GridBagConstraints();
-		gbc_label_9.fill = GridBagConstraints.BOTH;
-		gbc_label_9.insets = new Insets(0, 0, 5, 0);
-		gbc_label_9.gridx = 4;
-		gbc_label_9.gridy = 7;
-		contentPanel.add(label_9, gbc_label_9);
-		lblMetodoPago = new JLabel("PAYMENT METHOD");
-		lblMetodoPago.setFont(new Font("Tahoma", Font.BOLD, 12));
-		GridBagConstraints gbc_lblMetodoPago = new GridBagConstraints();
-		gbc_lblMetodoPago.fill = GridBagConstraints.VERTICAL;
-		gbc_lblMetodoPago.insets = new Insets(0, 0, 5, 5);
-		gbc_lblMetodoPago.gridx = 0;
-		gbc_lblMetodoPago.gridy = 8;
-		contentPanel.add(lblMetodoPago, gbc_lblMetodoPago);
+    /**
+     * Recopila datos del formulario y llama al controlador para dar de alta un cliente.
+     */
+    private void alta() {
+        // Validación básica (podría ser más exhaustiva)
+        if (!validarCampos()) return;
 
-		rdbtnVisa = new JRadioButton("VISA");
-		rdbtnVisa.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		GridBagConstraints gbc_rdbtnVisa = new GridBagConstraints();
-		gbc_rdbtnVisa.insets = new Insets(0, 0, 5, 5);
-		gbc_rdbtnVisa.gridx = 1;
-		gbc_rdbtnVisa.gridy = 8;
-		contentPanel.add(rdbtnVisa, gbc_rdbtnVisa);
+        Cliente nuevoCliente = new Cliente();
+        nuevoCliente.setId_usu(Principal.obtenerNewIdCliente()); // Asumiendo que la BD/Controlador asigna el ID
+        nuevoCliente.setUsuario(textUser.getText().trim());
+        nuevoCliente.setContra(String.valueOf(passwordFieldContra.getPassword())); // Mejor forma de obtener password
+        nuevoCliente.setCorreo(textEmail.getText().trim());
+        nuevoCliente.setDireccion(textDireccion.getText().trim());
+        nuevoCliente.setDni(textDni.getText().trim());
+        nuevoCliente.setNum_cuenta(textNumeroCuenta.getText().trim());
+        nuevoCliente.setMetodo_pago(obtenerMetodoPagoSeleccionado());
+        nuevoCliente.setEsAdmin(false); // Por defecto, los nuevos usuarios no son admin
 
-		rdbtnMastercard = new JRadioButton("MASTERCARD");
-		rdbtnMastercard.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		GridBagConstraints gbc_rdbtnMastercard = new GridBagConstraints();
-		gbc_rdbtnMastercard.insets = new Insets(0, 0, 5, 5);
-		gbc_rdbtnMastercard.gridx = 2;
-		gbc_rdbtnMastercard.gridy = 8;
-		contentPanel.add(rdbtnMastercard, gbc_rdbtnMastercard);
+        try {
+            Principal.altaCliente(nuevoCliente);
+            JOptionPane.showMessageDialog(null, "Cliente creado exitosamente.");
+        } catch (AltaError e) {
+    		e.visualizarMen();
+        }
+    }
 
-		rdbtnPaypal = new JRadioButton("PAYPAL");
-		rdbtnPaypal.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		GridBagConstraints gbc_rdbtnPaypal = new GridBagConstraints();
-		gbc_rdbtnPaypal.insets = new Insets(0, 0, 5, 5);
-		gbc_rdbtnPaypal.gridx = 3;
-		gbc_rdbtnPaypal.gridy = 8;
-		contentPanel.add(rdbtnPaypal, gbc_rdbtnPaypal);
+    /**
+     * Recopila datos del formulario y llama al controlador para modificar el cliente actual.
+     */
+    private void modificar() {
+        if (localClien == null) return; // No debería ocurrir si el botón está bien configurado
 
-		// Crear un ButtonGroup y agregar los botones
-		rdGroup = new ButtonGroup();
-		rdGroup.add(rdbtnVisa);
-		rdGroup.add(rdbtnMastercard);
-		rdGroup.add(rdbtnPaypal);
-		lblNumeroCuenta = new JLabel("ACCOUNT NUMBER");
-		lblNumeroCuenta.setFont(new Font("Tahoma", Font.BOLD, 12));
-		GridBagConstraints gbc_lblNumeroCuenta = new GridBagConstraints();
-		gbc_lblNumeroCuenta.anchor = GridBagConstraints.EAST;
-		gbc_lblNumeroCuenta.fill = GridBagConstraints.VERTICAL;
-		gbc_lblNumeroCuenta.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNumeroCuenta.gridx = 0;
-		gbc_lblNumeroCuenta.gridy = 9;
-		contentPanel.add(lblNumeroCuenta, gbc_lblNumeroCuenta);
+        // Validación básica
+         if (!validarCampos(true)) return; // Permitir contraseña vacía en modificación
 
-		textNumeroCuenta = new JTextField();
-		textNumeroCuenta.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		textNumeroCuenta.setColumns(10);
-		GridBagConstraints gbc_textNumeroCuenta = new GridBagConstraints();
-		gbc_textNumeroCuenta.gridwidth = 3;
-		gbc_textNumeroCuenta.insets = new Insets(0, 0, 5, 5);
-		gbc_textNumeroCuenta.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textNumeroCuenta.gridx = 1;
-		gbc_textNumeroCuenta.gridy = 9;
-		contentPanel.add(textNumeroCuenta, gbc_textNumeroCuenta);
+        // Actualizar el objeto Cliente local con los datos del formulario
+        localClien.setUsuario(textUser.getText().trim());
+        String newPassword = String.valueOf(passwordFieldContra.getPassword());
+        if (!newPassword.isEmpty()) { // Solo actualizar la contraseña si se escribió algo nuevo
+            localClien.setContra(newPassword);
+        }
+        localClien.setCorreo(textEmail.getText().trim());
+        localClien.setDireccion(textDireccion.getText().trim());
+        localClien.setDni(textDni.getText().trim());
+        localClien.setNum_cuenta(textNumeroCuenta.getText().trim());
+        localClien.setMetodo_pago(obtenerMetodoPagoSeleccionado());
 
-		btnRegistrarse = new JButton("SIGN UP");
-		btnRegistrarse.setFont(new Font("Tahoma", Font.BOLD, 14));
-		GridBagConstraints gbc_btnRegistrarse = new GridBagConstraints();
-		gbc_btnRegistrarse.insets = new Insets(0, 0, 0, 5);
-		gbc_btnRegistrarse.gridx = 1;
-		gbc_btnRegistrarse.gridy = 10;
-		contentPanel.add(btnRegistrarse, gbc_btnRegistrarse);
-		btnRegistrarse.addActionListener(this);
+        try {
+            Principal.modificarCliente(localClien);
+            JOptionPane.showMessageDialog(this, "Datos actualizados correctamente.", "Modificación Exitosa", JOptionPane.INFORMATION_MESSAGE);
+            dispose(); // Cierra la ventana
+        } catch (modifyError ex) {
+            ex.visualizarMen(); // Usa el método propio de la excepción
+            // Opcionalmente: ex.printStackTrace();
+        } catch (Exception ex) {
+             ex.printStackTrace();
+             JOptionPane.showMessageDialog(this, "Ha ocurrido un error inesperado al modificar.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
-		btnModificar = new JButton("MODIFY");
-		btnModificar.setFont(new Font("Tahoma", Font.BOLD, 14));
-		GridBagConstraints gbc_btnModificar = new GridBagConstraints();
-		gbc_btnModificar.insets = new Insets(0, 0, 0, 5);
-		gbc_btnModificar.gridx = 2;
-		gbc_btnModificar.gridy = 10;
-		contentPanel.add(btnModificar, gbc_btnModificar);
-		btnModificar.addActionListener(this);
+    /**
+     * Muestra la ventana de pedidos del cliente.
+     */
+    private void mostrarPedidos() {
+        if (localClien != null) {
+            // Asumiendo que VerPedidosCliente es un JDialog que toma esta ventana como padre
+            VerPedidosCliente vistaPedidoClien = new VerPedidosCliente(this, localClien);
+            vistaPedidoClien.setVisible(true);
+        }
+    }
 
-		btnDrop = new JButton("DROP");
-		btnDrop.setFont(new Font("Tahoma", Font.BOLD, 14));
-		GridBagConstraints gbc_btnDrop = new GridBagConstraints();
-		gbc_btnDrop.insets = new Insets(0, 0, 0, 5);
-		gbc_btnDrop.gridx = 3;
-		gbc_btnDrop.gridy = 10;
-		contentPanel.add(btnDrop, gbc_btnDrop);
-		btnDrop.addActionListener(this);
+    /**
+     * Solicita confirmación y llama al controlador para dar de baja al cliente actual.
+     */
+    private void baja() {
+        if (localClien == null) return;
 
-		btnMostrarPedidos = new JButton("ORDERS");
-		btnMostrarPedidos.setFont(new Font("Tahoma", Font.BOLD, 14));
-		GridBagConstraints gbc_btnMostrarPedidos = new GridBagConstraints();
-		gbc_btnMostrarPedidos.gridx = 4;
-		gbc_btnMostrarPedidos.gridy = 10;
-		contentPanel.add(btnMostrarPedidos, gbc_btnMostrarPedidos);
-		btnMostrarPedidos.addActionListener(this);
+        int respuesta = JOptionPane.showConfirmDialog(this,
+                "¿Estás seguro de que quieres eliminar tu cuenta?\n¡Esta acción no se puede deshacer!",
+                "Confirmar Baja de Usuario",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE); // Mensaje de advertencia
 
-		label_5 = new JLabel("");
-		getContentPane().add(label_5);
+        if (respuesta == JOptionPane.YES_OPTION) {
+            try {
+                Principal.bajaCliente(localClien);
+                JOptionPane.showMessageDialog(this, "Usuario eliminado correctamente.", "Baja Exitosa", JOptionPane.INFORMATION_MESSAGE);
+                // Aquí deberías manejar qué pasa después:
+                // - Cerrar esta ventana: dispose();
+                // - ¿Quizás cerrar sesión y volver al login? (Necesitaría comunicación con la ventana principal)
+                dispose(); // Cierra la ventana actual
+            } catch (DropError e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error al eliminar el usuario:\n" + e.getMessage(), "Error de Baja", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) {
+                 ex.printStackTrace();
+                 JOptionPane.showMessageDialog(this, "Ha ocurrido un error inesperado al dar de baja.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+             JOptionPane.showMessageDialog(this, "La baja ha sido cancelada.", "Baja Cancelada", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
 
-	}
+    /**
+     * Obtiene el método de pago seleccionado en los radio buttons.
+     * @return El enum Metodo correspondiente, o null si no hay selección.
+     */
+    private Metodo obtenerMetodoPagoSeleccionado() {
+        if (rdbtnVisa.isSelected()) {
+            return Metodo.visa;
+        } else if (rdbtnMastercard.isSelected()) {
+            return Metodo.mastercard;
+        } else if (rdbtnPaypal.isSelected()) {
+            return Metodo.paypal;
+        }
+        return null; // Ninguno seleccionado
+    }
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource().equals(btnRegistrarse)) {
-			alta();
-		} else if (e.getSource().equals(btnModificar)) {
-			modificar();
-		} else if (e.getSource().equals(btnMostrarPedidos)) {
-			mostrarPedidos();
-		} else if (e.getSource().equals(btnDrop)) {
-			baja();
-		}
-	}
+     /**
+     * Validación simple de campos obligatorios.
+     * @param modificarModo Si es true, permite que la contraseña esté vacía.
+     * @return true si los campos básicos son válidos, false en caso contrario.
+     */
+    /*private boolean validarCampos(boolean modificarModo) {
+        StringBuilder errores = new StringBuilder();
 
-	private void alta() {
-		Cliente clien = new Cliente();
-		clien.setId_usu(Principal.obtenerNewIdCliente());
-		clien.setUsuario(textUser.getText());
-		clien.setContra(new String(passwordFieldContra.getPassword()));
-		clien.setCorreo(textEmail.getText());
-		clien.setDireccion(textDireccion.getText());
-		clien.setDni(textDni.getText());
-		clien.setNum_cuenta(textNumeroCuenta.getText());
+        if (textUser.getText().trim().isEmpty()) errores.append("- El nombre de usuario no puede estar vacío.\n");
+        if (!modificarModo && String.valueOf(passwordFieldContra.getPassword()).isEmpty()) {
+             errores.append("- La contraseña no puede estar vacía.\n");
+        }
+        if (textDni.getText().trim().isEmpty()) errores.append("- El DNI/NIE no puede estar vacío.\n");
+        // Validación simple de email (podría ser más compleja con regex)
+        if (textEmail.getText().trim().isEmpty() || !textEmail.getText().contains("@")) {
+             errores.append("- Introduce un email válido.\n");
+        }
+        if (textDireccion.getText().trim().isEmpty()) errores.append("- La dirección no puede estar vacía.\n");
+        if (obtenerMetodoPagoSeleccionado() == null) errores.append("- Debes seleccionar un método de pago.\n");
+        if (textNumeroCuenta.getText().trim().isEmpty()) errores.append("- El número de tarjeta/cuenta no puede estar vacío.\n");
 
-		if (rdbtnVisa.isSelected()) {
-			clien.setMetodo_pago(Metodo.visa);
-		} else if (rdbtnMastercard.isSelected()) {
-			clien.setMetodo_pago(Metodo.mastercard);
-		} else if (rdbtnPaypal.isSelected()) {
-			clien.setMetodo_pago(Metodo.paypal);
-		}
-		try {
-			Principal.altaCliente(clien);
-			JOptionPane.showMessageDialog(this, "User registered successfully!");
-		} catch (AltaError e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
-		dispose();
-	}
+        if (errores.length() > 0) {
+            JOptionPane.showMessageDialog(this, "Por favor, corrige los siguientes errores:\n\n" + errores.toString(), "Campos Inválidos", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        return true;
+    }*/
 
-	private void modificar() {
-		localClien.setUsuario(textUser.getText());
-		localClien.setContra(new String(passwordFieldContra.getPassword()));
-		localClien.setCorreo(textEmail.getText());
-		localClien.setDireccion(textDireccion.getText());
-		localClien.setDni(textDni.getText());
-		localClien.setNum_cuenta(textNumeroCuenta.getText());
+     /** Sobrecarga para llamar a validarCampos en modo no-modificación (registro) */
+    private boolean validarCampos() {
+        return validarCampos(false);
+    }
 
-		if (rdbtnVisa.isSelected()) {
-			localClien.setMetodo_pago(Metodo.visa);
-		} else if (rdbtnMastercard.isSelected()) {
-			localClien.setMetodo_pago(Metodo.mastercard);
-		} else if (rdbtnPaypal.isSelected()) {
-			localClien.setMetodo_pago(Metodo.paypal);
-		}
-		try {
-			Principal.modificarCliente(localClien);
-			JOptionPane.showMessageDialog(this, "Modificacion exitosa", "Mensaje", DISPOSE_ON_CLOSE);
-		} catch (modifyError e) {
-			e.visualizarMen();
-		}
-	}
+    /**
+     * Método auxiliar para cargar iconos desde el classpath.
+     * @param path Ruta relativa al icono (ej. "/iconos/save.png").
+     * @return ImageIcon o null si no se encuentra.
+     */
+    private ImageIcon cargarIcono(String path) {
+        URL imgURL = getClass().getResource(path);
+        if (imgURL != null) {
+            // Escalar icono si es necesario (ejemplo a 16x16)
+             ImageIcon originalIcon = new ImageIcon(imgURL);
+             Image image = originalIcon.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+             return new ImageIcon(image);
+           // return new ImageIcon(imgURL); // Sin escalar
+        } else {
+            System.err.println("Advertencia: No se pudo encontrar el icono: " + path);
+            return null; // Devuelve null para que el botón no muestre un icono roto
+        }
+    }
+    
+    private boolean validarCampos(boolean modificarModo) {
+        StringBuilder errores = new StringBuilder();
 
-	private void mostrarPedidos() {
-		VerPedidosCliente vistaPedidoClien = new VerPedidosCliente(this, localClien);
-		vistaPedidoClien.setVisible(true);
-	}
+        // Validación de Usuario
+        if (textUser.getText().trim().isEmpty()) errores.append("- El nombre de usuario no puede estar vacío.\n");
 
-	private void baja() {
-		try {
-			int res = JOptionPane.showConfirmDialog(this, "Estas seguro que quieres borrar el usuario", "Titulo",
-					JOptionPane.YES_NO_OPTION);
-			if (res == 0) {
-				Principal.bajaCliente(localClien);
-				JOptionPane.showMessageDialog(this, "Baja exitosa", "Mensaje", DISPOSE_ON_CLOSE);
-			} else {
-				JOptionPane.showMessageDialog(this, "No se ha realizado la baja", "Baja cancelada", DISPOSE_ON_CLOSE);
-			}
+        // Validación de Contraseña
+        String password = String.valueOf(passwordFieldContra.getPassword());
+        if (!modificarModo && password.isEmpty()) {
+            errores.append("- La contraseña no puede estar vacía.\n");
+        } else if (password.length() < 6) {
+            errores.append("- La contraseña debe tener al menos 6 caracteres.\n");
+        } else if (!password.matches(".*[a-zA-Z].*") || !password.matches(".*[0-9].*")) {
+            errores.append("- La contraseña debe contener al menos una letra y un número.\n");
+        }
 
-		} catch (DropError e) {
-			e.printStackTrace();
-		}
-		dispose();
-	}
+        // Validación de DNI/NIE (con posibilidad de guiones)
+        String dni = textDni.getText().trim();
+        if (dni.isEmpty()) {
+            errores.append("- El DNI/NIE no puede estar vacío.\n");
+        } else {
+            // Expresión regular para validar el DNI con o sin guiones
+            Pattern dniPattern = Pattern.compile("^\\d{8}[A-Za-z]$");
+            Matcher matcher = dniPattern.matcher(dni.replaceAll("-", ""));
+            if (!matcher.matches()) {
+                errores.append("- El DNI/NIE no es válido. Debe tener 8 dígitos seguidos de una letra.\n");
+            }
+        }
 
+        // Validación de Email
+        String email = textEmail.getText().trim();
+        if (email.isEmpty() || !email.contains("@") || !email.matches("^[\\w._%+-]+@[A-Za-z0-9.-]+\\.(com|es|org|net|edu|gov|info|io)$")) {
+            errores.append("- Introduce un email válido (como ejemplo: mikel@gmail.com).\n");
+        }
+
+        // Validación de Dirección
+        if (textDireccion.getText().trim().isEmpty()) errores.append("- La dirección no puede estar vacía.\n");
+
+        // Validación de Método de Pago
+        if (obtenerMetodoPagoSeleccionado() == null) errores.append("- Debes seleccionar un método de pago.\n");
+
+        // Validación de Número de Cuenta
+        if (textNumeroCuenta.getText().trim().isEmpty()) errores.append("- El número de tarjeta/cuenta no puede estar vacío.\n");
+
+        // Mostrar errores si los hay
+        if (errores.length() > 0) {
+            JOptionPane.showMessageDialog(this, "Por favor, corrige los siguientes errores:\n\n" + errores.toString(), "Campos Inválidos", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
 }

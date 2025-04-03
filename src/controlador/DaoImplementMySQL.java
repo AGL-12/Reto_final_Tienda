@@ -212,26 +212,35 @@ public class DaoImplementMySQL implements Dao {
 
 	@Override
 	public void altaCliente(Cliente clien) throws AltaError {
-		openConnection();
+	    openConnection();
 
-		try {
-			stmt = con.prepareStatement(INSERTAR_CLIENTE);
+	    try {
+	        // Primero verificamos si el usuario ya existe
+	        if (existeUsuario(clien.getUsuario())) {
+	            throw new AltaError();
+	        }
 
-			stmt.setInt(1, clien.getId_usu());
-			stmt.setString(2, clien.getUsuario());
-			stmt.setString(3, clien.getContra());
-			stmt.setString(4, clien.getDni());
-			stmt.setString(5, clien.getCorreo());
-			stmt.setString(6, clien.getDireccion());
-			stmt.setString(7, clien.getMetodo_pago().name());
-			stmt.setString(8, clien.getNum_cuenta());
-			stmt.executeUpdate();
+	        // Si el usuario no existe, procedemos con la inserción
+	        stmt = con.prepareStatement(INSERTAR_CLIENTE);
+	        stmt.setInt(1, clien.getId_usu());
+	        stmt.setString(2, clien.getUsuario());
+	        stmt.setString(3, clien.getContra());
+	        stmt.setString(4, clien.getDni());
+	        stmt.setString(5, clien.getCorreo());
+	        stmt.setString(6, clien.getDireccion());
+	        stmt.setString(7, clien.getMetodo_pago().name());
+	        stmt.setString(8, clien.getNum_cuenta());
 
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			closeConnection();
-		}
+	        stmt.executeUpdate();
+	        
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        // Manejo de errores de base de datos
+	    
+
+	    } finally {
+	        closeConnection();
+	    }
 	}
 
 	@Override
@@ -574,5 +583,39 @@ public class DaoImplementMySQL implements Dao {
 		}
 		return cantidad;
 	}
+	
+	
+	public boolean existeUsuario(String nombreUsuario) {
+	    ResultSet rs = null;
+	    boolean usuarioExiste = false;  // Variable para almacenar el resultado de la consulta
+	    openConnection();
+	    try {
+	        // Preparamos la sentencia SQL para verificar si el usuario ya existe
+	        stmt = con.prepareStatement("SELECT 1 FROM cliente WHERE usuario = ?");
+	        stmt.setString(1, nombreUsuario);
+
+	        // Ejecutamos la consulta
+	        rs = stmt.executeQuery();
+	        
+	        // Si encontramos al menos un registro, significa que el usuario existe
+	        if (rs.next()) {
+	            usuarioExiste = true;  // El usuario existe
+	            System.out.println("El usuario " + nombreUsuario + " ya existe.");
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    } finally {
+	        try {
+	            if (rs != null) rs.close();
+	            closeConnection();
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	    
+	    return usuarioExiste;  // Devolvemos el valor booleano que indica si el usuario existe
+	}
+
+
 
 }

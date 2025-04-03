@@ -4,237 +4,483 @@ import modelo.Articulo;
 import modelo.Cliente;
 import modelo.Compra;
 import modelo.Pedido;
+import controlador.Principal; // Asumiendo que aquí están tus métodos de acceso a datos
 
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
+import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.JTableHeader;
 
-import java.awt.Font;
+import java.awt.*; // Importa awt para Layouts, Font, Dimension, etc.
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects; // Para Objects.requireNonNullElse
 
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableModel;
-
-import controlador.Principal;
-
-import javax.swing.JButton;
+// Importa FlatLaf si lo vas a usar (recuerda añadir la dependencia y configurarlo en tu main)
+// import com.formdev.flatlaf.FlatClientProperties; // Para propiedades específicas de FlatLaf si es necesario
 
 public class VistaTienda extends JDialog implements ActionListener {
 
-	private static final long serialVersionUID = 1L;
-	private JTable tableArticulo;
+    private static final long serialVersionUID = 1L; // Mantener si es necesario
 
-	private JButton btnUsuario, btnCompra, btnAdmin;
+    // --- Componentes de la UI ---
+    private JTable tableArticulo;
+    private JButton btnUsuario, btnCompra, btnAdmin;
+    private JLabel lblTitulo;
+    private DefaultTableModel model; // Hacerlo miembro de la clase para acceso fácil
 
-	private Cliente localClien;
+    // --- Datos ---
+    private Cliente localClien;
 
-	private DefaultTableModel model;
+    // --- Constantes (opcional, para mejor mantenimiento) ---
+    private static final Font FONT_TITULO = new Font("Segoe UI", Font.BOLD, 18); // Fuente moderna
+    private static final Font FONT_BOTON = new Font("Segoe UI", Font.BOLD, 12);
+    private static final Font FONT_TABLA_HEADER = new Font("Segoe UI", Font.BOLD, 12);
+    private static final Font FONT_TABLA_CELDA = new Font("Segoe UI", Font.PLAIN, 12);
+    private static final int PADDING_GENERAL = 10; // Espaciado general
+    private static final int PADDING_INTERNO = 5; // Espaciado entre componentes
 
-	/**
-	 * Create the dialog.
-	 */
-	public VistaTienda(Cliente clien, JFrame vista) {
-		super(vista, "Bienvendido", true);
-		setBounds(100, 100, 450, 300);
-		getContentPane().setLayout(null);
-		localClien = clien;
-		JLabel lblTitulo = new JLabel("DYE TOOLS");
-		lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblTitulo.setBounds(157, 10, 106, 38);
-		getContentPane().add(lblTitulo);
+    /**
+     * Constructor de la ventana principal de la tienda.
+     * @param clien El cliente que ha iniciado sesión.
+     * @param owner La ventana padre (normalmente el JFrame principal o la ventana de login).
+     */
+    public VistaTienda(Cliente clien, Frame owner) {
+        // Configuración inicial del JDialog
+        super(owner, "DYE TOOLS - Tienda", true); // Título más descriptivo, modal al owner
+        this.localClien = clien;
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); // Cierra solo esta ventana al pulsar la 'X'
 
-		btnUsuario = new JButton("USER");
-		btnUsuario.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnUsuario.setBounds(10, 232, 85, 21);
-		getContentPane().add(btnUsuario);
-		btnUsuario.addActionListener(this);
+        // --- Configuración del Layout Principal ---
+        // Usamos BorderLayout para estructurar: Título(Norte), Tabla(Centro), Botones(Sur)
+        setLayout(new BorderLayout(PADDING_GENERAL, PADDING_GENERAL));
+        // Añadimos un borde vacío alrededor de todo el contenido para dar aire
+        ((JPanel) getContentPane()).setBorder(BorderFactory.createEmptyBorder(PADDING_GENERAL, PADDING_GENERAL, PADDING_GENERAL, PADDING_GENERAL));
 
-		btnAdmin = new JButton("ADMIN");
-		btnAdmin.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnAdmin.setBounds(109, 233, 85, 21);
-		btnAdmin.addActionListener(this);
-		btnAdmin.setVisible(false);
-		getContentPane().add(btnAdmin);
+        // --- Inicializar Componentes ---
+        initComponents();
+        configurarTabla();
+        cargarDatosTabla();
 
-		btnCompra = new JButton("BUY");
-		btnCompra.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnCompra.setBounds(341, 233, 85, 21);
-		btnCompra.addActionListener(this);
-		getContentPane().add(btnCompra);
+        // --- Configuración Final de la Ventana ---
+        pack(); // Ajusta el tamaño de la ventana al contenido preferido de los componentes
+        setMinimumSize(new Dimension(550, 400)); // Establece un tamaño mínimo razonable
+        setLocationRelativeTo(owner); // Centra la ventana respecto al padre
+    }
 
-		btnCompra.addActionListener(this);
+    /**
+     * Inicializa y configura los componentes básicos de la UI (Título, Botones).
+     */
+    private void initComponents() {
+        // --- Panel Título (NORTH) ---
+        lblTitulo = new JLabel("DYE TOOLS - Catálogo", JLabel.CENTER); // Centrar título
+        lblTitulo.setFont(FONT_TITULO);
+        lblTitulo.setBorder(BorderFactory.createEmptyBorder(0, 0, PADDING_GENERAL, 0)); // Espacio debajo del título
+        add(lblTitulo, BorderLayout.NORTH);
 
-		tableArticulo = new JTable();
+        // --- Panel Botones (SOUTH) ---
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, PADDING_INTERNO, 0)); // FlowLayout centrado con gaps H/V
+        panelBotones.setBorder(BorderFactory.createEmptyBorder(PADDING_GENERAL, 0, 0, 0)); // Espacio encima de los botones
 
-		if (clien.isEsAdmin()) {
-			btnAdmin.setVisible(true);
-		}
-		// Crear el JScrollPane con la tabla correctamente inicializada
+        // Botón Usuario
+        btnUsuario = new JButton("Mi Cuenta");
+        btnUsuario.setFont(FONT_BOTON);
+        btnUsuario.setIcon(cargarIcono("/iconos/user.png")); // Placeholder - Carga tu icono!
+        btnUsuario.addActionListener(this);
+        panelBotones.add(btnUsuario);
 
-		JScrollPane scrollPane = new JScrollPane(tableArticulo);
-		scrollPane.setBounds(51, 88, 327, 85);
-		getContentPane().add(scrollPane);
+        // Botón Admin (condicional)
+        btnAdmin = new JButton("Admin Panel");
+        btnAdmin.setFont(FONT_BOTON);
+        btnAdmin.setIcon(cargarIcono("/iconos/admin.png")); // Placeholder - Carga tu icono!
+        btnAdmin.addActionListener(this);
+        // Visibilidad basada en el cliente (maneja el caso de cliente null también)
+        btnAdmin.setVisible(localClien != null && localClien.isEsAdmin());
+        panelBotones.add(btnAdmin);
 
-		/*
-		 * DefaultTableModel model = new DefaultTableModel( new Object[] { "Nombre",
-		 * "Descripción", "Precio", "Oferta", "Stock", "Cantidad" }, 0) {
-		 * 
-		 * @Override public Class<?> getColumnClass(int columnIndex) { if (columnIndex
-		 * == 2 || columnIndex == 3) { return Float.class; } else if (columnIndex == 4
-		 * || columnIndex == 5) { return Integer.class; } return String.class; }
-		 */
-		model = new DefaultTableModel() {
-			private static final long serialVersionUID = 1L;
+        // Espaciador flexible entre grupos de botones (si Admin es visible)
+        if (btnAdmin.isVisible()) {
+           panelBotones.add(Box.createHorizontalStrut(50)); // Espacio fijo
+           // O podrías tener un layout más complejo (ej GridBagLayout) para alinear a izquierda y derecha
+        }
 
-			@Override
-			public Class<?> getColumnClass(int columnIndex) {
-				return columnIndex == 6 ? Integer.class : String.class;
-			}
-		};
-		model.addColumn("id_art");
-		model.addColumn("Nombre");
-		model.addColumn("Descripción");
-		model.addColumn("Precio");
-		model.addColumn("Oferta");
-		model.addColumn("Stock");
-		model.addColumn("Cantidad");
 
-		// Obtener los artículos del DAO
-		Map<Integer, Articulo> articulos = Principal.obtenerTodosArticulos();
+        // Botón Compra
+        btnCompra = new JButton("Ver Carrito");
+        btnCompra.setFont(FONT_BOTON);
+        btnCompra.setIcon(cargarIcono("/iconos/cart.png")); // Placeholder - Carga tu icono!
+        btnCompra.addActionListener(this);
+        panelBotones.add(btnCompra);
 
-		for (Articulo art : articulos.values()) {
-			if (art.getStock() != 0) {
-				model.addRow(new Object[] { art.getId_art(), art.getNombre(), art.getDescripcion(), art.getPrecio(),
-						art.getOferta(), art.getStock(), null });
-			}
-		}
+        add(panelBotones, BorderLayout.SOUTH);
+    }
 
-		tableArticulo.setModel(model);
-		// 🔹 OCULTAR LA COLUMNA ID_ART
-		tableArticulo.removeColumn(tableArticulo.getColumnModel().getColumn(0));
-		// Aplicar el comportamiento del clic en la celda
-		tableArticulo.setCellSelectionEnabled(true); // Permitir selección de celdas
-		tableArticulo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Solo seleccionar una celda a la vez
+    /**
+     * Configura la JTable (modelo, columnas, renderers, listener).
+     */
+    private void configurarTabla() {
+        tableArticulo = new JTable();
+        tableArticulo.setFont(FONT_TABLA_CELDA); // Fuente para las celdas
+        tableArticulo.setRowHeight(tableArticulo.getRowHeight() + PADDING_INTERNO); // Más altura de fila
+        tableArticulo.setIntercellSpacing(new Dimension(PADDING_INTERNO, PADDING_INTERNO / 2)); // Espaciado entre celdas
 
-		// Agregar el listener después de inicializar la tabla
-		model.addTableModelListener(new TableModelListener() {
-			@Override
-			public void tableChanged(TableModelEvent e) {
-				// Verifica que el cambio sea en la columna de "Cantidad" (última columna)
-				if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) {
-					int fila = e.getFirstRow(); // Obtener la fila modificada
-					int cantidadIngresada = (Integer) model.getValueAt(fila, 6);
-					int stockDisponible = (Integer) model.getValueAt(fila, 5); // Columna de Stock
+        // --- Modelo de la Tabla ---
+        model = new DefaultTableModel() {
+            private static final long serialVersionUID = 1L; // Mantener si es necesario
 
-					// Verifica si la cantidad excede el stock
-					if (cantidadIngresada > stockDisponible) {
-						// Mostrar mensaje de advertencia
-						JOptionPane.showMessageDialog(null, "La cantidad ingresada supera el stock disponible.",
-								"Error", JOptionPane.WARNING_MESSAGE);
+            // Define los tipos de datos de las columnas para una correcta edición y renderizado
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                switch (columnIndex) {
+                    case 0: return Integer.class; // id_art (oculto)
+                    case 1: return String.class;  // Nombre
+                    case 2: return String.class;  // Descripción
+                    case 3: return Double.class;  // Precio
+                    case 4: return Double.class;  // Oferta
+                    case 5: return Integer.class; // Stock
+                    case 6: return Integer.class; // Cantidad a comprar (editable)
+                    default: return Object.class;
+                }
+            }
 
-						// Restablecer la cantidad al valor máximo permitido (el stock)
-						model.setValueAt(stockDisponible, fila, 6);
-					}
-				}
-			}
-		});
-	}
+            // Hacer editable solo la columna "Cantidad"
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 6; // Solo la columna 6 (Cantidad) es editable
+            }
+        };
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource().equals(btnUsuario)) {
+        // Añadir columnas al modelo (incluyendo id_art aunque se oculte)
+        model.addColumn("ID_ART"); // Columna 0
+        model.addColumn("Nombre");      // Columna 1
+        model.addColumn("Descripción"); // Columna 2
+        model.addColumn("Precio (€)");  // Columna 3 - Añadir unidad
+        model.addColumn("Oferta (%)"); // Columna 4 - Añadir unidad
+        model.addColumn("Stock");       // Columna 5
+        model.addColumn("Cantidad");    // Columna 6
 
-			this.setVisible(false);
+        tableArticulo.setModel(model);
 
-			VistaUsuario vistaUsuario = new VistaUsuario(this.localClien, this);
-			vistaUsuario.setVisible(true);
+        // --- Configuración de Columnas (Ocultar ID, Anchos) ---
+        TableColumnModel columnModel = tableArticulo.getColumnModel();
 
-			this.setVisible(true);
-		} else if (e.getSource().equals(btnAdmin)) {
+        // Ocultar la columna ID_ART (columna 0)
+        columnModel.removeColumn(columnModel.getColumn(0));
+        // OJO: Aunque se quite de la vista, sigue existiendo en el *modelo* (índice 0).
+        // Las referencias posteriores a columnas en la *vista* se desplazan (Nombre es ahora 0 en vista, pero 1 en modelo)
+        // Es más seguro referirse a columnas por su índice en el *modelo* al obtener/establecer datos.
 
-			this.setVisible(false);
+        // Ajustar anchos preferidos (ajusta estos valores según necesidad)
+        columnModel.getColumn(0).setPreferredWidth(150); // Nombre (índice 0 en vista)
+        columnModel.getColumn(1).setPreferredWidth(200); // Descripción (índice 1 en vista)
+        columnModel.getColumn(2).setPreferredWidth(70);  // Precio (índice 2 en vista)
+        columnModel.getColumn(3).setPreferredWidth(70);  // Oferta (índice 3 en vista)
+        columnModel.getColumn(4).setPreferredWidth(60);  // Stock (índice 4 en vista)
+        columnModel.getColumn(5).setPreferredWidth(70);  // Cantidad (índice 5 en vista)
 
-			VentanaIntermedia menuAdmin = new VentanaIntermedia(this);
-			menuAdmin.setVisible(true);
+        // --- Configuración Adicional de la Tabla ---
+        tableArticulo.setAutoCreateRowSorter(true); // Permitir ordenar por columnas
+        tableArticulo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Solo seleccionar una fila/celda a la vez
+        tableArticulo.setCellSelectionEnabled(false); // Seleccionar filas enteras mejor que celdas
+        tableArticulo.setRowSelectionAllowed(true);
 
-			this.setVisible(true);
-		} else if (e.getSource().equals(btnCompra)) {
-			abrirCarrito();
-		}
-	}
+        // Configurar cabecera de la tabla
+        JTableHeader header = tableArticulo.getTableHeader();
+        header.setFont(FONT_TABLA_HEADER);
+        header.setReorderingAllowed(false); // Evitar que el usuario mueva columnas
 
-	private void abrirCarrito() {
-		// Forzar que la celda en edición se guarde antes de continuar
-		if (localClien == null) {
-			JOptionPane.showMessageDialog(this, "Error: No se ha seleccionado un cliente.", "Error",
-					JOptionPane.ERROR_MESSAGE);
-			return; // Evita seguir si el cliente es null
-		}
-		if (tableArticulo.isEditing()) {
-			tableArticulo.getCellEditor().stopCellEditing();
-		}
+        // Para que pinte bien el fondo (especialmente con L&F modernos)
+        tableArticulo.setFillsViewportHeight(true);
 
-		Pedido preSetCompra = new Pedido(Principal.obtenerUltimoIdPed(), localClien.getId_usu(), 0,
-				LocalDateTime.now());
+        // --- Listener para validar la cantidad ingresada ---
+        model.addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                // Verificar si el cambio fue una ACTUALIZACIÓN en la columna de CANTIDAD (índice 6 del *modelo*)
+                if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) {
+                    int filaModelo = e.getFirstRow(); // Índice de la fila en el *modelo*
 
-		this.setVisible(false);
+                    // Obtener valores del *modelo* usando los índices del modelo
+                    Object cantidadObj = model.getValueAt(filaModelo, 6); // Cantidad (col 6)
+                    Object stockObj = model.getValueAt(filaModelo, 5);    // Stock (col 5)
 
-		VistaCarrito carritoNoCompra = new VistaCarrito(this, cargaPedCom(preSetCompra), preSetCompra);
+                    // Asegurarse de que los valores no sean nulos y sean Integers
+                    if (cantidadObj instanceof Integer && stockObj instanceof Integer) {
+                        int cantidadIngresada = (Integer) cantidadObj;
+                        int stockDisponible = (Integer) stockObj;
 
-		carritoNoCompra.setVisible(true);
+                        // Validar que la cantidad no sea negativa y no exceda el stock
+                        if (cantidadIngresada < 0) {
+                            // No permitir negativos, poner a 0
+                            SwingUtilities.invokeLater(() -> { // Usar invokeLater para evitar problemas de concurrencia Swing
+                                JOptionPane.showMessageDialog(VistaTienda.this,
+                                        "La cantidad no puede ser negativa.",
+                                        "Cantidad Inválida", JOptionPane.WARNING_MESSAGE);
+                                model.setValueAt(0, filaModelo, 6);
+                            });
+                        } else if (cantidadIngresada > stockDisponible) {
+                            // Si excede el stock, advertir y ajustar al máximo posible (stock)
+                            SwingUtilities.invokeLater(() -> {
+                                JOptionPane.showMessageDialog(VistaTienda.this,
+                                        "La cantidad (" + cantidadIngresada + ") supera el stock disponible (" + stockDisponible + ").\nSe ajustará al máximo.",
+                                        "Stock Insuficiente", JOptionPane.WARNING_MESSAGE);
+                                model.setValueAt(stockDisponible, filaModelo, 6);
+                            });
+                        }
+                    } else if (cantidadObj != null) {
+                        // Si el valor ingresado no es un Integer válido (raro con DefaultTableModel, pero por si acaso)
+                        SwingUtilities.invokeLater(() -> {
+                             JOptionPane.showMessageDialog(VistaTienda.this,
+                                        "Por favor, introduce un número entero válido para la cantidad.",
+                                        "Entrada Inválida", JOptionPane.WARNING_MESSAGE);
+                             model.setValueAt(0, filaModelo, 6); // Restablecer a 0 o null
+                        });
+                    }
+                }
+            }
+        });
 
-		this.setVisible(true);
-	}
+        // --- Añadir Tabla con ScrollPane (CENTER) ---
+        JScrollPane scrollPane = new JScrollPane(tableArticulo);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(0, PADDING_INTERNO, 0, PADDING_INTERNO)); // Padding lateral para el scroll
+        add(scrollPane, BorderLayout.CENTER);
+    }
 
-//	private Map<Integer, Articulo> obtenerArticulosSeleccionados() {
-//		Map<Integer, Articulo> seleccionados = new HashMap<>();
-//		DefaultTableModel model = (DefaultTableModel) tableArticulo.getModel();
-//
-//		Map<Integer, Articulo> todosLosArticulos = Principal.obtenerTodosArticulos(); // Obtener artículos originales
-//																						// desde BD
-//
-//		for (int i = 0; i < model.getRowCount(); i++) {
-//			int cantidad = (Integer) model.getValueAt(i, 5); // Nueva posición de la columna cantidad
-//			if (cantidad > 0) {
-//				String nombre = (String) model.getValueAt(i, 0);
-//
-//				for (Articulo art : todosLosArticulos.values()) {
-//					if (art.getNombre().equals(nombre)) {
-//						Articulo articulo = new Articulo(art.getId_art(), art.getNombre(), art.getDescripcion(),
-//								cantidad, art.getPrecio(), art.getOferta(), art.getSeccion());
-//
-//						seleccionados.put(art.getId_art(), articulo);
-//						break;
-//					}
-//				}
-//			}
-//		}
-//		return seleccionados;
-//	}
+    /**
+     * Carga (o recarga) los datos de los artículos desde la base de datos a la tabla.
+     */
+    public void cargarDatosTabla() {
+        // Limpiar tabla antes de cargar nuevos datos
+        model.setRowCount(0);
 
-	private List<Compra> cargaPedCom(Pedido preSetPedido) {
-		List<Compra> listaCompra = new ArrayList<>();
-		for (int i = 0; i < model.getRowCount(); i++) {
-			if (model.getValueAt(i, 6) != null) {
-				int selecionado = (Integer) model.getValueAt(i, 6);
-				if (selecionado != 0) {
-					Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), preSetPedido.getId_ped(),
-							(Integer) model.getValueAt(i, 6));
-					listaCompra.add(palCarro);
-				}
-			}
-		}
-		return listaCompra;
-	}
+        // Obtener los artículos del controlador/DAO
+        Map<Integer, Articulo> articulos = Principal.obtenerTodosArticulos();
+
+        if (articulos != null && !articulos.isEmpty()) {
+            for (Articulo art : articulos.values()) {
+                // Añadir solo artículos con stock > 0
+                if (art.getStock() > 0) {
+                    model.addRow(new Object[]{
+                            art.getId_art(),       // Col 0 (Modelo) - ID (oculto en vista)
+                            art.getNombre(),       // Col 1 (Modelo) - Nombre
+                            art.getDescripcion(),  // Col 2 (Modelo) - Descripción
+                            art.getPrecio(),       // Col 3 (Modelo) - Precio (usar Double)
+                            art.getOferta(),       // Col 4 (Modelo) - Oferta (usar Double)
+                            art.getStock(),        // Col 5 (Modelo) - Stock
+                            null                   // Col 6 (Modelo) - Cantidad inicial (null o 0)
+                    });
+                }
+            }
+        } else {
+            // Opcional: Mostrar un mensaje si no hay artículos
+             System.out.println("No se encontraron artículos o hubo un error al cargarlos.");
+             // Podrías mostrar un JLabel en lugar de la tabla indicando "No hay artículos disponibles".
+        }
+    }
+
+    /**
+     * Maneja los eventos de clic en los botones.
+     * @param e El evento de acción.
+     */
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Object source = e.getSource();
+
+        if (source == btnUsuario) {
+            mostrarVistaUsuario();
+        } else if (source == btnAdmin) {
+            mostrarVistaAdmin();
+        } else if (source == btnCompra) {
+            abrirCarrito();
+        }
+    }
+
+    /**
+     * Muestra la ventana de gestión de datos del usuario.
+     */
+    private void mostrarVistaUsuario() {
+        if (localClien != null) {
+            // Crear y mostrar la ventana de usuario, pasándole esta ventana como 'owner'
+            // Asumiendo que VistaUsuario es un JDialog
+            VistaUsuario vistaUsuario = new VistaUsuario(localClien, this); // 'this' es el JDialog VistaTienda
+            vistaUsuario.setVisible(true);
+             // No es necesario ocultar/mostrar VistaTienda si VistaUsuario es modal
+        } else {
+            JOptionPane.showMessageDialog(this, "No hay un cliente identificado.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Muestra la ventana intermedia de administración.
+     */
+    private void mostrarVistaAdmin() {
+         // Asumiendo que VentanaIntermedia es un JDialog o JFrame que toma un Owner
+         // Si es JDialog, pasar 'this'. Si necesita JFrame, pasar (Frame)getOwner()
+        VentanaIntermedia menuAdmin = new VentanaIntermedia(this); // Pasando este JDialog como owner
+        menuAdmin.setVisible(true);
+        // No es necesario ocultar/mostrar VistaTienda si VentanaIntermedia es modal
+        // Si tras cerrar la ventana admin hay cambios (ej. nuevo artículo), refrescar:
+        // cargarDatosTabla();
+    }
+
+
+    /**
+     * Recopila los artículos seleccionados (con cantidad > 0) y abre la ventana del carrito.
+     */
+    private void abrirCarrito() {
+        // 1. Validar Cliente
+        if (localClien == null) {
+            JOptionPane.showMessageDialog(this, "Error: No se ha identificado al cliente.", "Error Cliente", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 2. Asegurarse de que cualquier edición en curso se complete o cancele
+        if (tableArticulo.isEditing()) {
+            if (!tableArticulo.getCellEditor().stopCellEditing()) {
+                // El usuario canceló la edición (p.ej., presionó Esc) o la validación falló.
+                // No continuar. Podríamos mostrar un mensaje opcional.
+                return;
+            }
+        }
+
+        // 3. Recopilar artículos y cantidades del modelo de la tabla
+        List<Compra> comprasParaCarrito = recopilarCompras();
+
+        // 4. Verificar si hay algo que comprar
+        if (comprasParaCarrito.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No has seleccionado ningún artículo o cantidad.", "Carrito Vacío", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        // 5. Crear el Pedido (justo antes de mostrar el carrito)
+        // Asumiendo que obtenerUltimoIdPed() te da el SIGUIENTE ID disponible o gestionas el ID de otra forma.
+        Pedido pedidoActual = new Pedido(
+                Principal.obtenerUltimoIdPed(), // Obtener el siguiente ID de pedido
+                localClien.getId_usu(),
+                (float) 0.0, // El total se calculará en el carrito o al finalizar
+                LocalDateTime.now()
+        );
+
+        // 6. Asignar el ID del pedido recién creado a cada línea de compra
+        for (Compra c : comprasParaCarrito) {
+            c.setId_ped(pedidoActual.getId_ped());
+        }
+
+        // 7. Mostrar la ventana del Carrito
+        // Asumiendo que VistaCarrito es un JDialog y toma el owner, la lista de compras, y el pedido.
+        // Pasar 'this' como owner hace que VistaCarrito sea modal respecto a VistaTienda.
+        VistaCarrito carritoDialog = new VistaCarrito(this, comprasParaCarrito, pedidoActual); // Pasamos 'this' como referencia si el carrito necesita actualizar la tienda
+        carritoDialog.setVisible(true);
+
+        // 8. (Opcional) Después de que el carrito se cierre, actualizar la tabla principal
+        //    Esto es útil si la compra se completó y el stock cambió.
+        //    Si el carrito tiene lógica para llamar a un método de VistaTienda al completar compra, mejor.
+        //    Si no, una simple recarga aquí puede ser suficiente.
+        cargarDatosTabla(); // Recarga todos los artículos y su stock actual
+    }
+
+    /**
+     * Recorre el modelo de la tabla y crea una lista de objetos Compra
+     * para los artículos con cantidad > 0.
+     * @return Una lista de objetos Compra.
+     */
+    private List<Compra> recopilarCompras() {
+        List<Compra> listaCompra = new ArrayList<>();
+        for (int i = 0; i < model.getRowCount(); i++) {
+            // Obtener cantidad del modelo (índice 6)
+            Object cantidadObj = model.getValueAt(i, 6);
+
+            // Usar Objects.requireNonNullElse para manejar nulls de forma segura, convirtiéndolos a 0
+            int cantidadSeleccionada = Objects.requireNonNullElse((Integer) cantidadObj, 0);
+
+
+            if (cantidadSeleccionada > 0) {
+                // Obtener ID del artículo del modelo (índice 0)
+                Integer idArticulo = (Integer) model.getValueAt(i, 0);
+
+                // Obtener stock actual del modelo (índice 5) para doble verificación
+                Integer stockDisponible = (Integer) model.getValueAt(i, 5);
+
+
+                // Doble chequeo: asegurarse que la cantidad no supere el stock (por si acaso)
+                if (idArticulo != null && stockDisponible != null && cantidadSeleccionada <= stockDisponible) {
+                     // Crear objeto Compra (el ID del pedido se asignará después)
+                    Compra palCarro = new Compra(idArticulo, 0, cantidadSeleccionada);
+                    listaCompra.add(palCarro);
+                } else {
+                     // Log o advertencia si hay inconsistencia (debería haber sido prevenido por el listener)
+                     System.err.println("Advertencia: Inconsistencia detectada al recopilar compra para artículo ID " + idArticulo
+                             + ". Cantidad solicitada: " + cantidadSeleccionada + ", Stock: " + stockDisponible);
+                      // Podrías incluso mostrar un JOptionPane aquí si es crítico
+                }
+            }
+        }
+        return listaCompra;
+    }
+
+    /**
+     * Método auxiliar para cargar iconos. Maneja errores si el icono no se encuentra.
+     * @param path Ruta del icono dentro del classpath (ej. "/iconos/user.png").
+     * @return Un ImageIcon o null si no se pudo cargar.
+     */
+    private ImageIcon cargarIcono(String path) {
+        java.net.URL imgURL = getClass().getResource(path);
+        if (imgURL != null) {
+            // Escalar icono si es necesario (ejemplo a 16x16)
+             ImageIcon originalIcon = new ImageIcon(imgURL);
+             Image image = originalIcon.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+             return new ImageIcon(image);
+            // return new ImageIcon(imgURL); // Sin escalar
+        } else {
+            System.err.println("No se pudo encontrar el icono: " + path);
+            return null; // O un icono por defecto
+        }
+    }
+
+    // --- Getters (si son necesarios desde fuera) ---
+    public Cliente getLocalClien() {
+        return localClien;
+    }
+
+     // --- Punto de Entrada de Ejemplo (SOLO PARA PRUEBAS) ---
+     /*
+     public static void main(String[] args) {
+         // IMPORTANTE: Configurar el Look and Feel ANTES de crear cualquier ventana Swing
+         try {
+             // Reemplaza con la clase de FlatLaf que prefieras (Light, Dark, IntelliJ, etc.)
+             UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf());
+         } catch (UnsupportedLookAndFeelException e) {
+             System.err.println("Failed to initialize LaF: " + e.getMessage());
+             // Continuar con el L&F por defecto si falla
+         }
+
+         // Crear un cliente de prueba (ajusta según tu clase Cliente)
+         Cliente clientePruebaAdmin = new Cliente(1, "admin", "Admin", "User", "admin@test.com", "direccion", true, "password"); // Admin
+         Cliente clientePruebaUser = new Cliente(2, "user", "Regular", "User", "user@test.com", "direccion", false,"password"); // No Admin
+
+         // Ejecutar en el Event Dispatch Thread (EDT) de Swing
+         SwingUtilities.invokeLater(() -> {
+             // Crear un JFrame "falso" como owner si no tienes uno principal aún
+             JFrame frameOwner = new JFrame();
+             frameOwner.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Cerrar app si se cierra este frame
+             //frameOwner.setVisible(true); // No es necesario hacerlo visible si solo es un owner
+
+             // Crear y mostrar la VistaTienda con el cliente de prueba
+             VistaTienda dialog = new VistaTienda(clientePruebaAdmin, frameOwner); // Prueba con admin
+             // VistaTienda dialog = new VistaTienda(clientePruebaUser, frameOwner); // Prueba con usuario normal
+             dialog.setVisible(true);
+
+             // Si el JDialog se cierra (DISPOSE_ON_CLOSE), el programa podría terminar si no hay otras ventanas.
+             // Si frameOwner se hizo visible, necesitas manejar su cierre.
+             // Si el JDialog es la última ventana, la JVM puede terminar.
+             // System.exit(0); // Asegura que la aplicación termine si es necesario después de cerrar el diálogo.
+         });
+     }
+     */
 }
