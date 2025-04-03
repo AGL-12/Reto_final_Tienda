@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+
+import javax.swing.JOptionPane;
+
 import java.sql.Statement;
 
 //import com.mysql.cj.xdevapi.Statement;
@@ -76,7 +79,7 @@ public class DaoImplementMySQL implements Dao {
 			 * "root", "abcd*1234");
 			 */
 		} catch (SQLException e) {
-			System.out.println("Error al intentar abrir la BD" + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Error al cargar la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -289,7 +292,7 @@ public class DaoImplementMySQL implements Dao {
 				articulos.put(articulo.getId_art(), articulo);
 			}
 		} catch (SQLException e) {
-			System.err.println("Error al obtener los artículos: " + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Error al cargar los articulos", "Error", JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		} finally {
 			try {
@@ -297,7 +300,7 @@ public class DaoImplementMySQL implements Dao {
 					rs.close();
 				closeConnection();
 			} catch (SQLException e) {
-				System.err.println("Error al cerrar la conexión: " + e.getMessage());
+				JOptionPane.showMessageDialog(null, "Error al cerrar conexion", "Error", JOptionPane.ERROR_MESSAGE);
 				e.printStackTrace();
 			}
 		}
@@ -326,8 +329,8 @@ public class DaoImplementMySQL implements Dao {
 	 * } finally { closeConnection(); } return idPedido; }
 	 */
 	public void guardarPedido(Pedido ped) throws SQLException {
-		  int nuevoId = obtenerUltimoIdPed();
-		    ped.setId_ped(nuevoId); 
+		int nuevoId = obtenerUltimoIdPed();
+		ped.setId_ped(nuevoId);
 		try {
 			openConnection();
 
@@ -347,7 +350,7 @@ public class DaoImplementMySQL implements Dao {
 
 	}
 
-	public void guardarCompra(List<Compra>listaCompra) throws SQLException {
+	public void guardarCompra(List<Compra> listaCompra) throws SQLException {
 
 		try {
 			openConnection();
@@ -360,9 +363,6 @@ public class DaoImplementMySQL implements Dao {
 				stmt.executeUpdate();
 			}
 		} catch (SQLException e) {
-			System.err.println("Error SQL: " + e.getMessage());
-			System.err.println("Código de error SQL: " + e.getErrorCode());
-			System.err.println("Estado SQL: " + e.getSQLState());
 			throw new SQLException("Error al insertar los artículos en la compra", e);
 		} finally {
 			closeConnection();
@@ -414,15 +414,13 @@ public class DaoImplementMySQL implements Dao {
 			stmt = con.prepareStatement(newIdPedido);
 			rs = stmt.executeQuery();
 
-			  if (rs.next()) {
-		            ultimoId = rs.getInt(1);  // Obtiene el último ID
-		            if (rs.wasNull()) {  // Si la tabla está vacía
-		                ultimoId = 0;
-		            }
-		        }
+			if (rs.next()) {
+				ultimoId = rs.getInt(1); // Obtiene el último ID
+				if (rs.wasNull()) { // Si la tabla está vacía
+					ultimoId = 0;
+				}
+			}
 
-		        System.out.println("Último ID en la BD: " + ultimoId);  // Debug
-		       
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -431,7 +429,6 @@ public class DaoImplementMySQL implements Dao {
 					rs.close();
 				closeConnection();
 			} catch (SQLException e) {
-				System.err.println("Error al cerrar la conexión: " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -486,7 +483,6 @@ public class DaoImplementMySQL implements Dao {
 					rs.close();
 				closeConnection();
 			} catch (SQLException e) {
-				System.err.println("Error al cerrar la conexión: " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -500,33 +496,33 @@ public class DaoImplementMySQL implements Dao {
 		// TODO Auto-generated method stub
 		openConnection();
 		ResultSet rs = null;
-		
-		
+
 		try {
 			stmt = con.prepareStatement(OBTENER_ARTICULOS);
 			stmt.setInt(1, id_clien);
 			rs = stmt.executeQuery();
 			while (rs.next()) {
 				Articulo art = new Articulo();
-		           art.setId_art(rs.getInt("id_art"));
-		            art.setNombre(rs.getString("nombre"));
-		            art.setPrecio(rs.getFloat("precio"));
-		            art.setOferta(rs.getFloat("oferta"));
-		            
-	            listaArticulo.add(art);
+				art.setId_art(rs.getInt("id_art"));
+				art.setNombre(rs.getString("nombre"));
+				art.setPrecio(rs.getFloat("precio"));
+				art.setOferta(rs.getFloat("oferta"));
+
+				listaArticulo.add(art);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}finally {
-	        try {
-	            if (rs != null) rs.close();
-	            closeConnection();
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	        }
+		} finally {
+			try {
+				if (rs != null)
+					rs.close();
+				closeConnection();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
-		
+
 		return listaArticulo;
 	}
 
@@ -560,23 +556,23 @@ public class DaoImplementMySQL implements Dao {
 
 		return listaPedidos;
 	}
-	
+
 	public int obtenerCantidadArticuloEnPedido(int idPedido, int idArticulo) {
-	    int cantidad = 0;
-	    openConnection();
-	    String sql = "SELECT cantidad FROM compra WHERE id_ped = ? AND id_art = ?";
-	    try  {
-	    	stmt = con.prepareStatement(sql);
-	        stmt.setInt(1, idPedido);
-	        stmt.setInt(2, idArticulo);
-	        ResultSet rs = stmt.executeQuery();
-	        if (rs.next()) {
-	            cantidad = rs.getInt("cantidad");
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
-	    return cantidad;
+		int cantidad = 0;
+		openConnection();
+		String sql = "SELECT cantidad FROM compra WHERE id_ped = ? AND id_art = ?";
+		try {
+			stmt = con.prepareStatement(sql);
+			stmt.setInt(1, idPedido);
+			stmt.setInt(2, idArticulo);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				cantidad = rs.getInt("cantidad");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return cantidad;
 	}
 
 }

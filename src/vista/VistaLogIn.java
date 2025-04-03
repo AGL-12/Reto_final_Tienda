@@ -33,7 +33,7 @@ public class VistaLogIn extends JFrame implements ActionListener {
 	 */
 	public VistaLogIn() {
 		setTitle("Hola Mundo");
-		
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 489, 350);
 		setResizable(false);
@@ -140,6 +140,6 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		usuario.setVisible(true);
 
 		this.setVisible(true);
-		
+
 	}
 }

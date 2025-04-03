@@ -37,7 +37,6 @@ public class VistaTienda extends JDialog implements ActionListener {
 
 	private JButton btnUsuario, btnCompra, btnAdmin;
 
-
 	private Cliente localClien;
 
 	private DefaultTableModel model;
@@ -49,7 +48,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 		super(vista, "Bienvendido", true);
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
-		localClien = clien; 
+		localClien = clien;
 		JLabel lblTitulo = new JLabel("DYE TOOLS");
 		lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblTitulo.setBounds(157, 10, 106, 38);
@@ -127,29 +126,29 @@ public class VistaTienda extends JDialog implements ActionListener {
 		// Aplicar el comportamiento del clic en la celda
 		tableArticulo.setCellSelectionEnabled(true); // Permitir selección de celdas
 		tableArticulo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Solo seleccionar una celda a la vez
-	
-			// Agregar el listener después de inicializar la tabla
-			model.addTableModelListener(new TableModelListener() {
-			    @Override
-			    public void tableChanged(TableModelEvent e) {
-			        // Verifica que el cambio sea en la columna de "Cantidad" (última columna)
-			        if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) {
-			            int fila = e.getFirstRow(); // Obtener la fila modificada
-			            int cantidadIngresada = (Integer) model.getValueAt(fila, 6);
-			            int stockDisponible = (Integer) model.getValueAt(fila, 5); // Columna de Stock
 
-			            // Verifica si la cantidad excede el stock
-			            if (cantidadIngresada > stockDisponible) {
-			                // Mostrar mensaje de advertencia
-			                JOptionPane.showMessageDialog(null, "La cantidad ingresada supera el stock disponible.",
-			                        "Error", JOptionPane.WARNING_MESSAGE);
+		// Agregar el listener después de inicializar la tabla
+		model.addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				// Verifica que el cambio sea en la columna de "Cantidad" (última columna)
+				if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) {
+					int fila = e.getFirstRow(); // Obtener la fila modificada
+					int cantidadIngresada = (Integer) model.getValueAt(fila, 6);
+					int stockDisponible = (Integer) model.getValueAt(fila, 5); // Columna de Stock
 
-			                // Restablecer la cantidad al valor máximo permitido (el stock)
-			                model.setValueAt(stockDisponible, fila, 6);
-			            }
-			        }
-			    }
-			});
+					// Verifica si la cantidad excede el stock
+					if (cantidadIngresada > stockDisponible) {
+						// Mostrar mensaje de advertencia
+						JOptionPane.showMessageDialog(null, "La cantidad ingresada supera el stock disponible.",
+								"Error", JOptionPane.WARNING_MESSAGE);
+
+						// Restablecer la cantidad al valor máximo permitido (el stock)
+						model.setValueAt(stockDisponible, fila, 6);
+					}
+				}
+			}
+		});
 	}
 
 	@Override
@@ -177,16 +176,15 @@ public class VistaTienda extends JDialog implements ActionListener {
 
 	private void abrirCarrito() {
 		// Forzar que la celda en edición se guarde antes de continuar
-		  if (localClien == null) {
-		        JOptionPane.showMessageDialog(this, "Error: No se ha seleccionado un cliente.", "Error", JOptionPane.ERROR_MESSAGE);
-		        return; // Evita seguir si el cliente es null
-		    }
+		if (localClien == null) {
+			JOptionPane.showMessageDialog(this, "Error: No se ha seleccionado un cliente.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			return; // Evita seguir si el cliente es null
+		}
 		if (tableArticulo.isEditing()) {
 			tableArticulo.getCellEditor().stopCellEditing();
-		} 
+		}
 
-		
-	 
 		Pedido preSetCompra = new Pedido(Principal.obtenerUltimoIdPed(), localClien.getId_usu(), 0,
 				LocalDateTime.now());
 
@@ -225,7 +223,6 @@ public class VistaTienda extends JDialog implements ActionListener {
 //		return seleccionados;
 //	}
 
-	
 	private List<Compra> cargaPedCom(Pedido preSetPedido) {
 		List<Compra> listaCompra = new ArrayList<>();
 		for (int i = 0; i < model.getRowCount(); i++) {

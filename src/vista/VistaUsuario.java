@@ -402,8 +402,6 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			clien.setMetodo_pago(Metodo.mastercard);
 		} else if (rdbtnPaypal.isSelected()) {
 			clien.setMetodo_pago(Metodo.paypal);
-		} else {
-			System.out.println("No se ha seleccionado un método de pago");
 		}
 		try {
 			Principal.altaCliente(clien);
@@ -440,20 +438,21 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	}
 
 	private void mostrarPedidos() {
-		VerPedidosCliente vistaPedidoClien= new VerPedidosCliente(this, localClien);
+		VerPedidosCliente vistaPedidoClien = new VerPedidosCliente(this, localClien);
 		vistaPedidoClien.setVisible(true);
 	}
 
 	private void baja() {
 		try {
-			int res = JOptionPane.showConfirmDialog(this, "Estas seguro que quieres borrar el usuario", "Titulo", JOptionPane.YES_NO_OPTION);
+			int res = JOptionPane.showConfirmDialog(this, "Estas seguro que quieres borrar el usuario", "Titulo",
+					JOptionPane.YES_NO_OPTION);
 			if (res == 0) {
 				Principal.bajaCliente(localClien);
 				JOptionPane.showMessageDialog(this, "Baja exitosa", "Mensaje", DISPOSE_ON_CLOSE);
-			}else {
+			} else {
 				JOptionPane.showMessageDialog(this, "No se ha realizado la baja", "Baja cancelada", DISPOSE_ON_CLOSE);
 			}
-				
+
 		} catch (DropError e) {
 			e.printStackTrace();
 		}

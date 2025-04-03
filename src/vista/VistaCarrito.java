@@ -39,6 +39,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
 	private Pedido preSetCompra;
 	private Pedido localPedido;
 	private List<Compra> localListaCompra;
+
 	/**
 	 * @param seleccionados
 	 * @param preSetCompra
@@ -50,8 +51,8 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		super.setModal(true);
 		setBounds(100, 100, 849, 608);
 		getContentPane().setLayout(null);
-		//this.preSetCompra = preSetCompra;
-	
+		// this.preSetCompra = preSetCompra;
+
 		model = new DefaultTableModel();
 		model.addColumn("Nombre");
 		model.addColumn("Cantidad");
@@ -117,60 +118,34 @@ public class VistaCarrito extends JDialog implements ActionListener {
 
 		}
 	}
-	//Admin la ventana configurar usuarios. Lista de usuarios combobox o tabla para seleccionarlo, 
-	//seleccionar uno abrir sus datos boton ver datos ahi ver solo modificar y drop
-	//Ultimo
+
+	// Admin la ventana configurar usuarios. Lista de usuarios combobox o tabla para
+	// seleccionarlo,
+	// seleccionar uno abrir sus datos boton ver datos ahi ver solo modificar y drop
+	// Ultimo
 	private void fullCompra() {
-		  try {
-			
-
-		        // Guardar el pedido en la base de datos
-		        Principal.guardarPedido(localPedido);
-
-		        // Asociar el pedido a cada compra
-		        for (Compra compra : localListaCompra) {
-		            compra.setId_ped(localPedido.getId_ped());
-		        }
-
-		        // Guardar las compras
-		        Principal.guardarCompra(localListaCompra);
-
-		        // Mensaje de éxito
-		        JOptionPane.showMessageDialog(this, "¡Compra realizada con éxito!");
-
-		        // Cerrar la ventana
-		        this.dispose();
-		    } catch (SQLException e) {
-		        e.printStackTrace();
-		    }
-		/*int idPedido = 0;
-		float totalCompra = preSetCompra.getTotal();
-		int idUsuario = preSetCompra.getId_usu();
-		LocalDateTime now = LocalDateTime.now();
 		try {
-			idPedido = Principal.guardarPedido(idUsuario, totalCompra, now);
 
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+			// Guardar el pedido en la base de datos
+			Principal.guardarPedido(localPedido);
 
-		for (Compra com : listaCompra) {
-			int idArticulo = com.getId_art();
-			int cantidad = com.getCantidad();
-
-			System.out.println("Guardando artículo: ID = " + idArticulo + ", Cantidad = " + cantidad);
-
-			try {
-				Principal.guardarCompra(idPedido, com.getId_art(), cantidad);
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			// Asociar el pedido a cada compra
+			for (Compra compra : localListaCompra) {
+				compra.setId_ped(localPedido.getId_ped());
 			}
+
+			// Guardar las compras
+			Principal.guardarCompra(localListaCompra);
+
+			// Mensaje de éxito
+			JOptionPane.showMessageDialog(this, "¡Compra realizada con éxito!");
+
+			// Cerrar la ventana
+			this.dispose();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 
-		JOptionPane.showMessageDialog(this, "¡Compra realizada con éxito!");
-		this.dispose();*/
 	}
-	
+
 }

@@ -77,18 +77,6 @@ public class Principal {
 		dao.guardarPedido(ped);
 	}
 
-	/*public static void guardarCompra(int idPedido, int id_art, int cantidad) {
-		// TODO Auto-generated method stub
-		   List<Compra> listaCompra = new ArrayList<>();
-		    listaCompra.add(new Compra(id_art, idPedido, cantidad));
-		try {
-			dao.guardarCompra(listaCompra);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}*/
-
 	public static void guardarPedido(int idUsuario, float totalCompra, LocalDateTime now, Pedido ped) {
 		// TODO Auto-generated method stub
 		try {

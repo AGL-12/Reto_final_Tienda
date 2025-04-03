@@ -129,6 +129,7 @@ public class VerPedidosCliente extends JDialog {
 
 
 	        JTable tableDetalle = new JTable(modelDetalle);
+	        tableDetalle.setDefaultEditor(Object.class, null); // Evita la edición de la tabla
 	        JScrollPane scrollPaneDetalle = new JScrollPane(tableDetalle);
 	        panelArticulos.add(scrollPaneDetalle, BorderLayout.CENTER);
 
