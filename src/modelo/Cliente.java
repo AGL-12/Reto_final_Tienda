@@ -3,7 +3,6 @@ package modelo;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class Cliente {
 	private int id_usu;
 	private String usuario;
@@ -15,8 +14,7 @@ public class Cliente {
 	private String num_cuenta;
 	private boolean esAdmin;
 	private Map<Integer, Compra> listaCompra;
-		
-	
+
 	public Cliente(int id_usu, String usuario, String contra, String dni, String correo, String direccion,
 			Metodo metodo_pago, String num_cuenta, boolean esAdmin, Map<Integer, Compra> listaCompra) {
 		super();
@@ -33,7 +31,7 @@ public class Cliente {
 	}
 
 	public Cliente() {
-		this.listaCompra = new HashMap<>();
+		// TODO Auto-generated constructor stub
 	}
 
 	public int getId_usu() {
@@ -122,7 +120,5 @@ public class Cliente {
 				+ ", correo=" + correo + ", direccion=" + direccion + ", metodo_pago=" + metodo_pago + ", num_cuenta="
 				+ num_cuenta + ", esAdmin=" + esAdmin + "]";
 	}
-
-
 
 }

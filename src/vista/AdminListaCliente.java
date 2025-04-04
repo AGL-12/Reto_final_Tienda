@@ -96,6 +96,6 @@ public class AdminListaCliente extends JDialog implements ActionListener {
 			}
 		}
 
-		System.out.println("Filas seleccionadas: " + filasSeleccionadas);
+		
 	}
 }

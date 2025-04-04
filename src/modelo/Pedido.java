@@ -7,7 +7,7 @@ public class Pedido {
 	private int id_usu;
 	private float total;
 	private LocalDateTime fecha_compra;
-	
+
 	public Pedido(int id_ped, int id_usu, float total, LocalDateTime fecha_compra) {
 		super();
 		this.id_ped = id_ped;

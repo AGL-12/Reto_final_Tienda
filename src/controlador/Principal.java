@@ -1,5 +1,8 @@
 package controlador;
 
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -50,10 +53,6 @@ public class Principal {
 		dao.crearPedidoUsuario(id_usu);
 	}
 
-	public static int obtenerUltimoIdPed() {
-		return dao.obtenerUltimoIdPed();
-	}
-
 	public static Articulo buscarArticulo(int id_art) {
 		return dao.buscarArticulo(id_art);
 	}
@@ -76,5 +75,34 @@ public class Principal {
 
 	public static void insertListCompra(List<Compra> localListaCompra) {
 		dao.insertListCompra(localListaCompra);
+	}
+
+	public static int obtenerUltimoIdPed() {
+		return 0;
+	}
+
+	public static void guardarPedido(Pedido ped) throws SQLException {
+		dao.guardarPedido(ped);
+	}
+
+	public static void guardarPedido(int idUsuario, float totalCompra, LocalDateTime now, Pedido ped)
+			throws SQLException {
+		dao.guardarPedido(ped);
+	}
+
+	public static void actualizarStock(int id_art, int cantidad) {
+//		dao.actualizarStock(id_art, cantidad);
+	}
+
+	public static void guardarCompra(List<Compra> localListaCompra) throws SQLException {
+		dao.guardarCompra(localListaCompra);
+	}
+
+	public static List<Articulo> obtenerArticulosPorPedido(int idPedido) {
+		return dao.obtenerArticulosPedido(idPedido);
+	}
+
+	public static int obtenerCantidadArticuloEnPedido(int idPedido, int id_art) {
+		return dao.obtenerCantidadArticuloEnPedido(idPedido, id_art);
 	}
 }

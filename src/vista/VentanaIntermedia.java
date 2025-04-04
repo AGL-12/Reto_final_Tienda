@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 public class VentanaIntermedia extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
-	private JButton btnListaCliente;
 	private JButton btnConfigArticulos;
 	private JButton btnConfigPedidos;
 	private JButton btnConfigUsuario;
@@ -19,17 +18,13 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 	 */
 	public VentanaIntermedia(JDialog padre) {
 		super(padre, "Menu Admin", true);
+		this.setLocationRelativeTo(null);
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
 
 		JLabel lblNewLabel = new JLabel("Menu de adminstrador");
 		lblNewLabel.setBounds(150, 11, 149, 30);
 		getContentPane().add(lblNewLabel);
-
-		btnListaCliente = new JButton("Listar clientes");
-		btnListaCliente.setBounds(38, 52, 140, 50);
-		getContentPane().add(btnListaCliente);
-		btnListaCliente.addActionListener(this);
 
 		btnConfigArticulos = new JButton("Config Articulos");
 		btnConfigArticulos.setBounds(247, 150, 140, 50);
@@ -62,9 +57,6 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		} else if (e.getSource().equals(btnConfigUsuario)) {
 			AdminConfigUsuario vistaCfgUsu = new AdminConfigUsuario(this);
 			abrirOpcion(vistaCfgUsu);
-		} else if (e.getSource().equals(btnListaCliente)) {
-			AdminListaCliente vistaCfgCli = new AdminListaCliente(this);
-			abrirOpcion(vistaCfgCli);
 		}
 	}
 }

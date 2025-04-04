@@ -10,7 +10,12 @@ public class AltaError extends Exception {
 		this.mensaje = mensaje;
 	}
 
+	
+	 public AltaError() {
+	        super(); 
+	        this.mensaje = "El usuario ya existe.";
+	    }
 	public void visualizarMen() {
-		JOptionPane.showMessageDialog(null, this.mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(null, this.mensaje, "Error el usuario ya existe", JOptionPane.ERROR_MESSAGE);
 	}
 }

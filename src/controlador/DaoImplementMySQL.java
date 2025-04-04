@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,11 +13,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import javax.swing.JOptionPane;
+
+import java.sql.Statement;
+
+//import com.mysql.cj.xdevapi.Statement;
+
+import modelo.Articulo;
+
 import excepciones.AltaError;
 import excepciones.DropError;
 import excepciones.LoginError;
 import excepciones.modifyError;
-import modelo.Articulo;
 import modelo.Cliente;
 import modelo.Compra;
 import modelo.Metodo;
@@ -30,22 +38,32 @@ public class DaoImplementMySQL implements Dao {
 	// Atributos
 	private Connection con;
 	private PreparedStatement stmt;
-	// Sentencias SQL
-	final String login = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
-	final String INSERTAR_CLIENTE = "INSERT INTO cliente(id_clien,usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?,?)";
+	// Sentencias SQL CLIENTE
+	final String LOGIN = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
+	final String INSERTAR_CLIENTE = "INSERT INTO cliente(id_clien, usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?,?)";
+
 	final String ELIMINAR_CLIENTE = "DELETE from cliente where id_clien=?";
-	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?";
+	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?;";
+
+	// Sentencias SQL
+
+	final String INTRODUCIR_PEDIDO = "INSERT INTO pedido (id_ped, id_clien, total, fecha_compra) VALUES (?, ?, ?, ?)";
+	final String INTRODUCIR_COMPRA = "INSERT INTO compra(id_art, id_ped, cantidad) VALUES (?, ?, ?)";
 	final String select_cliente = "select * from cliente";
+	final String pedido_cliente = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?)";
 	final String pedido_compra = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?)";
 	final String TODOS_ARTICULOS = "SELECT * FROM articulo";
-	final String crear_pediod_cliente = "insert into pedido (id_ped,id_clien,total,fecha_compra) values (?,?,?,?)";
 	final String newIdPedido = "SELECT MAX(id_ped) FROM pedido";
+	final String CREAR_PEDIDO_CLIENTE = "insert into pedido (id_clien,fecha_compra) values (?,?)";
+	final String CANTIDAD_COMPRA = "UPDATE articulo SET stock = stock - ? WHERE id_art = ?";
+	final String crear_pediod_cliente = "insert into pedido (id_clien,fecha_compra) values (?,?)";
 	final String newIdCliente = "SELECT MAX(id_clien) FROM cliente";
 	final String busca_articulo = "SELECT * FROM articulo where id_art=?";
 	final String pedidos_cliente = "SELECT * FROM pedido where id_clien=?";
 	final String insert_pedido = "insert into pedido (id_ped,id_clien,total,fecha_compra) values (?,?,?,?)";
 	final String insert_listaCompra = "insert into compra (id_art, id_ped, cantidad) values (?,?,?)";
 	final String update_stockArticulo = "Update articulo set stock=? where id_art=?";
+	final String OBTENER_ARTICULOS = "SELECT a.id_art, a.nombre, a.precio, a.oferta, c.cantidad FROM articulo a JOIN compra c ON a.id_art = c.id_art WHERE c.id_ped = ?";
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -63,7 +81,7 @@ public class DaoImplementMySQL implements Dao {
 			 * "root", "abcd*1234");
 			 */
 		} catch (SQLException e) {
-			System.out.println("Error al intentar abrir la BD" + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Error al cargar la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -80,23 +98,23 @@ public class DaoImplementMySQL implements Dao {
 
 	@Override
 	public Cliente login(Cliente cli) throws LoginError {
-		// Tenemos que definie el ResusultSet para recoger el resultado de la consulta
+
 		ResultSet rs = null;
 		openConnection();
 		Cliente usuarioAutenticado = null;
 
 		try {
-			stmt = con.prepareStatement(login);
+			stmt = con.prepareStatement(LOGIN);
 
 			stmt.setString(1, cli.getUsuario());
 			stmt.setString(2, cli.getContra());
 
 			rs = stmt.executeQuery();
-			// Leemos de uno en uno los propietarios devueltos en el ResultSet
+
 			if (!rs.next()) {
 				throw new LoginError("Usuario o password incorrecto");
 			} else {
-				// Recuperamos los datos del usuario autenticado
+
 				usuarioAutenticado = new Cliente();
 				usuarioAutenticado.setId_usu(rs.getInt("id_clien"));
 				usuarioAutenticado.setUsuario(rs.getString("usuario"));
@@ -111,6 +129,7 @@ public class DaoImplementMySQL implements Dao {
 		} catch (SQLException e) {
 			throw new LoginError("Error con el SQL");
 		} finally {
+
 			closeConnection();
 		}
 		return usuarioAutenticado;
@@ -154,6 +173,7 @@ public class DaoImplementMySQL implements Dao {
 			e.getMessage();
 			e.printStackTrace();
 		} finally {
+
 			try {
 				if (rs != null) {
 					rs.close();
@@ -195,23 +215,30 @@ public class DaoImplementMySQL implements Dao {
 
 	@Override
 	public void altaCliente(Cliente clien) throws AltaError {
-		openConnection();
 
 		try {
-			stmt = con.prepareStatement(INSERTAR_CLIENTE);
+			// Primero verificamos si el usuario ya existe
+			if (existeUsuario(clien.getUsuario())) {
+				throw new AltaError();
+			} else {
+				openConnection();
+				// Si el usuario no existe, procedemos con la inserción
+				stmt = con.prepareStatement(INSERTAR_CLIENTE);
+				stmt.setInt(1, clien.getId_usu());
+				stmt.setString(2, clien.getUsuario());
+				stmt.setString(3, clien.getContra());
+				stmt.setString(4, clien.getDni());
+				stmt.setString(5, clien.getCorreo());
+				stmt.setString(6, clien.getDireccion());
+				stmt.setString(7, clien.getMetodo_pago().name());
+				stmt.setString(8, clien.getNum_cuenta());
 
-			stmt.setInt(1, clien.getId_usu());
-			stmt.setString(2, clien.getUsuario());
-			stmt.setString(3, clien.getContra());
-			stmt.setString(4, clien.getDni());
-			stmt.setString(5, clien.getCorreo());
-			stmt.setString(6, clien.getDireccion());
-			stmt.setString(7, clien.getMetodo_pago().name());
-			stmt.setString(8, clien.getNum_cuenta());
-			stmt.executeUpdate();
-
+				stmt.executeUpdate();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+			// Manejo de errores de base de datos
+
 		} finally {
 			closeConnection();
 		}
@@ -244,6 +271,7 @@ public class DaoImplementMySQL implements Dao {
 
 	@Override
 	public void bajaCliente(Cliente clien) throws DropError {
+
 		openConnection();
 
 		try {
@@ -274,18 +302,72 @@ public class DaoImplementMySQL implements Dao {
 				articulos.put(articulo.getId_art(), articulo);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Error al cargar los articulos", "Error", JOptionPane.ERROR_MESSAGE);
 		} finally {
-			try {
-				if (rs != null)
-					rs.close();
-				closeConnection();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			closeConnection();
 		}
 
-		return articulos; // Siempre devuelve un HashMap válido (vacío si hay errores)
+		return articulos;
+
+	}
+
+	public void guardarPedido(Pedido ped) throws SQLException {
+		int nuevoId = obtenerUltimoIdPed();
+		ped.setId_ped(nuevoId);
+		try {
+			openConnection();
+
+			stmt = con.prepareStatement(INTRODUCIR_PEDIDO);
+			stmt.setInt(1, ped.getId_ped());
+			stmt.setInt(2, ped.getId_usu());
+			stmt.setFloat(3, ped.getTotal());
+			stmt.setObject(4, ped.getFecha_compra());
+
+			stmt.executeUpdate();
+
+		} catch (SQLException e) {
+			throw new SQLException("No se pudo insertar el pedido.", e);
+		} finally {
+			closeConnection();
+		}
+
+	}
+
+	public void guardarCompra(List<Compra> listaCompra) throws SQLException {
+
+		try {
+			openConnection();
+			stmt = con.prepareStatement(INTRODUCIR_COMPRA);
+			for (Compra com : listaCompra) {
+				stmt.setInt(1, com.getId_art());
+				stmt.setInt(2, com.getId_ped());
+				stmt.setInt(3, com.getCantidad());
+
+				stmt.executeUpdate();
+			}
+		} catch (SQLException e) {
+			throw new SQLException("Error al insertar los artículos en la compra", e);
+		} finally {
+			closeConnection();
+		}
+	}
+
+	public void actualizarStock(int idArticulo, int cantidadComprada) throws SQLException {
+
+		try {
+			openConnection();
+			stmt = con.prepareStatement(CANTIDAD_COMPRA);
+
+			stmt.setInt(1, cantidadComprada);
+			stmt.setInt(2, idArticulo);
+
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			throw new SQLException("Error al actualizar el stock del artículo", e);
+		} finally {
+			closeConnection();
+		}
+
 	}
 
 	@Override
@@ -316,8 +398,12 @@ public class DaoImplementMySQL implements Dao {
 			rs = stmt.executeQuery();
 
 			if (rs.next()) {
-				ultimoId = rs.getInt(1);
+				ultimoId = rs.getInt(1); // Obtiene el último ID
+				if (rs.wasNull()) { // Si la tabla está vacía
+					ultimoId = 0;
+				}
 			}
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -343,7 +429,6 @@ public class DaoImplementMySQL implements Dao {
 			stmt.setInt(1, id_art);
 			rs = stmt.executeQuery();
 			if (rs.next()) {
-				// Recuperamos los datos del usuario autenticado
 				busca = new Articulo();
 				busca.setId_art(id_art);
 				busca.setNombre(rs.getString("nombre"));
@@ -388,9 +473,38 @@ public class DaoImplementMySQL implements Dao {
 
 	@Override
 	public List<Articulo> obtenerArticulosPedido(int id_clien) {
-		List<Compra> listaCompra = new ArrayList<>();
+		List<Articulo> listaArticulo = new ArrayList<>();
 		// TODO Auto-generated method stub
-		return null;
+		openConnection();
+		ResultSet rs = null;
+
+		try {
+			stmt = con.prepareStatement(OBTENER_ARTICULOS);
+			stmt.setInt(1, id_clien);
+			rs = stmt.executeQuery();
+			while (rs.next()) {
+				Articulo art = new Articulo();
+				art.setId_art(rs.getInt("id_art"));
+				art.setNombre(rs.getString("nombre"));
+				art.setPrecio(rs.getFloat("precio"));
+				art.setOferta(rs.getFloat("oferta"));
+
+				listaArticulo.add(art);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null)
+					rs.close();
+				closeConnection();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return listaArticulo;
 	}
 
 	@Override
@@ -452,13 +566,13 @@ public class DaoImplementMySQL implements Dao {
 	private void updateStockArticulo(Compra com) {
 		openConnection();
 		Articulo cambio = buscarArticulo(com.getId_art());
-		cambio.setStock(cambio.getStock()-com.getCantidad());
+		cambio.setStock(cambio.getStock() - com.getCantidad());
 		try {
-			stmt= con.prepareStatement(update_stockArticulo);
-			
+			stmt = con.prepareStatement(update_stockArticulo);
+
 			stmt.setInt(1, cambio.getStock());
 			stmt.setInt(2, cambio.getId_art());
-			
+
 			stmt.executeUpdate();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -487,4 +601,52 @@ public class DaoImplementMySQL implements Dao {
 			closeConnection();
 		}
 	}
+
+	public int obtenerCantidadArticuloEnPedido(int idPedido, int idArticulo) {
+		int cantidad = 0;
+		openConnection();
+		String sql = "SELECT cantidad FROM compra WHERE id_ped = ? AND id_art = ?";
+		try {
+			stmt = con.prepareStatement(sql);
+			stmt.setInt(1, idPedido);
+			stmt.setInt(2, idArticulo);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				cantidad = rs.getInt("cantidad");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return cantidad;
+	}
+
+	public boolean existeUsuario(String nombreUsuario) {
+		ResultSet rs = null;
+		boolean usuarioExiste = false;
+		openConnection();
+		try {
+			stmt = con.prepareStatement("SELECT 1 FROM cliente WHERE usuario = ?");
+			stmt.setString(1, nombreUsuario);
+
+			rs = stmt.executeQuery();
+
+			if (rs.next()) {
+				usuarioExiste = true;
+
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null)
+					rs.close();
+				closeConnection();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return usuarioExiste;
+	}
+
 }

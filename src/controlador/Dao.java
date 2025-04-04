@@ -1,5 +1,7 @@
 package controlador;
 
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -24,11 +26,11 @@ public interface Dao {
 
 	public void bajaCliente(Cliente clien) throws DropError;
 
+	public int obtenerUltimoIdPed() throws SQLException;
+
 	public Map<Integer, Articulo> obtenerTodosArticulos();
 
 	public void crearPedidoUsuario(Pedido nuenoBD);
-
-	public int obtenerUltimoIdPed();
 
 	public Articulo buscarArticulo(int id_art);
 
@@ -42,4 +44,9 @@ public interface Dao {
 
 	public void insertPedido(Pedido localPedido);
 
+	public void guardarPedido(Pedido ped) throws SQLException;
+
+	public void guardarCompra(List<Compra> listaCompra) throws SQLException;
+
+	public int obtenerCantidadArticuloEnPedido(int idPedido, int idArticulo);
 }
