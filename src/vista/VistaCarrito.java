@@ -146,7 +146,11 @@ public class VistaCarrito extends JDialog implements ActionListener {
     private void inicializarTabla() {
         String[] columnNames = {"Nombre", "Cantidad", "Descuento Ud.", "Precio Final Ud.", "Precio Total"};
         model = new DefaultTableModel(columnNames, 0) {
-            // Hacer que las celdas no sean editables directamente en la tabla
+            /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			// Hacer que las celdas no sean editables directamente en la tabla
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
