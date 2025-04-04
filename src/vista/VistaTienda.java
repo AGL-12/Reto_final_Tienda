@@ -13,7 +13,6 @@ import javax.swing.JScrollPane;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -36,6 +35,7 @@ import controlador.Principal;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
+import javax.swing.SwingConstants;
 
 public class VistaTienda extends JDialog implements ActionListener {
 
@@ -53,14 +53,17 @@ public class VistaTienda extends JDialog implements ActionListener {
 	public VistaTienda(Cliente clien, JFrame vista) {
 		super(vista, "Bienvendido", true);
 		this.localClien = clien;
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 675, 475);
 		getContentPane().setLayout(null);
 
 		// Crear la tabla antes de usarla en JScrollPane
 		tableArticulo = new JTable();
+		tableArticulo.getTableHeader().setReorderingAllowed(false); // Bloquea el reordenamiento de columnas
+		tableArticulo.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
 		// Crear el JScrollPane con la tabla correctamente inicializada
 		JScrollPane scrollPane = new JScrollPane(tableArticulo);
-		scrollPane.setBounds(51, 88, 327, 85); // Ubicación y tamaño del JScrollPane
+		scrollPane.setBounds(10, 59, 643, 315); // Ubicación y tamaño del JScrollPane
 		getContentPane().add(scrollPane); // Agregar el JScrollPane a la ventana
 
 		model = new DefaultTableModel() {
@@ -178,27 +181,28 @@ public class VistaTienda extends JDialog implements ActionListener {
 		});
 
 		JLabel lblTitulo = new JLabel("DYE TOOLS");
+		lblTitulo.setHorizontalAlignment(SwingConstants.CENTER);
 		lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblTitulo.setBounds(157, 10, 106, 38);
+		lblTitulo.setBounds(282, 10, 106, 38);
 
 		getContentPane().add(lblTitulo);
 
 		btnUsuario = new JButton("USER");
 		btnUsuario.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnUsuario.setBounds(10, 232, 85, 21);
+		btnUsuario.setBounds(10, 390, 106, 38);
 		getContentPane().add(btnUsuario);
 		btnUsuario.addActionListener(this);
 
 		btnAdmin = new JButton("ADMIN");
 		btnAdmin.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnAdmin.setBounds(109, 233, 85, 21);
+		btnAdmin.setBounds(146, 390, 106, 38);
 		btnAdmin.addActionListener(this);
 		btnAdmin.setVisible(false);
 		getContentPane().add(btnAdmin);
 
 		btnCompra = new JButton("BUY");
 		btnCompra.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnCompra.setBounds(341, 233, 85, 21);
+		btnCompra.setBounds(525, 390, 128, 38);
 		btnCompra.addActionListener(this);
 		getContentPane().add(btnCompra);
 

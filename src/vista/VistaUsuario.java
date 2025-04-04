@@ -10,6 +10,7 @@ import javax.swing.border.EmptyBorder;
 
 import controlador.Principal;
 import excepciones.AltaError;
+import excepciones.DniException;
 import excepciones.DropError;
 import excepciones.modifyError;
 import modelo.Cliente;
@@ -402,14 +403,11 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			clien.setMetodo_pago(Metodo.mastercard);
 		} else if (rdbtnPaypal.isSelected()) {
 			clien.setMetodo_pago(Metodo.paypal);
-		} else {
-			System.out.println("No se ha seleccionado un método de pago");
 		}
 		try {
 			Principal.altaCliente(clien);
 			JOptionPane.showMessageDialog(this, "User registered successfully!");
 		} catch (AltaError e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -440,7 +438,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	}
 
 	private void mostrarPedidos() {
-		VerPedidosCliente vistaPedidoClien= new VerPedidosCliente(this, localClien);
+		VerPedidosCliente vistaPedidoClien = new VerPedidosCliente(this, localClien);
 		vistaPedidoClien.setVisible(true);
 	}
 
