@@ -22,12 +22,10 @@ public class Principal {
 	public static void main(String[] args) {
 		VistaLogIn inicio = new VistaLogIn();
 		inicio.setVisible(true);
-
 	}
 
 	public static Cliente login(Cliente cli) throws LoginError {
 		return dao.login(cli);
-
 	}
 
 	public static void modificarArticulo(Articulo art) throws modifyError {
@@ -91,7 +89,7 @@ public class Principal {
 	}
 
 	public static int obtenerUltimoIdPed() {
-		return 0;
+		return dao.obtenerUltimoIdPed();
 	}
 
 	public static void guardarPedido(Pedido ped) throws SQLException {
