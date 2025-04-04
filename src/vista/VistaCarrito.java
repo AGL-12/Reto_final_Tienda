@@ -344,21 +344,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
         }
 
         try {
-            // 1. Guardar el pedido para obtener su ID generado
-            // Asume que guardarPedido actualiza el objeto localPedido con el ID generado
             Principal.guardarPedido(localPedido);
-
-            // Verificar si se obtuvo un ID de pedido válido
-            if (localPedido.getId_ped() <= 0) {
-                 throw new SQLException("No se pudo obtener un ID válido para el pedido.");
-            }
-
-            // 2. Asociar el ID del pedido a cada línea de compra
-            for (Compra compra : localListaCompra) {
-                compra.setId_ped(localPedido.getId_ped());
-            }
-
-            // 3. Guardar todas las líneas de compra
             Principal.guardarCompra(localListaCompra);
 
             // 4. Mensaje de éxito y cierre
@@ -386,15 +372,4 @@ public class VistaCarrito extends JDialog implements ActionListener {
         }
     }
 
-    // Constructor vacío (si es necesario por alguna razón, aunque no parece usarse aquí)
-    public VistaCarrito() {
-        // Podría inicializar componentes básicos o dejarlo vacío si no se usa
-        super(); // Llama al constructor de JDialog
-        System.err.println("Advertencia: Se ha llamado al constructor vacío de VistaCarrito.");
-        // Inicializa componentes básicos para evitar NullPointerExceptions si se muestra accidentalmente
-         getContentPane().setLayout(new BorderLayout());
-         getContentPane().add(new JLabel("Carrito vacío o no inicializado."), BorderLayout.CENTER);
-         setSize(300, 200);
-         setLocationRelativeTo(null);
-    }
 }

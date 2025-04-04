@@ -32,7 +32,7 @@ public interface Dao {
 
 	public void bajaCliente(Cliente clien) throws DropError;
 
-	public int obtenerUltimoIdPed() throws SQLException;
+	public int obtenerUltimoIdPed();
 
 	public Map<Integer, Articulo> obtenerTodosArticulos();
 

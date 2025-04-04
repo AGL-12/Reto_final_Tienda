@@ -175,15 +175,15 @@ public class VistaTienda extends JDialog implements ActionListener {
 				return column == 6; // Solo la columna 6 (Cantidad) es editable
 			}
 		};
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowActivated(WindowEvent e) {
-				if (tableArticulo != null) {
-					cargarDatosTabla();
-				}
-			}
-
-		});
+//		addWindowListener(new WindowAdapter() {
+//			@Override
+//			public void windowActivated(WindowEvent e) {
+//				if (tableArticulo != null) {
+//					cargarDatosTabla();
+//				}
+//			}
+//
+//		});
 
 		// Añadir columnas al modelo (incluyendo id_art aunque se oculte)
 		model.addColumn("ID_ART"); // Columna 0
@@ -400,99 +400,49 @@ public class VistaTienda extends JDialog implements ActionListener {
 	 * carrito.
 	 */
 	private void abrirCarrito() {
-		// 1. Validar Cliente
-		if (localClien == null) {
-			JOptionPane.showMessageDialog(this, "Error: No se ha identificado al cliente.", "Error Cliente",
-					JOptionPane.ERROR_MESSAGE);
-			return;
-		}
+		Pedido pedidoActual = new Pedido(Principal.obtenerUltimoIdPed(), localClien.getId_usu(), 0,
+				LocalDateTime.now());
+		List<Compra> comprasParaCarrito = recopilarCompras(pedidoActual.getId_ped());
 
-		// 2. Asegurarse de que cualquier edición en curso se complete o cancele
-		if (tableArticulo.isEditing()) {
-			if (!tableArticulo.getCellEditor().stopCellEditing()) {
-				// El usuario canceló la edición (p.ej., presionó Esc) o la validación falló.
-				// No continuar. Podríamos mostrar un mensaje opcional.
-				return;
-			}
-		}
-
-		// 3. Recopilar artículos y cantidades del modelo de la tabla
-		List<Compra> comprasParaCarrito = recopilarCompras();
-
-		// 4. Verificar si hay algo que comprar
 		if (comprasParaCarrito.isEmpty()) {
 			JOptionPane.showMessageDialog(this, "No has seleccionado ningún artículo o cantidad.", "Carrito Vacío",
 					JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
 
-		// 5. Crear el Pedido (justo antes de mostrar el carrito)
-		// Asumiendo que obtenerUltimoIdPed() te da el SIGUIENTE ID disponible o
-		// gestionas el ID de otra forma.
-		Pedido pedidoActual = new Pedido(Principal.obtenerUltimoIdPed(), // Obtener el siguiente ID de pedido
-				localClien.getId_usu(), (float) 0.0, // El total se calculará en el carrito o al finalizar
-				LocalDateTime.now());
-
-		// 6. Asignar el ID del pedido recién creado a cada línea de compra
-		for (Compra c : comprasParaCarrito) {
-			c.setId_ped(pedidoActual.getId_ped());
-		}
-
-		// 7. Mostrar la ventana del Carrito
-		// Asumiendo que VistaCarrito es un JDialog y toma el owner, la lista de
-		// compras, y el pedido.
-		// Pasar 'this' como owner hace que VistaCarrito sea modal respecto a
-		// VistaTienda.
-		VistaCarrito carritoDialog = new VistaCarrito(this, comprasParaCarrito, pedidoActual); // Pasamos 'this' como
-																								// referencia si el
-																								// carrito necesita
-																								// actualizar la tienda
+		VistaCarrito carritoDialog = new VistaCarrito(this, comprasParaCarrito, pedidoActual);
 		carritoDialog.setVisible(true);
-
-		// 8. (Opcional) Después de que el carrito se cierre, actualizar la tabla
-		// principal
-		// Esto es útil si la compra se completó y el stock cambió.
-		// Si el carrito tiene lógica para llamar a un método de VistaTienda al
-		// completar compra, mejor.
-		// Si no, una simple recarga aquí puede ser suficiente.
-		cargarDatosTabla(); // Recarga todos los artículos y su stock actual
+		cargarDatosTabla(); 
 	}
 
 	/**
 	 * Recorre el modelo de la tabla y crea una lista de objetos Compra para los
 	 * artículos con cantidad > 0.
+	 * @param idePed 
 	 * 
 	 * @return Una lista de objetos Compra.
 	 */
-	private List<Compra> recopilarCompras() {
+	private List<Compra> recopilarCompras(int idePed) {
 		List<Compra> listaCompra = new ArrayList<>();
 		for (int i = 0; i < model.getRowCount(); i++) {
 			// Obtener cantidad del modelo (índice 6)
-			Object cantidadObj = model.getValueAt(i, 6);
+			Object valor = model.getValueAt(i, 6);
 
-			// Usar Objects.requireNonNullElse para manejar nulls de forma segura,
-			// convirtiéndolos a 0
-			int cantidadSeleccionada = Objects.requireNonNullElse((Integer) cantidadObj, 0);
-
-			if (cantidadSeleccionada > 0) {
-				// Obtener ID del artículo del modelo (índice 0)
-				Integer idArticulo = (Integer) model.getValueAt(i, 0);
-
-				// Obtener stock actual del modelo (índice 5) para doble verificación
-				Integer stockDisponible = (Integer) model.getValueAt(i, 5);
-
-				// Doble chequeo: asegurarse que la cantidad no supere el stock (por si acaso)
-				if (idArticulo != null && stockDisponible != null && cantidadSeleccionada <= stockDisponible) {
-					// Crear objeto Compra (el ID del pedido se asignará después)
-					Compra palCarro = new Compra(idArticulo, 0, cantidadSeleccionada);
-					listaCompra.add(palCarro);
-				} else {
-					// Log o advertencia si hay inconsistencia (debería haber sido prevenido por el
-					// listener)
-					System.err.println(
-							"Advertencia: Inconsistencia detectada al recopilar compra para artículo ID " + idArticulo
-									+ ". Cantidad solicitada: " + cantidadSeleccionada + ", Stock: " + stockDisponible);
-					// Podrías incluso mostrar un JOptionPane aquí si es crítico
+			if (tableArticulo.isEditing() && tableArticulo.getEditingRow() == i) {
+				Component editor = tableArticulo.getEditorComponent();
+				if (editor instanceof JTextField txtField) {
+					valor = txtField.getText();
+				}
+			}
+			if (valor != null) {
+				try {
+					int cantidadFinal = Integer.parseInt(valor.toString());
+					if (cantidadFinal > 0) {
+						Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), idePed, cantidadFinal);
+						listaCompra.add(palCarro);
+					}
+				} catch (NumberFormatException e) {
+					model.setValueAt(null, i, 6);
 				}
 			}
 		}

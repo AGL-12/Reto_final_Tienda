@@ -383,19 +383,16 @@ public class DaoImplementMySQL implements Dao {
 	}
 
 	public void guardarPedido(Pedido ped) throws SQLException {
-		int nuevoId = obtenerUltimoIdPed();
-		ped.setId_ped(nuevoId);
+		openConnection();
 		try {
-			openConnection();
-
 			stmt = con.prepareStatement(INTRODUCIR_PEDIDO);
+			
 			stmt.setInt(1, ped.getId_ped());
 			stmt.setInt(2, ped.getId_usu());
 			stmt.setFloat(3, ped.getTotal());
-			stmt.setObject(4, ped.getFecha_compra());
+			stmt.setTimestamp(4, Timestamp.valueOf(ped.getFecha_compra()));
 
 			stmt.executeUpdate();
-
 		} catch (SQLException e) {
 			throw new SQLException("No se pudo insertar el pedido.", e);
 		} finally {
@@ -405,9 +402,8 @@ public class DaoImplementMySQL implements Dao {
 	}
 
 	public void guardarCompra(List<Compra> listaCompra) throws SQLException {
-
+		openConnection();
 		try {
-			openConnection();
 			stmt = con.prepareStatement(INTRODUCIR_COMPRA);
 			for (Compra com : listaCompra) {
 				stmt.setInt(1, com.getId_art());
@@ -415,6 +411,9 @@ public class DaoImplementMySQL implements Dao {
 				stmt.setInt(3, com.getCantidad());
 
 				stmt.executeUpdate();
+			}
+			for (Compra comp : listaCompra) {
+				updateStockArticulo(comp);
 			}
 		} catch (SQLException e) {
 			throw new SQLException("Error al insertar los artículos en la compra", e);
@@ -469,22 +468,13 @@ public class DaoImplementMySQL implements Dao {
 			rs = stmt.executeQuery();
 
 			if (rs.next()) {
-				ultimoId = rs.getInt(1); // Obtiene el último ID
-				if (rs.wasNull()) { // Si la tabla está vacía
-					ultimoId = 0;
-				}
+				ultimoId = rs.getInt(1);
 			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			try {
-				if (rs != null)
-					rs.close();
 				closeConnection();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}
 		return ultimoId + 1;
 	}
@@ -623,15 +613,14 @@ public class DaoImplementMySQL implements Dao {
 
 				stmt.executeUpdate();
 			}
-			for (Compra compra : localListaCompra) {
-				updateStockArticulo(compra);
-			}
-
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			closeConnection();
+			for (Compra compra : localListaCompra) {
+				updateStockArticulo(compra);
+			}
 		}
 	}
 
@@ -649,6 +638,8 @@ public class DaoImplementMySQL implements Dao {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally {
+			closeConnection();
 		}
 	}
 
