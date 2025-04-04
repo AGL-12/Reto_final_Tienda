@@ -7,6 +7,8 @@ import modelo.Pedido;
 import controlador.Principal; // Asumiendo que aquí están tus métodos de acceso a datos
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
@@ -173,6 +175,15 @@ public class VistaTienda extends JDialog implements ActionListener {
 				return column == 6; // Solo la columna 6 (Cantidad) es editable
 			}
 		};
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowActivated(WindowEvent e) {
+				if (tableArticulo != null) {
+					cargarDatosTabla();
+				}
+			}
+
+		});
 
 		// Añadir columnas al modelo (incluyendo id_art aunque se oculte)
 		model.addColumn("ID_ART"); // Columna 0
@@ -218,6 +229,51 @@ public class VistaTienda extends JDialog implements ActionListener {
 		// Para que pinte bien el fondo (especialmente con L&F modernos)
 		tableArticulo.setFillsViewportHeight(true);
 
+		tableArticulo.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(new JTextField()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+					int column) {
+				JTextField field = (JTextField) super.getTableCellEditorComponent(table, value, isSelected, row,
+						column);
+
+				// Crear un DocumentListener para detectar cambios mientras se escribe
+				field.getDocument().addDocumentListener(new DocumentListener() {
+					@Override
+					public void insertUpdate(DocumentEvent e) {
+						verificarNumero(field);
+					}
+
+					@Override
+					public void removeUpdate(DocumentEvent e) {
+						verificarNumero(field);
+					}
+
+					@Override
+					public void changedUpdate(DocumentEvent e) {
+						verificarNumero(field);
+					}
+
+					// Verificar si el valor es numérico
+					private void verificarNumero(JTextField field) {
+						String text = field.getText();
+
+						// Si el texto no es un número, deshabilitar el botón
+						if (!text.matches("[0-9]*")) {
+							field.setForeground(Color.RED);
+							btnCompra.setEnabled(false); // Deshabilitar el botón
+						} else {
+							field.setForeground(Color.BLACK);
+							btnCompra.setEnabled(true); // Habilitar el botón
+						}
+					}
+				});
+
+				return field; // Devolver el JTextField para que funcione como editor de la celda
+			}
+		});
+
 		// --- Listener para validar la cantidad ingresada ---
 		model.addTableModelListener(new TableModelListener() {
 			@Override
@@ -232,38 +288,21 @@ public class VistaTienda extends JDialog implements ActionListener {
 					Object stockObj = model.getValueAt(filaModelo, 5); // Stock (col 5)
 
 					// Asegurarse de que los valores no sean nulos y sean Integers
-					if (cantidadObj instanceof Integer && stockObj instanceof Integer) {
-						int cantidadIngresada = (Integer) cantidadObj;
+					if (cantidadObj != null && stockObj instanceof Integer) {
 						int stockDisponible = (Integer) stockObj;
-
-						// Validar que la cantidad no sea negativa y no exceda el stock
-						if (cantidadIngresada < 0) {
-							// No permitir negativos, poner a 0
-							SwingUtilities.invokeLater(() -> { // Usar invokeLater para evitar problemas de concurrencia
-																// Swing
-								JOptionPane.showMessageDialog(VistaTienda.this, "La cantidad no puede ser negativa.",
-										"Cantidad Inválida", JOptionPane.WARNING_MESSAGE);
+						try {
+							int cantidadIngresada = Integer.parseInt(cantidadObj.toString());
+							// Validar que la cantidad no sea negativa y no exceda el stock
+							if (cantidadIngresada < 0) {
+								// No permitir negativos, poner a 0
 								model.setValueAt(0, filaModelo, 6);
-							});
-						} else if (cantidadIngresada > stockDisponible) {
-							// Si excede el stock, advertir y ajustar al máximo posible (stock)
-							SwingUtilities.invokeLater(() -> {
-								JOptionPane.showMessageDialog(VistaTienda.this,
-										"La cantidad (" + cantidadIngresada + ") supera el stock disponible ("
-												+ stockDisponible + ").\nSe ajustará al máximo.",
-										"Stock Insuficiente", JOptionPane.WARNING_MESSAGE);
+							} else if (cantidadIngresada > stockDisponible) {
+								// Si excede el stock, advertir y ajustar al máximo posible (stock)
 								model.setValueAt(stockDisponible, filaModelo, 6);
-							});
+							}
+						} catch (NumberFormatException e2) {
+							model.setValueAt(null, filaModelo, 6);
 						}
-					} else if (cantidadObj != null) {
-						// Si el valor ingresado no es un Integer válido (raro con DefaultTableModel,
-						// pero por si acaso)
-						SwingUtilities.invokeLater(() -> {
-							JOptionPane.showMessageDialog(VistaTienda.this,
-									"Por favor, introduce un número entero válido para la cantidad.",
-									"Entrada Inválida", JOptionPane.WARNING_MESSAGE);
-							model.setValueAt(0, filaModelo, 6); // Restablecer a 0 o null
-						});
 					}
 				}
 			}
