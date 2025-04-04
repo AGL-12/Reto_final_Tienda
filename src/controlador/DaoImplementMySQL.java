@@ -38,10 +38,13 @@ public class DaoImplementMySQL implements Dao {
 	// Atributos
 	private Connection con;
 	private PreparedStatement stmt;
-	// Sentencias SQL CLIENTE
-	final String LOGIN = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
-	final String INSERTAR_CLIENTE = "INSERT INTO cliente(id_clien, usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?,?)";
+	// Sentencias SQL
+	final String BAJA_ARTICULO = "DELETE FROM articulo  WHERE ID_ART= ?";
+	final String ALTA_ARTICULO = "INSERT INTO articulo  VALUES (?, ?, ?, ?, ?, ?, ?)";
+	final String MODIFICAR_ARTICULO = "UPDATE articulo SET nombre = ?, descripcion = ?, stock = ?, precio = ?, oferta = ?, seccion = ? WHERE id_art = ?";
 
+	final String LOGIN = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
+	final String INSERTAR_CLIENTE = "INSERT INTO cliente(usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?)";
 	final String ELIMINAR_CLIENTE = "DELETE from cliente where id_clien=?";
 	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?;";
 
@@ -49,6 +52,7 @@ public class DaoImplementMySQL implements Dao {
 
 	final String INTRODUCIR_PEDIDO = "INSERT INTO pedido (id_ped, id_clien, total, fecha_compra) VALUES (?, ?, ?, ?)";
 	final String INTRODUCIR_COMPRA = "INSERT INTO compra(id_art, id_ped, cantidad) VALUES (?, ?, ?)";
+	final String MAX_ARTICULO = "SELECT MAX(ID_ART)FROM ARTICULO";
 	final String select_cliente = "select * from cliente";
 	final String pedido_cliente = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?)";
 	final String pedido_compra = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?)";
@@ -64,6 +68,7 @@ public class DaoImplementMySQL implements Dao {
 	final String insert_listaCompra = "insert into compra (id_art, id_ped, cantidad) values (?,?,?)";
 	final String update_stockArticulo = "Update articulo set stock=? where id_art=?";
 	final String OBTENER_ARTICULOS = "SELECT a.id_art, a.nombre, a.precio, a.oferta, c.cantidad FROM articulo a JOIN compra c ON a.id_art = c.id_art WHERE c.id_ped = ?";
+	final String maxIdPedido = "SELECT MAX(id_ped) FROM pedido";
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -116,9 +121,12 @@ public class DaoImplementMySQL implements Dao {
 			} else {
 
 				usuarioAutenticado = new Cliente();
-				usuarioAutenticado.setId_usu(rs.getInt("id_clien"));
-				usuarioAutenticado.setUsuario(rs.getString("usuario"));
-				usuarioAutenticado.setContra(rs.getString("contra"));
+				usuarioAutenticado.setId_usu(rs.getInt("id_clien")); // Asegúrate de que el nombre de la columna sea
+																		// "id_usu"
+				usuarioAutenticado.setUsuario(rs.getString("usuario")); // Asegúrate de que el nombre de la columna sea
+																		// "id_usu"
+				usuarioAutenticado.setContra(rs.getString("contra")); // Asegúrate de que el nombre de la columna sea //
+																		// "id_usu"
 				usuarioAutenticado.setDni(rs.getString("dni"));
 				usuarioAutenticado.setCorreo(rs.getString("correo"));
 				usuarioAutenticado.setDireccion(rs.getString("direccion"));
@@ -136,6 +144,69 @@ public class DaoImplementMySQL implements Dao {
 	}
 
 	@Override
+	public void modificarArticulo(Articulo art) throws modifyError {
+		System.out.println(art.toString());
+		openConnection();
+		try {
+			stmt = con.prepareStatement(MODIFICAR_ARTICULO);
+			stmt.setString(1, art.getNombre());
+			stmt.setString(2, art.getDescripcion());
+			stmt.setInt(3, art.getStock());
+			stmt.setFloat(4, art.getPrecio());
+			stmt.setFloat(5, art.getOferta());
+			stmt.setString(6, art.getSeccion().name());
+			stmt.setInt(7, art.getId_art());
+			stmt.executeUpdate();
+
+		} catch (SQLException e) {
+			throw new modifyError("Error al modificar el perfil");
+		} finally {
+			closeConnection();
+		}
+
+	}
+
+	@Override
+	public void eliminarArticulo(Articulo art) throws modifyError {
+
+		openConnection();
+		try {
+			stmt = con.prepareStatement(BAJA_ARTICULO);
+			stmt.setInt(1, art.getId_art());
+			stmt.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			closeConnection();
+		}
+	}
+
+	@Override
+	public void añadirArticulo(Articulo art) throws modifyError {
+		int id;
+		id = obtenerUltimoIdArt();
+		openConnection();
+
+		try {
+			stmt = con.prepareStatement(ALTA_ARTICULO);
+			stmt.setInt(1, id);
+			stmt.setString(2, art.getNombre());
+			stmt.setString(3, art.getDescripcion());
+			stmt.setInt(4, art.getStock());
+			stmt.setFloat(5, art.getPrecio());
+			stmt.setFloat(6, art.getOferta());
+			stmt.setString(7, art.getSeccion().name());
+			stmt.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			closeConnection();
+		}
+
+	}
+
 	public Map<Integer, Cliente> listarClientesTod() {
 		Map<Integer, Cliente> todosClientes = new HashMap<>();
 		ResultSet rs = null;
@@ -451,7 +522,8 @@ public class DaoImplementMySQL implements Dao {
 		ResultSet rs = null;
 		openConnection();
 		try {
-			stmt = con.prepareStatement(newIdCliente);
+			openConnection();
+			stmt = con.prepareStatement(maxIdPedido);
 			rs = stmt.executeQuery();
 
 			if (rs.next()) {
@@ -649,4 +721,29 @@ public class DaoImplementMySQL implements Dao {
 		return usuarioExiste;
 	}
 
+	public int obtenerUltimoIdArt() {
+		int ultimoIdArt = 0;
+		ResultSet rs = null;
+		try {
+			openConnection();
+			stmt = con.prepareStatement(MAX_ARTICULO);
+			rs = stmt.executeQuery();
+
+			if (rs.next()) {
+				ultimoIdArt = rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null)
+					rs.close();
+				closeConnection();
+			} catch (SQLException e) {
+				System.err.println("Error al cerrar la conexión: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		return ultimoIdArt + 1;
+	}
 }

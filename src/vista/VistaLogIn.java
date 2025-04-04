@@ -35,7 +35,7 @@ public class VistaLogIn extends JFrame implements ActionListener {
 	 * Create the frame.
 	 */
 	public VistaLogIn() {
-
+		setLocationRelativeTo(null);
 		setTitle("Hola Mundo");
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -108,9 +108,6 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		// comprobar login correcto
 		try {
 			clien = Principal.login(clien);
-
-			this.setVisible(false);
-
 			VistaTienda tienda = new VistaTienda(clien, this);
 			tienda.setVisible(true);
 

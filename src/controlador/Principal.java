@@ -27,6 +27,19 @@ public class Principal {
 
 	public static Cliente login(Cliente cli) throws LoginError {
 		return dao.login(cli);
+
+	}
+
+	public static void modificarArticulo(Articulo art) throws modifyError {
+		dao.modificarArticulo(art);
+	}
+
+	public static void eliminarArticulo(Articulo art) throws modifyError {
+		dao.eliminarArticulo(art);
+	}
+
+	public static void añadirArticulo(Articulo art) throws modifyError {
+		dao.añadirArticulo(art);
 	}
 
 	public static Map<Integer, Cliente> listarCliente() {

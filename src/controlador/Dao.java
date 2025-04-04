@@ -18,6 +18,12 @@ public interface Dao {
 
 	public Cliente login(Cliente usu) throws LoginError;
 
+	public void modificarArticulo(Articulo art) throws modifyError;
+
+	public void eliminarArticulo(Articulo art) throws modifyError;
+
+	public void añadirArticulo(Articulo art) throws modifyError;
+
 	public Map<Integer, Cliente> listarClientesTod();
 
 	public void altaCliente(Cliente clien) throws AltaError;
@@ -49,4 +55,6 @@ public interface Dao {
 	public void guardarCompra(List<Compra> listaCompra) throws SQLException;
 
 	public int obtenerCantidadArticuloEnPedido(int idPedido, int idArticulo);
+
+	public int obtenerUltimoIdArt();
 }

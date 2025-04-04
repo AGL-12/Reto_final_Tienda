@@ -19,7 +19,6 @@ import modelo.Articulo;
 import modelo.Compra;
 import modelo.Pedido;
 
-// Imports para Layout y Componentes Gráficos
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -27,7 +26,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 // Imports para formateo y excepciones (sin cambios)
 import java.sql.SQLException;
 import java.text.NumberFormat;
@@ -35,6 +33,8 @@ import java.util.List;
 import java.util.Locale;
 // Opcional: Iconos
 // import javax.swing.ImageIcon;
+import java.util.Map;
+import java.util.List;
 
 public class VistaCarrito extends JDialog implements ActionListener {
 
@@ -254,7 +254,6 @@ public class VistaCarrito extends JDialog implements ActionListener {
 						precioFinalUnidad, // Mostrar precio final por unidad
 						precioTotalArticulo // Mostrar precio total por la cantidad de este artículo
 				});
-
 				// Sumar al total general de la compra
 				totalCompraCalculado += precioTotalArticulo;
 			} else {
@@ -262,12 +261,10 @@ public class VistaCarrito extends JDialog implements ActionListener {
 				// Podrías añadir una fila indicando el error o simplemente omitirlo
 			}
 		}
-
 		// Actualizar el Pedido local con el total calculado
 		if (localPedido != null) {
 			localPedido.setTotal(totalCompraCalculado);
 		}
-
 		// Actualizar el JLabel que muestra el total general
 		lblTotalCompra.setText("Total: " + currencyFormat.format(totalCompraCalculado));
 		// Habilitar botón comprar si hay items (por si se deshabilitó antes)
