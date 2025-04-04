@@ -18,6 +18,12 @@ public interface Dao {
 
 	public Cliente login(Cliente usu) throws LoginError;
 
+	public void modificarArticulo(Articulo art) throws modifyError;
+
+	public void eliminarArticulo(Articulo art) throws modifyError;
+
+	public void añadirArticulo(Articulo art) throws modifyError;
+
 	public Map<Integer, Cliente> listarClientesTod();
 
 	public void altaCliente(Cliente clien) throws AltaError;
@@ -40,10 +46,15 @@ public interface Dao {
 
 	public List<Pedido> obtenerPedidosCliente(int id_usu);
 
+	public void insertListCompra(List<Compra> localListaCompra);
+
+	public void insertPedido(Pedido localPedido);
+
 	public void guardarPedido(Pedido ped) throws SQLException;
 
-	public void guardarCompra(List<Compra>listaCompra) throws SQLException;
+	public void guardarCompra(List<Compra> listaCompra) throws SQLException;
 
-	public void actualizarStock(int idArticulo, int cantidadComprada) throws SQLException;
 	public int obtenerCantidadArticuloEnPedido(int idPedido, int idArticulo);
+
+	public int obtenerUltimoIdArt();
 }

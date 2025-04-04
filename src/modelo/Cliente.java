@@ -31,7 +31,7 @@ public class Cliente {
 	}
 
 	public Cliente() {
-		// TODO Auto-generated constructor stub
+		listaCompra = new HashMap<>();
 	}
 
 	public int getId_usu() {
