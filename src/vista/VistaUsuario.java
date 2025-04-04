@@ -275,19 +275,19 @@ public class VistaUsuario extends JDialog implements ActionListener {
      * Recopila datos del formulario y llama al controlador para dar de alta un cliente.
      */
     private void alta() {
-        // Validación básica (podría ser más exhaustiva)
+       
         if (!validarCampos()) return;
 
         Cliente nuevoCliente = new Cliente();
-        nuevoCliente.setId_usu(Principal.obtenerNewIdCliente()); // Asumiendo que la BD/Controlador asigna el ID
+        nuevoCliente.setId_usu(Principal.obtenerNewIdCliente()); 
         nuevoCliente.setUsuario(textUser.getText().trim());
-        nuevoCliente.setContra(String.valueOf(passwordFieldContra.getPassword())); // Mejor forma de obtener password
+        nuevoCliente.setContra(String.valueOf(passwordFieldContra.getPassword()));
         nuevoCliente.setCorreo(textEmail.getText().trim());
         nuevoCliente.setDireccion(textDireccion.getText().trim());
         nuevoCliente.setDni(textDni.getText().trim());
         nuevoCliente.setNum_cuenta(textNumeroCuenta.getText().trim());
         nuevoCliente.setMetodo_pago(obtenerMetodoPagoSeleccionado());
-        nuevoCliente.setEsAdmin(false); // Por defecto, los nuevos usuarios no son admin
+        nuevoCliente.setEsAdmin(false); 
 
         try {
             Principal.altaCliente(nuevoCliente);
@@ -442,7 +442,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
         }
     }
     
-    private boolean validarCampos(boolean modificarModo) {
+   /* private boolean validarCampos(boolean modificarModo) {
         StringBuilder errores = new StringBuilder();
 
         // Validación de Usuario
@@ -489,6 +489,68 @@ public class VistaUsuario extends JDialog implements ActionListener {
         // Mostrar errores si los hay
         if (errores.length() > 0) {
             JOptionPane.showMessageDialog(this, "Por favor, corrige los siguientes errores:\n\n" + errores.toString(), "Campos Inválidos", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }*/
+    
+    
+    private boolean validarCampos(boolean modificarModo) {
+        String errores = "";
+
+        // Validación de Usuario
+        if (textUser.getText().trim().isEmpty()) {
+            errores += "- El nombre de usuario no puede estar vacío.\n";
+        }
+
+        // Validación de Contraseña
+        String password = String.valueOf(passwordFieldContra.getPassword());
+        if (!modificarModo && password.isEmpty()) {
+            errores += "- La contraseña no puede estar vacía.\n";
+        } else if (password.length() < 6) {
+            errores += "- La contraseña debe tener al menos 6 caracteres.\n";
+        } else if (!password.matches(".*[a-zA-Z].*") || !password.matches(".*[0-9].*")) {
+            errores += "- La contraseña debe contener al menos una letra y un número.\n";
+        }
+
+        // Validación de DNI/NIE
+        String dni = textDni.getText().trim();
+        if (dni.isEmpty()) {
+            errores += "- El DNI/NIE no puede estar vacío.\n";
+        } else {
+            // Validación de formato de DNI
+            Pattern dniPattern = Pattern.compile("^\\d{8}[A-Za-z]$");
+            Matcher matcher = dniPattern.matcher(dni.replaceAll("-", ""));
+            if (!matcher.matches()) {
+                errores += "- El DNI/NIE no es válido. Debe tener 8 dígitos seguidos de una letra.\n";
+            }
+        }
+
+        // Validación de Email
+        String email = textEmail.getText().trim();
+        if (email.isEmpty() || !email.contains("@") || !email.matches("^[\\w._%+-]+@[A-Za-z0-9.-]+\\.(com|es|org|net|edu|gov|info|io)$")) {
+            errores += "- Introduce un email válido (como ejemplo: nombre@gmail.com).\n";
+        }
+
+        // Validación de Dirección
+        if (textDireccion.getText().trim().isEmpty()) {
+            errores += "- La dirección no puede estar vacía.\n";
+        }
+
+        // Validación de Método de Pago
+        if (obtenerMetodoPagoSeleccionado() == null) {
+            errores += "- Debes seleccionar un método de pago.\n";
+        }
+
+        // Validación de Número de Cuenta
+        if (textNumeroCuenta.getText().trim().isEmpty()) {
+            errores += "- El número de tarjeta/cuenta no puede estar vacío.\n";
+        }
+
+        // Mostrar errores si los hay
+        if (!errores.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, corrige los siguientes errores:\n\n" + errores, "Campos Inválidos", JOptionPane.WARNING_MESSAGE);
             return false;
         }
 

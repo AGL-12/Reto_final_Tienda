@@ -12,7 +12,8 @@ public class AltaError extends Exception {
 
 	
 	 public AltaError() {
-	        super(); // Llamada al constructor de Exception sin mensaje
+	        super(); 
+	        this.mensaje = "El usuario ya existe.";
 	    }
 	public void visualizarMen() {
 		JOptionPane.showMessageDialog(null, this.mensaje, "Error el usuario ya existe", JOptionPane.ERROR_MESSAGE);

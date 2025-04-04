@@ -41,10 +41,13 @@ public class DaoImplementMySQL implements Dao {
 	// Sentencias SQL CLIENTE
 	final String LOGIN = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
 	final String INSERTAR_CLIENTE = "INSERT INTO cliente(id_clien, usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?,?)";
-	// Sentencias SQL
-	final String login = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
+
 	final String ELIMINAR_CLIENTE = "DELETE from cliente where id_clien=?";
 	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?;";
+	
+	
+	// Sentencias SQL
+
 	final String INTRODUCIR_PEDIDO = "INSERT INTO pedido (id_ped, id_clien, total, fecha_compra) VALUES (?, ?, ?, ?)";
 	final String INTRODUCIR_COMPRA = "INSERT INTO compra(id_art, id_ped, cantidad) VALUES (?, ?, ?)";
 	final String select_cliente = "select * from cliente";
@@ -102,7 +105,7 @@ public class DaoImplementMySQL implements Dao {
 		Cliente usuarioAutenticado = null;
 
 		try {
-			stmt = con.prepareStatement(login);
+			stmt = con.prepareStatement(LOGIN);
 
 			stmt.setString(1, cli.getUsuario());
 			stmt.setString(2, cli.getContra());
@@ -212,14 +215,14 @@ public class DaoImplementMySQL implements Dao {
 
 	@Override
 	public void altaCliente(Cliente clien) throws AltaError {
-	    openConnection();
+	
 
 	    try {
 	        // Primero verificamos si el usuario ya existe
 	        if (existeUsuario(clien.getUsuario())) {
 	            throw new AltaError();
-	        }
-
+	        } else {
+	         openConnection();
 	        // Si el usuario no existe, procedemos con la inserción
 	        stmt = con.prepareStatement(INSERTAR_CLIENTE);
 	        stmt.setInt(1, clien.getId_usu());
@@ -232,7 +235,7 @@ public class DaoImplementMySQL implements Dao {
 	        stmt.setString(8, clien.getNum_cuenta());
 
 	        stmt.executeUpdate();
-	        
+	        }
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	        // Manejo de errores de base de datos
@@ -314,7 +317,7 @@ public class DaoImplementMySQL implements Dao {
 			}
 		}
 
-		return articulos; // Siempre devuelve un HashMap válido (vacío si hay errores)
+		return articulos;
 
 	}
 
@@ -455,7 +458,6 @@ public class DaoImplementMySQL implements Dao {
 			stmt.setInt(1, id_art);
 			rs = stmt.executeQuery();
 			if (rs.next()) {
-				// Recuperamos los datos del usuario autenticado
 				busca = new Articulo();
 				busca.setId_art(id_art);
 				busca.setNombre(rs.getString("nombre"));
@@ -500,7 +502,6 @@ public class DaoImplementMySQL implements Dao {
 
 	@Override
 	public List<Articulo> obtenerArticulosPedido(int id_clien) {
-		List<Compra> listaCompra = new ArrayList<>();
 		List<Articulo> listaArticulo = new ArrayList<>();
 		// TODO Auto-generated method stub
 		openConnection();
@@ -587,33 +588,32 @@ public class DaoImplementMySQL implements Dao {
 	
 	public boolean existeUsuario(String nombreUsuario) {
 	    ResultSet rs = null;
-	    boolean usuarioExiste = false;  // Variable para almacenar el resultado de la consulta
+	    boolean usuarioExiste = false;  
 	    openConnection();
 	    try {
-	        // Preparamos la sentencia SQL para verificar si el usuario ya existe
 	        stmt = con.prepareStatement("SELECT 1 FROM cliente WHERE usuario = ?");
 	        stmt.setString(1, nombreUsuario);
 
-	        // Ejecutamos la consulta
+	     
 	        rs = stmt.executeQuery();
 	        
-	        // Si encontramos al menos un registro, significa que el usuario existe
+	       
 	        if (rs.next()) {
-	            usuarioExiste = true;  // El usuario existe
-	            System.out.println("El usuario " + nombreUsuario + " ya existe.");
+	            usuarioExiste = true;  
+	       
 	        }
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	    } finally {
 	        try {
 	            if (rs != null) rs.close();
-	            closeConnection();
+	           closeConnection();
 	        } catch (SQLException e) {
 	            e.printStackTrace();
 	        }
 	    }
 	    
-	    return usuarioExiste;  // Devolvemos el valor booleano que indica si el usuario existe
+	    return usuarioExiste;  
 	}
 
 
