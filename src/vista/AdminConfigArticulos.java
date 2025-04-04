@@ -5,8 +5,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
+import java.awt.Color;
 import java.awt.Font;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import controlador.Principal;
 import excepciones.modifyError;
@@ -215,7 +218,8 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 			}
 		}else {
 			if(!e.getSource().equals(btnSalir)) {
-				JOptionPane.showMessageDialog(null, "Error: Todos los campos numéricos deben estar completos.", "Error", JOptionPane.ERROR_MESSAGE);
+				resaltarErrores();
+				JOptionPane.showMessageDialog(null, "Error: Uno los campos estan mal rellenados o deben estar completos.", "Error en Articulos", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 		if (e.getSource().equals(btnSalir)) {
@@ -335,7 +339,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		return art;
 
 	}
-
+	/*
 	private boolean comprobarCampos() {
 		Boolean validador = true;
 		if (textNombre.getText().isEmpty() || textDescripcion.getText().isEmpty() || textStock.getText().isEmpty()
@@ -343,5 +347,49 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 			validador = false;
 		}
 		return validador;
+	}*/
+	private boolean comprobarCampos() {
+		boolean comprobado=false;
+	    try {
+	        if (textNombre.getText().isEmpty() || 
+	            textDescripcion.getText().isEmpty() || 
+	            textStock.getText().isEmpty() ||
+	            textPrecio.getText().isEmpty() || 
+	            textOferta.getText().isEmpty()) {
+	            comprobado=false;
+	        }
+	        // Validar que stock sea entero
+	        Integer.parseInt(textStock.getText());
+	        // Validar que precio y oferta sean floats
+	        Float.parseFloat(textPrecio.getText());
+	        Float.parseFloat(textOferta.getText());
+	        comprobado= true;
+	    } catch (NumberFormatException e) {
+	        comprobado= false;
+	    }
+	    return comprobado;
 	}
+	private void resaltarErrores() {
+	    try {
+	        Integer.parseInt(textStock.getText());
+	        textStock.setForeground(Color.BLACK);
+	    } catch (NumberFormatException e) {
+	        textStock.setForeground(Color.RED);
+	    }
+
+	    try {
+	        Float.parseFloat(textPrecio.getText());
+	        textPrecio.setForeground(Color.BLACK);
+	    } catch (NumberFormatException e) {
+	        textPrecio.setForeground(Color.RED);
+	    }
+
+	    try {
+	        Float.parseFloat(textOferta.getText());
+	        textOferta.setForeground(Color.BLACK);
+	    } catch (NumberFormatException e) {
+	        textOferta.setForeground(Color.RED);
+	    }
+	}
+
 }
