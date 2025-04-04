@@ -39,11 +39,12 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 	private JComboBox comboBoxSeccion;
 	private JDialog VentanaIntermedia;
 	private JComboBox comboBoxArticulo;
-	private Map<Integer, Articulo> articulos=Principal.obtenerTodosArticulos();;
+	private Map<Integer, Articulo> articulos = Principal.obtenerTodosArticulos();;
 
 	/**
 	 * Create the dialog.
-	 * @param ventanaIntermedia 
+	 * 
+	 * @param ventanaIntermedia
 	 */
 	public AdminConfigArticulos(JDialog VentanaIntermedia) {
 		super(VentanaIntermedia, "Bienvendido", true);
@@ -106,7 +107,6 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		lblSeccion.setBounds(48, 213, 57, 28);
 		getContentPane().add(lblSeccion);
 
-
 		btnAlta = new JButton("Add");
 		btnAlta.addMouseListener(new MouseAdapter() {
 			@Override
@@ -145,7 +145,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		getContentPane().add(btnModify);
 		btnModify.addActionListener(this);
 		btnModify.setEnabled(false);
-		
+
 		btnSalir = new JButton("Exit");
 		btnSalir.addMouseListener(new MouseAdapter() {
 			@Override
@@ -160,25 +160,25 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		comboBoxSeccion.setBounds(117, 219, 183, 22);
 		getContentPane().add(comboBoxSeccion);
 		comboBoxSeccion.setSelectedIndex(-1);
-		
+
 		comboBoxArticulo = new JComboBox();
 		comboBoxArticulo.setBounds(117, 26, 183, 22);
 		añadirArticuloCombo();
 		getContentPane().add(comboBoxArticulo);
 		comboBoxArticulo.setSelectedIndex(0);
-        comboBoxArticulo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	if(comboBoxArticulo.getSelectedIndex()!=0) {
-        			btnAlta.setEnabled(false);
-            	}else {
-        			btnAlta.setEnabled(true);
+		comboBoxArticulo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (comboBoxArticulo.getSelectedIndex() != 0) {
+					btnAlta.setEnabled(false);
+				} else {
+					btnAlta.setEnabled(true);
 
-            	}
-    			enseñarInfo();
-            }
-        });
-		
+				}
+				enseñarInfo();
+			}
+		});
+
 		JLabel lblArticulo = new JLabel("Articulo");
 		lblArticulo.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		lblArticulo.setBounds(48, 20, 59, 28);
@@ -188,59 +188,65 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 	}
 
 	private void añadirArticuloCombo() {
-		articulos= Principal.obtenerTodosArticulos();
-		Articulo artDefault= new Articulo(0,"Selecciona un artículo","",0,0,0,null);
+		articulos = Principal.obtenerTodosArticulos();
+		Articulo artDefault = new Articulo(0, "Selecciona un artículo", "", 0, 0, 0, null);
 		comboBoxArticulo.removeAllItems();
-        comboBoxArticulo.addItem(artDefault);
-        for (Articulo articulo : articulos.values()) {
-            comboBoxArticulo.addItem(articulo);
-        }
+		comboBoxArticulo.addItem(artDefault);
+		for (Articulo articulo : articulos.values()) {
+			comboBoxArticulo.addItem(articulo);
+		}
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-
-		if (e.getSource().equals(btnAlta)) {
-			añadir();
-			añadirArticuloCombo();
-		}
-		if (e.getSource().equals(btnBaja)) {
-			eliminar();
-			añadirArticuloCombo();
+		if (comprobarCampos() == true) {
+			if (e.getSource().equals(btnAlta)) {
+				añadir();
+				añadirArticuloCombo();
+			}
+			if (e.getSource().equals(btnBaja)) {
+				eliminar();
+				añadirArticuloCombo();
+			}
+			
+			if (e.getSource().equals(btnModify)) {
+				modificar();
+				añadirArticuloCombo();
+			}
+		}else {
+			if(!e.getSource().equals(btnSalir)) {
+				JOptionPane.showMessageDialog(null, "Error: Todos los campos numéricos deben estar completos.", "Error", JOptionPane.ERROR_MESSAGE);
+			}
 		}
 		if (e.getSource().equals(btnSalir)) {
 			cerrar();
 		}
-		if (e.getSource().equals(btnModify)) {
-			modificar();
-			añadirArticuloCombo();
-		}
 	}
 
 	private Articulo enseñarInfo() {
-		Articulo art=null;
-		if(comboBoxArticulo.getSelectedIndex()>0) {
+		Articulo art = null;
+		if (comboBoxArticulo.getSelectedIndex() > 0) {
 			btnBaja.setEnabled(true);
 			btnModify.setEnabled(true);
-			art=(Articulo) (comboBoxArticulo.getSelectedItem());
+			art = (Articulo) (comboBoxArticulo.getSelectedItem());
 			textNombre.setText(art.getNombre());
 			textDescripcion.setText(art.getDescripcion());
-			textStock.setText(String.valueOf(art.getStock())); 
-			textPrecio.setText(String.valueOf(art.getPrecio())); 
+			textStock.setText(String.valueOf(art.getStock()));
+			textPrecio.setText(String.valueOf(art.getPrecio()));
 			textOferta.setText(String.valueOf(art.getOferta()));
-			
-			if (art.getSeccion()==Seccion.pintura) {
+
+			if (art.getSeccion() == Seccion.pintura) {
 				comboBoxSeccion.setSelectedIndex(0);
-			} else if (art.getSeccion()==Seccion.jardineria) {
+			} else if (art.getSeccion() == Seccion.jardineria) {
 				comboBoxSeccion.setSelectedIndex(1);
-			} else if (art.getSeccion()==Seccion.fontaneria) {
+			} else if (art.getSeccion() == Seccion.fontaneria) {
 				comboBoxSeccion.setSelectedIndex(2);
-			} else if (art.getSeccion()==Seccion.soldadura) {
+			} else if (art.getSeccion() == Seccion.soldadura) {
 				comboBoxSeccion.setSelectedIndex(3);
-			} else if (art.getSeccion()==Seccion.carpinteria) {
+			} else if (art.getSeccion() == Seccion.carpinteria) {
 				comboBoxSeccion.setSelectedIndex(4);
 			}
-		}else {
+		} else {
 			btnBaja.setEnabled(false);
 			btnModify.setEnabled(false);
 			limpiar();
@@ -261,11 +267,10 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		}
 	}
 
-
 	private void eliminar() {
-		Articulo art= enseñarInfo();
+		Articulo art = enseñarInfo();
 		try {
-			if(art!=null) {
+			if (art != null) {
 				Principal.eliminarArticulo(art);
 			}
 
@@ -288,7 +293,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 	}
 
 	private void cerrar() {
-		
+
 		dispose();
 	}
 
@@ -309,7 +314,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		String oferta = textOferta.getText();
 		int posicion = comboBoxSeccion.getSelectedIndex();
 		Articulo art = new Articulo();
-		art=(Articulo)comboBoxArticulo.getSelectedItem();
+		art = (Articulo) comboBoxArticulo.getSelectedItem();
 		art.setNombre(textNombre.getText());
 		art.setDescripcion(textDescripcion.getText());
 		art.setStock(Integer.valueOf(stockSin));
@@ -329,5 +334,14 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		}
 		return art;
 
+	}
+
+	private boolean comprobarCampos() {
+		Boolean validador = true;
+		if (textNombre.getText().isEmpty() || textDescripcion.getText().isEmpty() || textStock.getText().isEmpty()
+				|| textPrecio.getText().isEmpty() || textOferta.getText().isEmpty()) {
+			validador = false;
+		}
+		return validador;
 	}
 }
