@@ -302,6 +302,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 							}
 						} catch (NumberFormatException e2) {
 							model.setValueAt(null, filaModelo, 6);
+							btnCompra.setEnabled(true);
 						}
 					}
 				}

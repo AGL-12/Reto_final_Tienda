@@ -11,6 +11,7 @@ import excepciones.modifyError;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder; // Para agrupar radio buttons
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -220,7 +221,6 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		btnMostrarPedidos.setIcon(cargarIcono("/iconos/orders.png")); // Placeholder
 		btnMostrarPedidos.addActionListener(this);
 		buttonPanel.add(btnMostrarPedidos, "cell 1 0, align right"); // Añadir al segundo grupo (derecha)
-
 	}
 
 	/**
@@ -233,8 +233,6 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			btnMostrarPedidos.setVisible(false);
 			btnDrop.setVisible(false);
 			btnRegistrarse.setVisible(true);
-			// Opcional: Poner un método de pago por defecto
-			rdbtnVisa.setSelected(true);
 		} else { // Modo Modificación
 			btnRegistrarse.setVisible(false);
 			btnModificar.setVisible(true);
@@ -266,8 +264,8 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			}
 
 			// Opcional: Hacer campos no modificables (ej. DNI, email si son clave)
-			// textUser.setEditable(false); // Ejemplo: no permitir cambiar nombre de
-			// usuario
+			textUser.setEditable(false);
+			textDni.setEditable(false);
 		}
 	}
 
@@ -512,4 +510,5 @@ public class VistaUsuario extends JDialog implements ActionListener {
 
 		return true;
 	}
+
 }
