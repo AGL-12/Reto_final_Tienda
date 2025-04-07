@@ -175,15 +175,15 @@ public class VistaTienda extends JDialog implements ActionListener {
 				return column == 6; // Solo la columna 6 (Cantidad) es editable
 			}
 		};
-//		addWindowListener(new WindowAdapter() {
-//			@Override
-//			public void windowActivated(WindowEvent e) {
-//				if (tableArticulo != null) {
-//					cargarDatosTabla();
-//				}
-//			}
-//
-//		});
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowActivated(WindowEvent e) {
+				if (tableArticulo != null) {
+					cargarDatosTabla();
+				}
+			}
+
+		});
 
 		// Añadir columnas al modelo (incluyendo id_art aunque se oculte)
 		model.addColumn("ID_ART"); // Columna 0
@@ -412,13 +412,13 @@ public class VistaTienda extends JDialog implements ActionListener {
 
 		VistaCarrito carritoDialog = new VistaCarrito(this, comprasParaCarrito, pedidoActual);
 		carritoDialog.setVisible(true);
-		cargarDatosTabla(); 
 	}
 
 	/**
 	 * Recorre el modelo de la tabla y crea una lista de objetos Compra para los
 	 * artículos con cantidad > 0.
-	 * @param idePed 
+	 * 
+	 * @param idePed
 	 * 
 	 * @return Una lista de objetos Compra.
 	 */
