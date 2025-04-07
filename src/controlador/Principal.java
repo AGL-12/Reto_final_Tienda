@@ -116,4 +116,9 @@ public class Principal {
 	public static int obtenerCantidadArticuloEnPedido(int idPedido, int id_art) {
 		return dao.obtenerCantidadArticuloEnPedido(idPedido, id_art);
 	}
+
+	public static float totalGastado(Cliente clien) {
+		return dao.totalGastado(clien);
+		
+	}
 }

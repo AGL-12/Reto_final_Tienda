@@ -69,6 +69,7 @@ public class DaoImplementMySQL implements Dao {
 	final String update_stockArticulo = "Update articulo set stock=? where id_art=?";
 	final String OBTENER_ARTICULOS = "SELECT a.id_art, a.nombre, a.precio, a.oferta, c.cantidad FROM articulo a JOIN compra c ON a.id_art = c.id_art WHERE c.id_ped = ?";
 	final String maxIdPedido = "SELECT MAX(id_ped) FROM pedido";
+	final String totalGastadoPedidos = "SELECT TOTALGASTADO(?)as resultado";
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -386,7 +387,7 @@ public class DaoImplementMySQL implements Dao {
 		openConnection();
 		try {
 			stmt = con.prepareStatement(INTRODUCIR_PEDIDO);
-			
+
 			stmt.setInt(1, ped.getId_ped());
 			stmt.setInt(2, ped.getId_usu());
 			stmt.setFloat(3, ped.getTotal());
@@ -474,7 +475,7 @@ public class DaoImplementMySQL implements Dao {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-				closeConnection();
+			closeConnection();
 		}
 		return ultimoId + 1;
 	}
@@ -593,7 +594,6 @@ public class DaoImplementMySQL implements Dao {
 				listaPedidos.add(ped);
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return listaPedidos;
@@ -638,7 +638,7 @@ public class DaoImplementMySQL implements Dao {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}finally {
+		} finally {
 			closeConnection();
 		}
 	}
@@ -736,5 +736,35 @@ public class DaoImplementMySQL implements Dao {
 			}
 		}
 		return ultimoIdArt + 1;
+	}
+
+	@Override
+	public float totalGastado(Cliente clien) {
+		float resultado = 0;
+		ResultSet rs = null;
+		try {
+			openConnection();
+			stmt = con.prepareStatement(totalGastadoPedidos);
+			stmt.setInt(1, clien.getId_usu());
+			rs = stmt.executeQuery();
+			if(rs.next()) {
+				resultado=rs.getFloat("resultado");
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				closeConnection();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+		}
+		return resultado;
+
 	}
 }
