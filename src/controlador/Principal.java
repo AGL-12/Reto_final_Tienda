@@ -33,7 +33,6 @@ public class Principal {
 
 	    // --- Configuración del Look and Feel (FlatLaf) ---
         try {
-            // Elige el tema de FlatLaf que prefieras:
              UIManager.setLookAndFeel( new FlatLightLaf() );
             // UIManager.setLookAndFeel( new com.formdev.flatlaf.FlatDarkLaf() );
             // UIManager.setLookAndFeel( new com.formdev.flatlaf.FlatIntelliJLaf() );
