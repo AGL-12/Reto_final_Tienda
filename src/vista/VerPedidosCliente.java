@@ -84,7 +84,7 @@ public class VerPedidosCliente extends JDialog {
 		JPanel panelInferior = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		panelInferior.setBorder(new EmptyBorder(5, 5, 5, 10));
 
-		totalGastado = actualizarTotalGastado(cliente);
+		totalGastado = Principal.totalGastado(clien);
 		lblTotalGastado = new JLabel("Total Gastado: " + totalGastado + " €");
 		lblTotalGastado.setHorizontalAlignment(SwingConstants.RIGHT);
 		panelInferior.add(lblTotalGastado);
@@ -178,9 +178,5 @@ public class VerPedidosCliente extends JDialog {
 		tabbedPane.setSelectedComponent(panelArticulos);
 	}
 
-	private float actualizarTotalGastado(Cliente clien) {
-		float resultado = Principal.totalGastado(clien);
-		return resultado;
-	}
 
 }
