@@ -275,17 +275,4 @@ public class VistaLogIn extends JFrame implements ActionListener {
     }
 
 
-    // --- Método main para probar la ventana ---
-    public static void main(String[] args) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    VistaLogIn frame = new VistaLogIn();
-                    frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
 }

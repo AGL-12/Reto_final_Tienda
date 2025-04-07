@@ -43,6 +43,7 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		JLabel lblNewLabel_1 = new JLabel("we");
 		lblNewLabel_1.setBounds(268, 64, 350, 350);
 		getContentPane().add(lblNewLabel_1);
+		lblNewLabel_1.setIcon(null);
 		btnConfigUsuario.addActionListener(this);
 	}
 
@@ -63,4 +64,19 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 			abrirOpcion(vistaCfgUsu);
 		}
 	}
+	
+    // --- Método main para probar la ventana ---
+    public static void main(String[] args) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    VistaLogIn frame = new VistaLogIn();
+                    frame.setVisible(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
 }
