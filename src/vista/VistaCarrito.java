@@ -9,10 +9,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager; // Para colores/bordes del LaF
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumnModel;
+import javax.swing.table.JTableHeader; // Para configurar cabecera
+import javax.swing.table.TableCellRenderer; // Para renderers
+import javax.swing.table.TableColumn; // Para ancho de columna
+import javax.swing.table.TableColumnModel; // Para ancho de columna
 
 // Imports necesarios para el controlador y modelo (sin cambios)
 import controlador.Principal;
@@ -24,19 +28,31 @@ import modelo.Pedido;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor; // Para cursor de mano
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Insets; // Para márgenes de botón
+import java.awt.MediaTracker;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+// Imports para iconos (copiados de otras vistas)
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.BasicStroke;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.InputStream;
+import javax.swing.ImageIcon; // Para iconos
+
 
 // Imports para formateo y excepciones (sin cambios)
 import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
-// Opcional: Iconos
-// import javax.swing.ImageIcon;
+
 
 public class VistaCarrito extends JDialog implements ActionListener {
 
@@ -50,284 +66,341 @@ public class VistaCarrito extends JDialog implements ActionListener {
     private Pedido localPedido;
     private List<Compra> localListaCompra;
 
-    // Formateador de moneda (definido como constante para reutilizar)
-    // Ajusta el Locale según tu necesidad (ej. "en", "US" para USD)
+    // --- Constantes de Estilo ---
+    private static final Font FONT_TITULO = new Font("Segoe UI", Font.BOLD, 20);
+    private static final Font FONT_TOTAL = new Font("Segoe UI", Font.BOLD, 16);
+    private static final Font FONT_BOTON = new Font("Segoe UI", Font.BOLD, 13);
+    private static final Font FONT_TABLA_HEADER = new Font("Segoe UI", Font.BOLD, 12);
+    private static final Font FONT_TABLA_CELDA = new Font("Segoe UI", Font.PLAIN, 12);
+    private static final int PADDING_GENERAL = 15;
+    private static final int PADDING_INTERNO = 10;
+    private static final int PADDING_BOTONES = 8;
+    private static final int PADDING_TABLA_CELDA_V = 5;
+    private static final int PADDING_TABLA_CELDA_H = 8;
+
+    // Formateador de moneda
     private static final Locale userLocale = new Locale("es", "ES"); // Español/España para Euros (€)
     private static final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(userLocale);
 
 
     /**
-     * Constructor principal de la vista del carrito.
-     *
-     * @param vistaTienda La ventana padre (JDialog de la tienda).
-     * @param listaCompra La lista de objetos Compra que representan los artículos en el carrito.
-     * @param preSetCompra El objeto Pedido preconfigurado (con id_usu, fecha, etc., pero sin ID de pedido aún).
+     * Constructor principal.
      */
     public VistaCarrito(JDialog vistaTienda, List<Compra> listaCompra, Pedido preSetCompra) {
-        super(vistaTienda, "Carrito de Compra", true); // Título de la ventana y modal
+        super(vistaTienda, "Carrito de Compra", true);
 
-        // Almacenar datos importantes
         this.localListaCompra = listaCompra;
-        this.localPedido = preSetCompra; // Asignar el pedido preconfigurado
+        this.localPedido = preSetCompra;
 
-        // --- Configuración Inicial de la Ventana ---
-        // Usaremos BorderLayout para una estructura flexible
-        getContentPane().setLayout(new BorderLayout(10, 10)); // Layout principal con márgenes H/V
-        ((JPanel) getContentPane()).setBorder(new EmptyBorder(15, 15, 15, 15)); // Padding general
+        // --- Configuración Ventana ---
+        getContentPane().setLayout(new BorderLayout(PADDING_INTERNO, PADDING_INTERNO));
+        ((JPanel) getContentPane()).setBorder(new EmptyBorder(PADDING_GENERAL, PADDING_GENERAL, PADDING_GENERAL, PADDING_GENERAL));
 
-        // --- 1. Título (NORTH) ---
-        JLabel lblTitulo = new JLabel("CARRITO DE COMPRA");
-        lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 20));
-        lblTitulo.setHorizontalAlignment(SwingConstants.CENTER);
-        lblTitulo.setBorder(new EmptyBorder(0, 0, 10, 0)); // Espacio inferior
-        getContentPane().add(lblTitulo, BorderLayout.NORTH);
+        // --- Inicializar Componentes ---
+        initComponents(); // Crear título, botones, label total
+        configurarTabla(); // Configurar tabla y modelo
+        cargarYCalcular(); // Cargar datos en tabla y calcular total
 
-        // --- 2. Tabla de Carrito (CENTER) ---
-        inicializarTabla(); // Método para configurar la tabla
-        JScrollPane scrollPane = new JScrollPane(tablaCarrito);
-        scrollPane.setBorder(new EmptyBorder(0, 5, 0, 5)); // Padding lateral para la tabla
-        getContentPane().add(scrollPane, BorderLayout.CENTER);
+        // --- Ajustar Ancho Columnas (después de cargar datos) ---
+        ajustarAnchosColumnaTabla();
 
-        // --- 3. Panel Inferior (SOUTH) - Contendrá Total y Botones ---
-        JPanel southPanel = new JPanel(new BorderLayout(10, 0)); // Panel para total y botones
+        // --- Configuración Final Ventana ---
+        pack();
+        setMinimumSize(new Dimension(680, 420)); // Tamaño mínimo
+        setLocationRelativeTo(vistaTienda);
 
-        // --- 3a. Label Total (WEST del South Panel) ---
-        // El cálculo del total se hace en inicializarTabla()
-        lblTotalCompra = new JLabel("Total: Calculando..."); // Placeholder inicial
-        lblTotalCompra.setFont(new Font("Tahoma", Font.BOLD, 16));
-        lblTotalCompra.setBorder(new EmptyBorder(5, 10, 5, 10)); // Padding
-        southPanel.add(lblTotalCompra, BorderLayout.WEST);
-
-        // --- 3b. Panel de Botones (EAST del South Panel) ---
-        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 5)); // Botones alineados a la derecha
-
-        btnComprar = new JButton("COMPRAR");
-        btnComprar.setFont(new Font("Tahoma", Font.BOLD, 14));
-        btnComprar.setPreferredSize(new Dimension(130, 40)); // Tamaño preferido
-        btnComprar.addActionListener(this);
-        /* // Opcional: Añadir Icono
-        try {
-            btnComprar.setIcon(new ImageIcon(getClass().getResource("/iconos/buy_cart.png")));
-        } catch (Exception e) { System.err.println("Icono Comprar no encontrado"); }
-        */
-
-        btnVolver = new JButton("VOLVER");
-        btnVolver.setFont(new Font("Tahoma", Font.BOLD, 14));
-        btnVolver.setPreferredSize(new Dimension(130, 40)); // Tamaño preferido
-        btnVolver.addActionListener(this);
-         /* // Opcional: Añadir Icono
-        try {
-            btnVolver.setIcon(new ImageIcon(getClass().getResource("/iconos/back_arrow.png")));
-        } catch (Exception e) { System.err.println("Icono Volver no encontrado"); }
-        */
-
-        panelBotones.add(btnComprar);
-        panelBotones.add(btnVolver);
-        southPanel.add(panelBotones, BorderLayout.EAST);
-
-        // Añadir el panel sur completo (Total + Botones) a la ventana principal
-        getContentPane().add(southPanel, BorderLayout.SOUTH);
-
-        // --- Finalización de la Configuración de la Ventana ---
-        pack(); // Ajusta el tamaño de la ventana al contenido
-        setMinimumSize(new Dimension(650, 400)); // Establecer un tamaño mínimo razonable
-        setLocationRelativeTo(vistaTienda); // Centrar relativo a la ventana padre
-
-        // Hacer "Comprar" el botón por defecto (se activa con Enter)
+        // Botón por defecto (Enter)
         SwingUtilities.invokeLater(() -> getRootPane().setDefaultButton(btnComprar));
-
-        // Calcular y mostrar el total final después de que todo esté listo
-        calcularYMostrarTotal();
     }
 
     /**
-     * Método para inicializar y configurar la JTable del carrito.
+     * Inicializa los componentes principales (Título, Panel Sur con Total y Botones).
      */
-    private void inicializarTabla() {
+    private void initComponents() {
+        // --- Título (NORTH) ---
+        JLabel lblTitulo = new JLabel("CARRITO DE COMPRA");
+        lblTitulo.setFont(FONT_TITULO);
+        lblTitulo.setHorizontalAlignment(SwingConstants.CENTER);
+        lblTitulo.setBorder(new EmptyBorder(0, 0, PADDING_INTERNO, 0));
+        getContentPane().add(lblTitulo, BorderLayout.NORTH);
+
+        // --- Panel Inferior (SOUTH) ---
+        JPanel southPanel = new JPanel(new BorderLayout(PADDING_INTERNO, 0));
+        southPanel.setBorder(new EmptyBorder(PADDING_INTERNO, 0, 0, 0)); // Espacio superior
+
+        // Label Total (Oeste del Panel Sur)
+        lblTotalCompra = new JLabel("Total: Calculando...");
+        lblTotalCompra.setFont(FONT_TOTAL);
+        lblTotalCompra.setBorder(new EmptyBorder(5, PADDING_INTERNO, 5, PADDING_INTERNO));
+        southPanel.add(lblTotalCompra, BorderLayout.WEST);
+
+        // Panel de Botones (Este del Panel Sur)
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_INTERNO, 0));
+
+        // Crear botones usando el helper
+        btnComprar = crearBoton("COMPRAR", "/iconos/comprar.png"); // Cambia ruta icono si es necesario
+        btnVolver = crearBoton("VOLVER", "/iconos/volver.png");   // Cambia ruta icono si es necesario
+
+        // Marcar Comprar como botón primario para que FlatLaf lo estilice
+        btnComprar.putClientProperty("JButton.buttonType", "primary");
+
+        panelBotones.add(btnVolver); // Volver primero a la derecha
+        panelBotones.add(btnComprar); // Comprar a la izquierda de Volver
+        southPanel.add(panelBotones, BorderLayout.EAST);
+
+        getContentPane().add(southPanel, BorderLayout.SOUTH);
+    }
+
+     /**
+     * Crea y configura un JButton estándar con opción de icono.
+     */
+    private JButton crearBoton(String texto, String iconoPath) {
+        JButton btn = new JButton(texto);
+        btn.setFont(FONT_BOTON);
+        // Cargar icono opcionalmente
+        if (iconoPath != null && !iconoPath.isEmpty()) {
+            ImageIcon icon = cargarIcono(iconoPath, 16, 16); // Iconos pequeños 16x16
+            if (icon != null && icon.getImageLoadStatus() == MediaTracker.COMPLETE && icon.getIconWidth() > 0) {
+                 btn.setIcon(icon);
+            }
+        }
+        btn.addActionListener(this);
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.setFocusPainted(false);
+        // Padding interno del botón
+        btn.setMargin(new Insets(PADDING_BOTONES, PADDING_BOTONES * 2, PADDING_BOTONES, PADDING_BOTONES * 2));
+        return btn;
+    }
+
+    /**
+     * Configura la JTable: modelo, renderers, propiedades, cabecera.
+     */
+    private void configurarTabla() {
         String[] columnNames = {"Nombre", "Cantidad", "Descuento Ud.", "Precio Final Ud.", "Precio Total"};
         model = new DefaultTableModel(columnNames, 0) {
-            /**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-			// Hacer que las celdas no sean editables directamente en la tabla
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-            // Opcional: Definir tipos de columna para mejor ordenación
-             @Override
-            public Class<?> getColumnClass(int columnIndex) {
+            private static final long serialVersionUID = 1L;
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+            @Override public Class<?> getColumnClass(int columnIndex) {
                 switch (columnIndex) {
-                    case 0: return String.class; // Nombre
                     case 1: return Integer.class; // Cantidad
-                    case 2:
-                    case 3:
-                    case 4: return Float.class; // Descuento, Precio Final, Precio Total
-                    default: return Object.class;
+                    case 2: case 3: case 4: return Float.class; // Precios/Descuentos
+                    default: return String.class; // Nombre
                 }
             }
         };
 
         tablaCarrito = new JTable(model);
-        tablaCarrito.setFillsViewportHeight(true); // Para que use todo el alto del scrollpane si hay pocas filas
-        tablaCarrito.setRowHeight(25); // Aumentar un poco la altura de fila
-        tablaCarrito.getTableHeader().setFont(new Font("Tahoma", Font.BOLD, 13)); // Cabecera en negrita
+        tablaCarrito.setFillsViewportHeight(true);
+        tablaCarrito.setRowHeight(tablaCarrito.getRowHeight() + PADDING_INTERNO); // Mayor altura de fila
+        tablaCarrito.setFont(FONT_TABLA_CELDA); // Fuente para celdas
+        tablaCarrito.setAutoCreateRowSorter(true); // Permitir ordenar
 
-        // Permitir ordenar por columnas
-        tablaCarrito.setAutoCreateRowSorter(true);
+        // Configurar Cabecera
+        JTableHeader header = tablaCarrito.getTableHeader();
+        header.setFont(FONT_TABLA_HEADER);
+        header.setReorderingAllowed(false); // No reordenar
+        header.setResizingAllowed(false);   // *** CAMBIO: No redimensionar ***
 
         // Configurar Renderers para formato y alineación
         configurarRenderersTabla();
 
-        // Ajustar ancho de columnas
-        TableColumnModel tcm = tablaCarrito.getColumnModel();
-        tcm.getColumn(0).setPreferredWidth(250); // Nombre más ancho
-        tcm.getColumn(1).setPreferredWidth(80);  // Cantidad
-        tcm.getColumn(1).setMaxWidth(100);
-        tcm.getColumn(2).setPreferredWidth(120); // Descuento Ud.
-        tcm.getColumn(3).setPreferredWidth(120); // Precio Final Ud.
-        tcm.getColumn(4).setPreferredWidth(130); // Precio Total
-    }
-
-     /**
-     * Configura los renderers para las celdas de la tabla (formato moneda, alineación).
-     */
-    private void configurarRenderersTabla() {
-        // Renderer genérico para alinear a la derecha
-        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
-        rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
-        rightRenderer.setBorder(new EmptyBorder(2, 5, 2, 5)); // Añadir padding a celdas
-
-        // Renderer para formato de moneda y alineación derecha
-        DefaultTableCellRenderer currencyRenderer = new DefaultTableCellRenderer() {
-             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                // Primero llama al super para obtener el componente base (JLabel)
-                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                if (value instanceof Number && c instanceof JLabel) {
-                    Number num = (Number) value;
-                    JLabel label = (JLabel) c;
-                    label.setText(currencyFormat.format(num.doubleValue()));
-                    label.setHorizontalAlignment(SwingConstants.RIGHT);
-                    label.setBorder(new EmptyBorder(2, 5, 2, 5)); // Asegurar padding
-                }
-                 // Opcional: Cambiar color de fondo para filas alternas
-                if (!isSelected) {
-                    c.setBackground(row % 2 == 0 ? new Color(240, 240, 240) : Color.WHITE);
-                }
-                return c;
-            }
-        };
-
-         // Renderer específico para descuento (maneja 0 o valores pequeños)
-        DefaultTableCellRenderer discountRenderer = new DefaultTableCellRenderer() {
-             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                 if (value instanceof Number && c instanceof JLabel) {
-                    Number num = (Number) value;
-                    JLabel label = (JLabel) c;
-                    // Mostrar "-" si el descuento es muy pequeño o cero
-                    if (Math.abs(num.doubleValue()) < 0.001) {
-                         label.setText("-");
-                    } else {
-                         label.setText(currencyFormat.format(num.doubleValue()));
-                    }
-                    label.setHorizontalAlignment(SwingConstants.RIGHT);
-                    label.setBorder(new EmptyBorder(2, 5, 2, 5)); // Asegurar padding
-                }
-                 // Opcional: Cambiar color de fondo para filas alternas
-                if (!isSelected) {
-                    c.setBackground(row % 2 == 0 ? new Color(240, 240, 240) : Color.WHITE);
-                }
-                return c;
-            }
-        };
-
-        // Asignar renderers a las columnas
-        tablaCarrito.getColumnModel().getColumn(1).setCellRenderer(rightRenderer);     // Cantidad (solo alineación)
-        tablaCarrito.getColumnModel().getColumn(2).setCellRenderer(discountRenderer);   // Descuento Ud.
-        tablaCarrito.getColumnModel().getColumn(3).setCellRenderer(currencyRenderer);   // Precio Final Ud.
-        tablaCarrito.getColumnModel().getColumn(4).setCellRenderer(currencyRenderer);   // Precio Total
-         // Opcional: Alinear nombre a la izquierda (por defecto) pero con padding
-        DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
-        leftRenderer.setHorizontalAlignment(SwingConstants.LEFT);
-        leftRenderer.setBorder(new EmptyBorder(2, 5, 2, 5));
-        tablaCarrito.getColumnModel().getColumn(0).setCellRenderer(leftRenderer); // Nombre
+        // Añadir Tabla al ScrollPane (se hace en el constructor ahora)
+        JScrollPane scrollPane = new JScrollPane(tablaCarrito);
+        // Usar borde estándar del LaF para el scroll pane
+        scrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
+        getContentPane().add(scrollPane, BorderLayout.CENTER);
     }
 
     /**
-     * Calcula el total de la compra y llena la tabla con los datos.
-     * Actualiza el label del total.
+     * Configura los renderers para las celdas de la tabla.
      */
-    private void calcularYMostrarTotal() {
-        float totalCompraCalculado = 0;
+    private void configurarRenderersTabla() {
+        // Renderer genérico para alinear a la derecha y añadir padding
+        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+        rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
+        rightRenderer.setBorder(new EmptyBorder(PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H, PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H));
 
-        // Limpiar modelo por si acaso se llamara de nuevo
-        model.setRowCount(0);
+        // Renderer para formato de moneda, alineación derecha, padding y filas alternas
+        DefaultTableCellRenderer currencyRenderer = new DefaultTableCellRenderer() {
+            private static final long serialVersionUID = 1L; // Añadido
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (value instanceof Number && c instanceof JLabel) {
+                    ((JLabel) c).setText(currencyFormat.format(((Number) value).doubleValue()));
+                    ((JLabel) c).setHorizontalAlignment(SwingConstants.RIGHT);
+                }
+                 // Padding
+                ((JLabel) c).setBorder(new EmptyBorder(PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H, PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H));
+
+                // Colores alternos usando UIManager para compatibilidad con temas
+                if (!isSelected) {
+                    Color bg = UIManager.getColor(row % 2 == 0 ? "Table.background" : "Table.alternateRowColor");
+                    if (bg == null) { // Fallback si los colores no están definidos en el LaF
+                        bg = (row % 2 == 0 ? Color.WHITE : new Color(240, 240, 240));
+                    }
+                    c.setBackground(bg);
+                }
+                return c;
+            }
+        };
+
+        // Renderer para descuento (similar a currency, pero puede mostrar '-')
+        DefaultTableCellRenderer discountRenderer = new DefaultTableCellRenderer() {
+             private static final long serialVersionUID = 1L; // Añadido
+             @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (value instanceof Number && c instanceof JLabel) {
+                    double val = ((Number) value).doubleValue();
+                     // Mostrar "-" si el descuento es 0 o muy cercano
+                    ((JLabel) c).setText(Math.abs(val) < 0.001 ? "-" : currencyFormat.format(val));
+                    ((JLabel) c).setHorizontalAlignment(SwingConstants.RIGHT);
+                }
+                 // Padding
+                ((JLabel) c).setBorder(new EmptyBorder(PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H, PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H));
+
+                // Colores alternos
+                if (!isSelected) {
+                     Color bg = UIManager.getColor(row % 2 == 0 ? "Table.background" : "Table.alternateRowColor");
+                    if (bg == null) { bg = (row % 2 == 0 ? Color.WHITE : new Color(240, 240, 240)); }
+                    c.setBackground(bg);
+                }
+                return c;
+            }
+        };
+
+        // Renderer para texto alineado a la izquierda con padding
+        DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
+        leftRenderer.setHorizontalAlignment(SwingConstants.LEFT);
+        leftRenderer.setBorder(new EmptyBorder(PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H, PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H));
+
+        // Asignar renderers a las columnas por índice
+        tablaCarrito.getColumnModel().getColumn(0).setCellRenderer(leftRenderer);      // Nombre
+        tablaCarrito.getColumnModel().getColumn(1).setCellRenderer(rightRenderer);     // Cantidad
+        tablaCarrito.getColumnModel().getColumn(2).setCellRenderer(discountRenderer);  // Descuento Ud.
+        tablaCarrito.getColumnModel().getColumn(3).setCellRenderer(currencyRenderer);  // Precio Final Ud.
+        tablaCarrito.getColumnModel().getColumn(4).setCellRenderer(currencyRenderer);  // Precio Total
+    }
+
+    /**
+     * Carga los datos en la tabla y calcula/muestra el total.
+     */
+    private void cargarYCalcular() {
+        float totalCompraCalculado = 0;
+        model.setRowCount(0); // Limpiar tabla
 
         if (localListaCompra == null || localListaCompra.isEmpty()) {
-             lblTotalCompra.setText("Total: " + currencyFormat.format(0));
-             // Opcional: Deshabilitar botón comprar si el carrito está vacío
-             // btnComprar.setEnabled(false);
-             return; // Salir si no hay items
+            lblTotalCompra.setText("Total: " + currencyFormat.format(0));
+            btnComprar.setEnabled(false); // Deshabilitar si carrito vacío
+            return;
         }
+
+        btnComprar.setEnabled(true); // Habilitar si hay items
 
         for (Compra com : localListaCompra) {
             Articulo arti = Principal.buscarArticulo(com.getId_art());
             if (arti != null) {
-                // Usa float para los cálculos intermedios como en tu código original
                 float precioOriginal = arti.getPrecio();
-                float porcentajeOferta = arti.getOferta(); // Asume que es porcentaje (ej. 10 para 10%)
+                float porcentajeOferta = arti.getOferta();
                 float descuentoUnidad = (porcentajeOferta / 100.0f) * precioOriginal;
                 float precioFinalUnidad = precioOriginal - descuentoUnidad;
                 float precioTotalArticulo = precioFinalUnidad * com.getCantidad();
 
-                // Añadir fila a la tabla con los datos calculados
                 model.addRow(new Object[]{
                         arti.getNombre(),
                         com.getCantidad(),
-                        descuentoUnidad,    // Mostrar descuento por unidad
-                        precioFinalUnidad,  // Mostrar precio final por unidad
-                        precioTotalArticulo // Mostrar precio total por la cantidad de este artículo
+                        descuentoUnidad,
+                        precioFinalUnidad,
+                        precioTotalArticulo
                 });
-
-                // Sumar al total general de la compra
                 totalCompraCalculado += precioTotalArticulo;
             } else {
-                 System.err.println("Advertencia: No se encontró el artículo con ID " + com.getId_art());
-                 // Podrías añadir una fila indicando el error o simplemente omitirlo
+                 System.err.println("Advertencia: Artículo no encontrado ID " + com.getId_art());
+                 // Considerar añadir fila de error o simplemente omitir
             }
         }
 
-        // Actualizar el Pedido local con el total calculado
         if (localPedido != null) {
             localPedido.setTotal(totalCompraCalculado);
         }
-
-        // Actualizar el JLabel que muestra el total general
         lblTotalCompra.setText("Total: " + currencyFormat.format(totalCompraCalculado));
-         // Habilitar botón comprar si hay items (por si se deshabilitó antes)
-         // btnComprar.setEnabled(true);
     }
 
 
+    /**
+     * Ajusta el ancho preferido de cada columna visible de la tabla.
+     */
+    private void ajustarAnchosColumnaTabla() {
+         // Asegurarse de que la tabla tenga un tamaño antes de calcular
+         tablaCarrito.revalidate();
+         if (tablaCarrito.getWidth() == 0) {
+             SwingUtilities.invokeLater(this::ajustarAnchosColumnaTabla);
+             return;
+         }
+        TableColumnModel columnModel = tablaCarrito.getColumnModel();
+        final int PADDING = PADDING_TABLA_CELDA_H * 2;
+
+        for (int columnView = 0; columnView < tablaCarrito.getColumnCount(); columnView++) {
+            TableColumn tableColumn = columnModel.getColumn(columnView);
+            int headerWidth = getColumnHeaderWidth(tablaCarrito, columnView);
+            int contentWidth = getMaximumColumnContentWidth(tablaCarrito, columnView);
+            int preferredWidth = Math.max(headerWidth, contentWidth) + PADDING;
+
+            // Definir anchos mínimos y máximos para controlar mejor
+            if (columnView == 0) { // Nombre
+                 tableColumn.setMinWidth(180);
+            } else if (columnView == 1) { // Cantidad
+                 tableColumn.setMinWidth(70);
+                 tableColumn.setMaxWidth(100);
+            } else if (columnView == 2) { // Descuento Ud.
+                 tableColumn.setMinWidth(110);
+                 tableColumn.setMaxWidth(150);
+            } else if (columnView == 3) { // Precio Final Ud.
+                 tableColumn.setMinWidth(110);
+                 tableColumn.setMaxWidth(160);
+            } else if (columnView == 4) { // Precio Total
+                 tableColumn.setMinWidth(120);
+                 tableColumn.setMaxWidth(170);
+            }
+
+            tableColumn.setPreferredWidth(preferredWidth);
+        }
+        tablaCarrito.getTableHeader().resizeAndRepaint(); // Aplicar cambios en cabecera
+    }
+
+    // --- Métodos Auxiliares para Ancho de Columna (Sin cambios respecto a versión anterior) ---
+    private int getColumnHeaderWidth(JTable table, int columnIndexView) {
+        TableColumn column = table.getColumnModel().getColumn(columnIndexView);
+        TableCellRenderer renderer = column.getHeaderRenderer();
+        if (renderer == null) { renderer = table.getTableHeader().getDefaultRenderer(); }
+        Component comp = renderer.getTableCellRendererComponent(table, column.getHeaderValue(), false, false, -1, columnIndexView);
+        return comp.getPreferredSize().width;
+    }
+    private int getMaximumColumnContentWidth(JTable table, int columnIndexView) {
+        int maxWidth = 0;
+        for (int row = 0; row < table.getRowCount(); row++) {
+            TableCellRenderer renderer = table.getCellRenderer(row, columnIndexView);
+            Component comp = table.prepareRenderer(renderer, row, columnIndexView);
+            maxWidth = Math.max(maxWidth, comp.getPreferredSize().width);
+        }
+        return maxWidth;
+    }
+
+    // --- Manejo de Acciones Botones ---
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(btnComprar)) {
-            // Confirmación antes de comprar
-             int confirm = JOptionPane.showConfirmDialog(
+            int confirm = JOptionPane.showConfirmDialog(
                 this,
-                "¿Estás seguro de que quieres finalizar la compra por un total de " + currencyFormat.format(localPedido.getTotal()) + "?",
+                "¿Finalizar la compra por " + currencyFormat.format(localPedido.getTotal()) + "?",
                 "Confirmar Compra",
                 JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-             );
+                JOptionPane.QUESTION_MESSAGE);
 
-             if (confirm == JOptionPane.YES_OPTION) {
-                 fullCompra();
-             }
+            if (confirm == JOptionPane.YES_OPTION) {
+                fullCompra();
+            }
         } else if (e.getSource().equals(btnVolver)) {
             this.dispose(); // Cerrar la ventana del carrito
         }
@@ -335,41 +408,66 @@ public class VistaCarrito extends JDialog implements ActionListener {
 
     /**
      * Lógica para procesar la compra final.
-     * Guarda el pedido y las compras asociadas en la base de datos.
      */
     private void fullCompra() {
         if (localPedido == null || localListaCompra == null || localListaCompra.isEmpty()) {
-             JOptionPane.showMessageDialog(this, "Error: No hay datos de pedido o el carrito está vacío.", "Error Interno", JOptionPane.ERROR_MESSAGE);
-             return;
+            JOptionPane.showMessageDialog(this, "Error interno: Datos de pedido o carrito inválidos.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-
         try {
             Principal.guardarPedido(localPedido);
             Principal.guardarCompra(localListaCompra);
 
-            // 4. Mensaje de éxito y cierre
+            // Actualizar Stock (ASUMIENDO QUE ESTA LÓGICA EXISTE Y ES CORRECTA)
+             for(Compra c : localListaCompra) {
+                 Articulo art = Principal.buscarArticulo(c.getId_art());
+                 if (art != null) {
+                     // Principal.actualizarStock(c.getId_art(), art.getStock() - c.getCantidad()); // Actualiza el stock restando la cantidad comprada
+                 }
+             }
+
+
             JOptionPane.showMessageDialog(this,
                     "¡Compra realizada con éxito!\nID de Pedido: " + localPedido.getId_ped(),
-                    "Compra Finalizada",
-                    JOptionPane.INFORMATION_MESSAGE);
-
-            // Cerrar la ventana del carrito
-            this.dispose();
+                    "Compra Finalizada", JOptionPane.INFORMATION_MESSAGE);
+            this.dispose(); // Cerrar carrito
 
         } catch (SQLException ex) {
-             JOptionPane.showMessageDialog(this,
-                "Error al procesar la compra:\n" + ex.getMessage() + "\nPor favor, inténtalo de nuevo o contacta con soporte.",
-                "Error de Base de Datos",
-                JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace(); // Imprimir stack trace para depuración
+             JOptionPane.showMessageDialog(this, "Error al guardar en Base de Datos:\n" + ex.getMessage(), "Error BD", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         } catch (Exception ex) {
-             // Captura otras posibles excepciones
-             JOptionPane.showMessageDialog(this,
-                "Error inesperado durante la compra:\n" + ex.getMessage(),
-                "Error Inesperado",
-                JOptionPane.ERROR_MESSAGE);
+             JOptionPane.showMessageDialog(this, "Error inesperado:\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
     }
+
+     // --- Método Cargar Icono (copiado de VistaLogIn/VistaTienda) ---
+     private ImageIcon cargarIcono(String path, int width, int height) {
+         InputStream imgStream = getClass().getResourceAsStream(path);
+         if (imgStream != null) {
+             try {
+                 BufferedImage originalImage = ImageIO.read(imgStream);
+                 imgStream.close();
+                 Image scaledImage = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+                 return new ImageIcon(scaledImage);
+             } catch (java.io.IOException e) {
+                  System.err.println("Error al leer la imagen: " + path + " - " + e.getMessage());
+             }
+         } else {
+             System.err.println("No se pudo encontrar el recurso: " + path);
+         }
+         // Crear placeholder si falla
+         BufferedImage placeholder = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+         Graphics2D g2d = placeholder.createGraphics();
+         try {
+             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+             g2d.setColor(Color.LIGHT_GRAY); g2d.fillRect(0, 0, width, height);
+             g2d.setColor(Color.DARK_GRAY); g2d.drawRect(0,0, width-1, height-1);
+             g2d.setColor(Color.RED); g2d.setStroke(new BasicStroke(1));
+             g2d.setFont(new Font("SansSerif", Font.BOLD, Math.min(width, height) * 3 / 4));
+             g2d.drawString("?", width/4, height * 3/4);
+         } finally { g2d.dispose(); }
+         return new ImageIcon(placeholder);
+     }
 
 }
