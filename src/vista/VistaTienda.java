@@ -4,7 +4,7 @@ import modelo.Articulo;
 import modelo.Cliente;
 import modelo.Compra;
 import modelo.Pedido;
-import controlador.Principal; // Asumiendo que aquí están tus métodos de acceso a datos
+import controlador.Principal;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -15,16 +15,13 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.JTableHeader;
 
-import java.awt.*; // Importa awt para Layouts, Font, Dimension, etc.
+import java.awt.*; 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects; // Para Objects.requireNonNullElse
 
 // Importa FlatLaf si lo vas a usar (recuerda añadir la dependencia y configurarlo en tu main)
 // import com.formdev.flatlaf.FlatClientProperties; // Para propiedades específicas de FlatLaf si es necesario
@@ -376,6 +373,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 			// Crear y mostrar la ventana de usuario, pasándole esta ventana como 'owner'
 			// Asumiendo que VistaUsuario es un JDialog
 			VistaUsuario vistaUsuario = new VistaUsuario(localClien, this); // 'this' es el JDialog VistaTienda
+			cargarDatosTabla(); 
 			vistaUsuario.setVisible(true);
 			// No es necesario ocultar/mostrar VistaTienda si VistaUsuario es modal
 		} else {
@@ -391,6 +389,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 		// Si es JDialog, pasar 'this'. Si necesita JFrame, pasar (Frame)getOwner()
 		VentanaIntermedia menuAdmin = new VentanaIntermedia(this); // Pasando este JDialog como owner
 		menuAdmin.setVisible(true);
+		cargarDatosTabla(); 
 		// No es necesario ocultar/mostrar VistaTienda si VentanaIntermedia es modal
 		// Si tras cerrar la ventana admin hay cambios (ej. nuevo artículo), refrescar:
 		// cargarDatosTabla();

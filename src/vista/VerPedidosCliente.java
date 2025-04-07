@@ -4,8 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension; // Importado
-import java.awt.EventQueue;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Insets;
@@ -27,15 +26,14 @@ import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn; // Importado
-import javax.swing.table.TableColumnModel; // Importado
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
-import controlador.Principal; // Asumiendo que existe y funciona
-import modelo.Articulo; // Asumiendo que existe y funciona
-import modelo.Cliente; // Asumiendo que existe y funciona
-import modelo.Pedido; // Asumiendo que existe y funciona
+import controlador.Principal;
+import modelo.Articulo;
+import modelo.Cliente;
+import modelo.Pedido;
 
-// Importar FlatLaf (o el LaF que uses) para el ejemplo main
 import com.formdev.flatlaf.FlatLightLaf;
 
 public class VerPedidosCliente extends JDialog {
