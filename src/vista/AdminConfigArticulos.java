@@ -5,24 +5,24 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import java.awt.Color; // <-- Importar Color
+import java.awt.Color; 
 import java.awt.Font;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent; // <-- Importar DocumentEvent
-import javax.swing.event.DocumentListener; // <-- Importar DocumentListener
+import javax.swing.event.DocumentEvent; 
+import javax.swing.event.DocumentListener; 
 
 import controlador.Principal;
 import excepciones.modifyError;
 import modelo.Articulo;
-import modelo.Cliente; // No se usa
+import modelo.Cliente; 
 import modelo.Seccion;
 
-import javax.swing.ComboBoxModel; // No se usa directamente
+import javax.swing.ComboBoxModel; 
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter; // No se usa
-import java.awt.event.MouseEvent; // No se usa
+import java.awt.event.MouseAdapter; 
+import java.awt.event.MouseEvent; 
 import java.util.Map;
 
 import javax.swing.JComboBox;
