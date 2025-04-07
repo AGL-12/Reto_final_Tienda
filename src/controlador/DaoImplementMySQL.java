@@ -69,7 +69,7 @@ public class DaoImplementMySQL implements Dao {
 	final String update_stockArticulo = "Update articulo set stock=? where id_art=?";
 	final String OBTENER_ARTICULOS = "SELECT a.id_art, a.nombre, a.precio, a.oferta, c.cantidad FROM articulo a JOIN compra c ON a.id_art = c.id_art WHERE c.id_ped = ?";
 	final String maxIdPedido = "SELECT MAX(id_ped) FROM pedido";
-	final String totalGastadoPedidos = "SELECT TOTALGASTADO(?)as resultado";
+	final String totalGastadoPedidos = "SELECT TOTALGASTADO(?) as resultado";
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -758,10 +758,10 @@ public class DaoImplementMySQL implements Dao {
 				if (rs != null) {
 					rs.close();
 				}
-				closeConnection();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
+			closeConnection();
 
 		}
 		return resultado;
