@@ -18,6 +18,8 @@ import javax.swing.table.JTableHeader;
 import java.awt.*; 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +73,6 @@ public class VistaTienda extends JDialog implements ActionListener {
 		// --- Inicializar Componentes ---
 		initComponents();
 		configurarTabla();
-		cargarDatosTabla();
 
 		// --- Configuración Final de la Ventana ---
 		pack(); // Ajusta el tamaño de la ventana al contenido preferido de los componentes
@@ -172,15 +173,15 @@ public class VistaTienda extends JDialog implements ActionListener {
 				return column == 6; // Solo la columna 6 (Cantidad) es editable
 			}
 		};
-//		addWindowListener(new WindowAdapter() {
-//			@Override
-//			public void windowActivated(WindowEvent e) {
-//				if (tableArticulo != null) {
-//					cargarDatosTabla();
-//				}
-//			}
-//
-//		});
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowActivated(WindowEvent e) {
+				if (tableArticulo != null) {
+					cargarDatosTabla();
+				}
+			}
+
+		});
 
 		// Añadir columnas al modelo (incluyendo id_art aunque se oculte)
 		model.addColumn("ID_ART"); // Columna 0
@@ -373,7 +374,6 @@ public class VistaTienda extends JDialog implements ActionListener {
 			// Crear y mostrar la ventana de usuario, pasándole esta ventana como 'owner'
 			// Asumiendo que VistaUsuario es un JDialog
 			VistaUsuario vistaUsuario = new VistaUsuario(localClien, this); // 'this' es el JDialog VistaTienda
-			cargarDatosTabla(); 
 			vistaUsuario.setVisible(true);
 			// No es necesario ocultar/mostrar VistaTienda si VistaUsuario es modal
 		} else {
@@ -389,7 +389,6 @@ public class VistaTienda extends JDialog implements ActionListener {
 		// Si es JDialog, pasar 'this'. Si necesita JFrame, pasar (Frame)getOwner()
 		VentanaIntermedia menuAdmin = new VentanaIntermedia(this); // Pasando este JDialog como owner
 		menuAdmin.setVisible(true);
-		cargarDatosTabla(); 
 		// No es necesario ocultar/mostrar VistaTienda si VentanaIntermedia es modal
 		// Si tras cerrar la ventana admin hay cambios (ej. nuevo artículo), refrescar:
 		// cargarDatosTabla();
@@ -412,7 +411,6 @@ public class VistaTienda extends JDialog implements ActionListener {
 
 		VistaCarrito carritoDialog = new VistaCarrito(this, comprasParaCarrito, pedidoActual);
 		carritoDialog.setVisible(true);
-		cargarDatosTabla(); 
 	}
 
 	/**

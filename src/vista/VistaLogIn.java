@@ -235,8 +235,6 @@ public class VistaLogIn extends JFrame implements ActionListener {
 
              VistaTienda tienda = new VistaTienda(clienteLogueado, null); // Pasar null si VistaTienda no necesita referencia a esta vista
              tienda.setVisible(true);
-             this.dispose();
-
         } catch (LoginError e) {
             e.visualizarMen();
              limpiar();
@@ -268,19 +266,12 @@ public class VistaLogIn extends JFrame implements ActionListener {
 
     // --- Método para abrir registro (AHORA ACTIVO) ---
     private void abrirVistaRegistro() {
-        this.setVisible(false); // Oculta la ventana de login
+        this.setVisible(false); 
 
-        // Asume que VistaUsuario existe y tiene un constructor que acepta 'this' como referencia
-        // para poder volver a mostrar esta ventana si es necesario.
-        // Si VistaUsuario no necesita la referencia, puedes pasar null.
-        VistaUsuario usuario = new VistaUsuario(null, this); // Necesitas VistaUsuario
-        usuario.setVisible(true); // Muestra la ventana de registro
-
-        // NOTA: Esta ventana (Login) ahora está oculta.
-        // Si quieres que se cierre permanentemente al abrir registro, usa this.dispose(); aquí.
-        // Si quieres que vuelva a aparecer cuando VistaUsuario se cierre,
-        // VistaUsuario necesitará tener la referencia 'this' (como está ahora)
-        // y llamar a vistaLoginReferencia.setVisible(true); cuando se cierre.
+        VistaUsuario usuario = new VistaUsuario(null, this); 
+        usuario.setVisible(true);
+        
+        this.setVisible(true);
     }
 
 
