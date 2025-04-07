@@ -303,6 +303,8 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		// cancela
 		VistaUsuario usuario = new VistaUsuario(null, this);
 		usuario.setVisible(true);
+		
+		this.setVisible(true);
 	}
 
 	/**

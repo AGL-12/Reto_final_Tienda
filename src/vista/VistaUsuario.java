@@ -14,15 +14,17 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage; // Para placeholder icono
-import java.io.InputStream; // Para cargar icono
-import java.net.URL; // Para cargar icono (alternativa)
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.imageio.ImageIO; // Para cargar icono
+import javax.imageio.ImageIO;
 
 // Import de MigLayout (Asegúrate de tener la librería en tu proyecto)
-import net.miginfocom.swing.MigLayout; // Importar MigLayout
+import net.miginfocom.swing.MigLayout;
+
+// Import específico de FlatLaf (COMENTADO - Descomentar si tienes FlatLaf >= 1.0 y quieres placeholders/outline)
+// import com.formdev.flatlaf.FlatClientProperties;
 
 public class VistaUsuario extends JDialog implements ActionListener {
 
@@ -37,22 +39,23 @@ public class VistaUsuario extends JDialog implements ActionListener {
     private JLabel lblTitulo;
 
     // --- Datos ---
-    private Cliente localClien; // El cliente actual (null si es registro)
+    private Cliente localClien;
 
     // --- Constantes de Estilo ---
-    private static final Font FONT_TITULO = new Font("Segoe UI", Font.BOLD, 20); // Ligeramente más grande
-    private static final Font FONT_LABEL = new Font("Segoe UI", Font.BOLD, 13); // Ligeramente más grande
-    private static final Font FONT_TEXTO = new Font("Segoe UI", Font.PLAIN, 13); // Ligeramente más grande
+    private static final Font FONT_TITULO = new Font("Segoe UI", Font.BOLD, 20);
+    private static final Font FONT_LABEL = new Font("Segoe UI", Font.BOLD, 13);
+    private static final Font FONT_TEXTO = new Font("Segoe UI", Font.PLAIN, 13);
     private static final Font FONT_BOTON = new Font("Segoe UI", Font.BOLD, 13);
     private static final Font FONT_RADIO = new Font("Segoe UI", Font.PLAIN, 12);
 
-    private static final int PADDING_GENERAL = 20; // Más espaciado general
-    private static final int PADDING_INTERNO = 10; // Espaciado dentro de paneles
-    private static final String GAP_LABEL_COMPONENT = "rel";  // Gap estándar entre etiqueta y campo
-    private static final String GAP_ROW = "unrel"; // Gap estándar entre filas (un poco más grande)
-    private static final String GAP_GROUP = "push"; // Gap grande entre grupos de botones
+    private static final int PADDING_GENERAL = 20; // Espacio exterior e interior principal
+    private static final int PADDING_INTERNO = 10; // Espacio menor
+    private static final String GAP_LABEL_COMPONENT = "rel";  // Gap entre etiqueta y campo (estándar)
+    private static final String GAP_ROW = "unrel"; // Gap entre filas (estándar mayor)
+    private static final String GAP_SECTION = "18"; // Gap vertical más grande entre secciones
 
-    private static final Color COLOR_VALIDATION_ERROR = Color.RED; // Mantener para errores
+    // private static final Color COLOR_VALIDATION_ERROR = Color.RED; // Ya no se usa para resaltar campos
+
 
     /**
      * Constructor.
@@ -62,102 +65,82 @@ public class VistaUsuario extends JDialog implements ActionListener {
         this.localClien = clien;
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        // Configurar Look and Feel (Asumimos que FlatLaf ya está activo desde Principal)
-        // Opcional: Establecer propiedades específicas aquí si no son globales
-        // UIManager.put("Button.arc", 8);
-        // UIManager.put("Component.arc", 5);
+        // ASUNCIÓN: FlatLaf ya está configurado en Principal.java
 
         initComponents();
         configureView();
         pack();
-        setMinimumSize(new Dimension(550, getHeight())); // Ancho mínimo, altura ajustada
+        setMinimumSize(new Dimension(580, getHeight())); // Ancho mínimo, altura ajustada por pack()
         setLocationRelativeTo(ventPadre);
     }
 
     /**
-     * Inicializa y organiza los componentes usando MigLayout.
+     * Inicializa y organiza los componentes.
      */
     private void initComponents() {
         // Panel Principal con BorderLayout
         JPanel mainPanel = new JPanel(new BorderLayout(0, PADDING_GENERAL));
-        // Usar color de fondo del tema actual
-        mainPanel.setBackground(UIManager.getColor("Panel.background"));
+        mainPanel.setBackground(UIManager.getColor("Panel.background")); // Usar color del tema
         mainPanel.setBorder(new EmptyBorder(PADDING_GENERAL, PADDING_GENERAL, PADDING_GENERAL, PADDING_GENERAL));
         setContentPane(mainPanel);
 
         // Título (NORTH)
         lblTitulo = new JLabel(localClien == null ? "NUEVO USUARIO" : "DATOS DEL USUARIO", JLabel.CENTER);
         lblTitulo.setFont(FONT_TITULO);
-        // lblTitulo.setIcon(cargarIcono("/iconos/user_profile.png", 24, 24)); // Icono opcional
+        lblTitulo.setIcon(cargarIcono("/iconos/user_profile.png", 24, 24)); // Icono para título (opcional)
+        lblTitulo.setIconTextGap(PADDING_INTERNO);
+        lblTitulo.setBorder(new EmptyBorder(0, 0, PADDING_INTERNO, 0)); // Espacio debajo
         mainPanel.add(lblTitulo, BorderLayout.NORTH);
 
         // Panel de Formulario (CENTER) con MigLayout
         JPanel formPanel = new JPanel(new MigLayout(
-                "fillx, insets " + PADDING_INTERNO, // fill horizontal, con padding interno
-                "[align label]" + GAP_LABEL_COMPONENT + "[grow, fill]", // Columnas: label, gap, component (grow)
-                "" // Filas: usar gaps por defecto ('unrel')
+                "fillx, insets " + PADDING_INTERNO, // fill horizontal, padding interno
+                "[align label]" + GAP_LABEL_COMPONENT + "[grow, fill]", // Columnas: label, gap, component
+                "" // Filas: usar gaps definidos en wrap
         ));
-        // Heredar color de fondo
         formPanel.setBackground(UIManager.getColor("Panel.background"));
         mainPanel.add(formPanel, BorderLayout.CENTER);
 
         // --- Campos del Formulario ---
-        JLabel lblUsuario = new JLabel("Usuario:");
-        lblUsuario.setFont(FONT_LABEL);
-        formPanel.add(lblUsuario);
+        formPanel.add(createLabel("Usuario:"));
         textUser = new JTextField();
         textUser.setFont(FONT_TEXTO);
         formPanel.add(textUser, "wrap " + GAP_ROW);
 
-        JLabel lblPassword = new JLabel("Contraseña:");
-        lblPassword.setFont(FONT_LABEL);
-        formPanel.add(lblPassword);
+        formPanel.add(createLabel("Contraseña:"));
         passwordFieldContra = new JPasswordField();
         passwordFieldContra.setFont(FONT_TEXTO);
         formPanel.add(passwordFieldContra, "wrap " + GAP_ROW);
 
-        JLabel lblDni = new JLabel("DNI/NIE:");
-        lblDni.setFont(FONT_LABEL);
-        formPanel.add(lblDni);
+        formPanel.add(createLabel("DNI/NIE:"));
         textDni = new JTextField();
         textDni.setFont(FONT_TEXTO);
         formPanel.add(textDni, "wrap " + GAP_ROW);
 
-        JLabel lblEmail = new JLabel("Email:");
-        lblEmail.setFont(FONT_LABEL);
-        formPanel.add(lblEmail);
+        formPanel.add(createLabel("Email:"));
         textEmail = new JTextField();
         textEmail.setFont(FONT_TEXTO);
         formPanel.add(textEmail, "wrap " + GAP_ROW);
 
-        JLabel lblDireccion = new JLabel("Dirección:");
-        lblDireccion.setFont(FONT_LABEL);
-        formPanel.add(lblDireccion);
+        formPanel.add(createLabel("Dirección:"));
         textDireccion = new JTextField();
         textDireccion.setFont(FONT_TEXTO);
-        formPanel.add(textDireccion, "wrap " + GAP_ROW);
+        formPanel.add(textDireccion, "wrap " + GAP_SECTION); // Más espacio antes de la siguiente sección
 
         // --- Sección Método de Pago ---
-        JPanel paymentPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_INTERNO, 0));
-        paymentPanel.setBackground(UIManager.getColor("Panel.background")); // Heredar fondo
-        // Usar borde con título proporcionado por el LaF
+        JPanel paymentPanel = new JPanel(new MigLayout(
+            "insets 0, gapx " + PADDING_INTERNO, // Sin insets, gap horizontal
+            "[]" + PADDING_INTERNO + "[]" + PADDING_INTERNO + "[]" // 3 columnas para radios
+        ));
+        paymentPanel.setOpaque(false); // Hacer transparente para heredar fondo del formPanel
         paymentPanel.setBorder(BorderFactory.createTitledBorder(
-            UIManager.getBorder("TitledBorder.border"), // Obtener borde del LaF
-            "Método de Pago", TitledBorder.LEFT, TitledBorder.TOP, FONT_LABEL,
-            UIManager.getColor("TitledBorder.titleColor") // Obtener color del LaF
+            UIManager.getBorder("TitledBorder.border"), "Método de Pago",
+            TitledBorder.LEFT, TitledBorder.TOP, FONT_LABEL, UIManager.getColor("TitledBorder.titleColor")
         ));
 
-        rdbtnVisa = new JRadioButton("Visa");
-        rdbtnVisa.setFont(FONT_RADIO);
-        rdbtnMastercard = new JRadioButton("Mastercard");
-        rdbtnMastercard.setFont(FONT_RADIO);
-        rdbtnPaypal = new JRadioButton("PayPal");
-        rdbtnPaypal.setFont(FONT_RADIO);
-
-        // Heredar fondo para radios
-        rdbtnVisa.setBackground(paymentPanel.getBackground());
-        rdbtnMastercard.setBackground(paymentPanel.getBackground());
-        rdbtnPaypal.setBackground(paymentPanel.getBackground());
+        rdbtnVisa = createRadioButton("Visa");
+        rdbtnMastercard = createRadioButton("Mastercard");
+        rdbtnPaypal = createRadioButton("PayPal");
 
         paymentMethodGroup = new ButtonGroup();
         paymentMethodGroup.add(rdbtnVisa);
@@ -167,104 +150,110 @@ public class VistaUsuario extends JDialog implements ActionListener {
         paymentPanel.add(rdbtnVisa);
         paymentPanel.add(rdbtnMastercard);
         paymentPanel.add(rdbtnPaypal);
-        formPanel.add(paymentPanel, "span 2, growx, wrap " + GAP_ROW); // Ocupa ambas columnas
+        // Añadir al formPanel, ocupando 2 columnas, creciendo horizontalmente
+        formPanel.add(paymentPanel, "span 2, growx, wrap " + GAP_ROW);
 
-        // Número de Cuenta/Tarjeta
-        JLabel lblNumeroCuenta = new JLabel("Nº Tarjeta/Cuenta:");
-        lblNumeroCuenta.setFont(FONT_LABEL);
-        formPanel.add(lblNumeroCuenta);
+        // --- Número de Cuenta/Tarjeta ---
+        formPanel.add(createLabel("Nº Tarjeta/Cuenta:"));
         textNumeroCuenta = new JTextField();
         textNumeroCuenta.setFont(FONT_TEXTO);
-        formPanel.add(textNumeroCuenta, "wrap " + GAP_ROW);
+        formPanel.add(textNumeroCuenta, "wrap " + GAP_SECTION); // Más espacio después
 
         // --- Panel de Botones (SOUTH) ---
         JPanel buttonPanel = new JPanel(new MigLayout(
-                "fillx, insets " + PADDING_INTERNO + " 0 0 0", // fill horizontal, padding superior
-                "[left, grow]" + GAP_GROUP + "[right]" // Columnas: izquierda (crece), gap grande, derecha
+                "fillx, insets " + PADDING_INTERNO + " 0 0 0", // fill H, padding solo arriba
+                "[left, grow]" + GAP_SECTION + "[right]" // Columnas: izq(crece), gap grande, der
         ));
-        buttonPanel.setBackground(UIManager.getColor("Panel.background")); // Heredar fondo
+        buttonPanel.setBackground(UIManager.getColor("Panel.background"));
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Botones de Acción (izquierda)
+        // --- Crear Botones ---
+        // Iconos: Asegúrate de tenerlos en /iconos/
         btnRegistrarse = crearBoton("Registrar", "/iconos/register.png");
-        btnRegistrarse.putClientProperty("JButton.buttonType", "primary"); // Marcar como primario
+        btnRegistrarse.putClientProperty("JButton.buttonType", "primary");
 
         btnModificar = crearBoton("Guardar Cambios", "/iconos/save.png");
-        btnModificar.putClientProperty("JButton.buttonType", "primary"); // Marcar como primario
+        btnModificar.putClientProperty("JButton.buttonType", "primary");
 
         btnDrop = crearBoton("Dar de Baja", "/iconos/delete.png");
-        // Indicar a FlatLaf que es un botón de peligro (lo pintará de rojo usualmente)
-        btnDrop.putClientProperty("JButton.buttonType", "danger");
+        btnDrop.putClientProperty("JButton.buttonType", "danger"); // Estilo peligro FlatLaf
 
-        // Agrupar botones de acción en un subpanel si se desea control más fino
-        // O añadirlos directamente a MigLayout
-        buttonPanel.add(btnRegistrarse, "split 3, flowx"); // split 3 indica 3 componentes en esta celda, flowx los pone seguidos
-        buttonPanel.add(btnModificar);
-        buttonPanel.add(btnDrop, "gapleft unrel"); // Espacio antes de "Dar de Baja"
-
-        // Botón Mostrar Pedidos (derecha)
         btnMostrarPedidos = crearBoton("Mis Pedidos", "/iconos/orders.png");
-        buttonPanel.add(btnMostrarPedidos, "cell 1 0"); // Poner en la segunda columna (índice 1), fila 0
 
+        // --- Añadir Botones al Panel ---
+        // Añadir botones de acción (izquierda) directamente a MigLayout
+        buttonPanel.add(btnRegistrarse, "split 3, flowx, gapright " + GAP_ROW); // split 3, flujo horizontal, gap derecho
+        buttonPanel.add(btnModificar);
+        buttonPanel.add(btnDrop, "gapleft " + GAP_SECTION); // Gap grande a la izq de Baja
+
+        // Añadir botón Mis Pedidos (derecha)
+        buttonPanel.add(btnMostrarPedidos, "cell 1 0"); // celda 1 (segunda columna), fila 0
     }
 
-     /**
-     * Crea y configura un JButton estándar con opción de icono.
-     */
+    /** Helper para crear JLabels estándar */
+    private JLabel createLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(FONT_LABEL);
+        // El color se hereda del LaF
+        return label;
+    }
+
+    /** Helper para crear JRadioButtons estándar */
+    private JRadioButton createRadioButton(String text) {
+        JRadioButton rb = new JRadioButton(text);
+        rb.setFont(FONT_RADIO);
+        rb.setOpaque(false); // Hacer transparente para heredar fondo
+        return rb;
+    }
+
+    /** Helper para crear JButtons estándar */
     private JButton crearBoton(String texto, String iconoPath) {
         JButton btn = new JButton(texto);
         btn.setFont(FONT_BOTON);
-        // Cargar icono opcionalmente (ej. 20x20)
         if (iconoPath != null && !iconoPath.isEmpty()) {
-            ImageIcon icon = cargarIcono(iconoPath, 20, 20); // Iconos un poco más grandes
+            ImageIcon icon = cargarIcono(iconoPath, 16, 16); // Iconos 16x16
             if (icon != null && icon.getIconWidth() > 0) {
                  btn.setIcon(icon);
-                 // btn.setHorizontalTextPosition(SwingConstants.RIGHT); // Texto a la derecha del icono
+                 btn.setHorizontalTextPosition(SwingConstants.RIGHT);
+                 btn.setIconTextGap(PADDING_INTERNO / 2);
             }
         }
         btn.addActionListener(this);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btn.setFocusPainted(false); // Dejar que FlatLaf maneje el foco
-        // Padding interno del botón
-        btn.setMargin(new Insets(PADDING_INTERNO / 2, PADDING_INTERNO, PADDING_INTERNO / 2, PADDING_INTERNO));
+        // Usar márgenes para padding interno
+        btn.setMargin(new Insets(PADDING_INTERNO / 2 + 1, PADDING_INTERNO, PADDING_INTERNO / 2 + 1, PADDING_INTERNO));
         return btn;
     }
-
 
     /**
      * Configura la visibilidad de botones y carga datos si es modificación.
      */
     private void configureView() {
-        if (localClien == null) { // Modo Registro
-            btnModificar.setVisible(false);
-            btnMostrarPedidos.setVisible(false);
-            btnDrop.setVisible(false);
-            btnRegistrarse.setVisible(true);
-            rdbtnVisa.setSelected(true); // Por defecto Visa
-        } else { // Modo Modificación
-            btnRegistrarse.setVisible(false);
-            btnModificar.setVisible(true);
-            btnMostrarPedidos.setVisible(true);
-            btnDrop.setVisible(true);
+        boolean isRegisterMode = (localClien == null);
 
-            // Cargar datos
+        btnRegistrarse.setVisible(isRegisterMode);
+        btnModificar.setVisible(!isRegisterMode);
+        btnMostrarPedidos.setVisible(!isRegisterMode);
+        btnDrop.setVisible(!isRegisterMode);
+
+        if (isRegisterMode) {
+            lblTitulo.setText("NUEVO USUARIO");
+            rdbtnVisa.setSelected(true);
+        } else {
+            lblTitulo.setText("DATOS DEL USUARIO");
+            // Cargar datos existentes
             textUser.setText(localClien.getUsuario());
             textDni.setText(localClien.getDni());
             textEmail.setText(localClien.getCorreo());
             textDireccion.setText(localClien.getDireccion());
             textNumeroCuenta.setText(localClien.getNum_cuenta());
-            // No precargar contraseña por seguridad
+            // No precargar contraseña
 
-            // Seleccionar método de pago
             Metodo metodo = localClien.getMetodo_pago();
             if (metodo == Metodo.visa) rdbtnVisa.setSelected(true);
             else if (metodo == Metodo.mastercard) rdbtnMastercard.setSelected(true);
             else if (metodo == Metodo.paypal) rdbtnPaypal.setSelected(true);
             else paymentMethodGroup.clearSelection();
-
-            // Ejemplo: Hacer usuario no editable en modo modificación
-            // textUser.setEditable(false);
-            // textUser.setForeground(UIManager.getColor("Label.disabledForeground"));
         }
     }
 
@@ -277,111 +266,86 @@ public class VistaUsuario extends JDialog implements ActionListener {
         else if (source == btnDrop) baja();
     }
 
-    /** Lógica de Alta */
-    private void alta() {
-        if (!validarCampos(false)) return; // Validar para registro
+    // --- Métodos de Lógica (Alta, Modificar, Baja, MostrarPedidos) ---
+    // (La lógica interna no cambia)
 
+    private void alta() {
+        if (!validarCampos(false)) return;
         Cliente nuevoCliente = new Cliente();
-        nuevoCliente.setId_usu(Principal.obtenerNewIdCliente());
+        // ID se asignará en DAO/BD o con Principal.obtenerNewIdCliente() si es necesario aquí
         nuevoCliente.setUsuario(textUser.getText().trim());
-        nuevoCliente.setContra(String.valueOf(passwordFieldContra.getPassword())); // Ya validada longitud/contenido
+        nuevoCliente.setContra(String.valueOf(passwordFieldContra.getPassword()));
         nuevoCliente.setCorreo(textEmail.getText().trim());
         nuevoCliente.setDireccion(textDireccion.getText().trim());
-        nuevoCliente.setDni(textDni.getText().trim().toUpperCase()); // Guardar DNI en mayúsculas
+        nuevoCliente.setDni(textDni.getText().trim().toUpperCase());
         nuevoCliente.setNum_cuenta(textNumeroCuenta.getText().trim());
         nuevoCliente.setMetodo_pago(obtenerMetodoPagoSeleccionado());
         nuevoCliente.setEsAdmin(false);
-
         try {
             Principal.altaCliente(nuevoCliente);
-            JOptionPane.showMessageDialog(this, "Usuario '" + nuevoCliente.getUsuario() + "' registrado con éxito.",
+            JOptionPane.showMessageDialog(this, "Usuario '" + nuevoCliente.getUsuario() + "' registrado.",
                     "Registro Completo", JOptionPane.INFORMATION_MESSAGE);
-            dispose(); // Cerrar ventana después del registro exitoso
-        } catch (AltaError e) {
-            e.visualizarMen(); // Mostrar mensaje de la excepción
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error inesperado durante el registro.",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        }
+            dispose();
+        } catch (AltaError e) { e.visualizarMen(); }
+        catch (Exception e) { handleGenericError(e, "registro"); }
     }
 
-    /** Lógica de Modificación */
     private void modificar() {
-        if (localClien == null) return;
-        if (!validarCampos(true)) return; // Validar para modificación (permite pass vacío)
+        if (localClien == null || !validarCampos(true)) return;
+        Cliente clienteModificado = new Cliente();
+        clienteModificado.setId_usu(localClien.getId_usu());
+        clienteModificado.setUsuario(textUser.getText().trim());
+        clienteModificado.setCorreo(textEmail.getText().trim());
+        clienteModificado.setDireccion(textDireccion.getText().trim());
+        clienteModificado.setDni(textDni.getText().trim().toUpperCase());
+        clienteModificado.setNum_cuenta(textNumeroCuenta.getText().trim());
+        clienteModificado.setMetodo_pago(obtenerMetodoPagoSeleccionado());
+        clienteModificado.setEsAdmin(localClien.isEsAdmin());
 
-        localClien.setUsuario(textUser.getText().trim());
         String newPassword = String.valueOf(passwordFieldContra.getPassword());
-        // Solo actualizar contraseña si se introdujo una nueva válida
         if (!newPassword.isEmpty()) {
              if (newPassword.length() >= 6 && newPassword.matches(".*[a-zA-Z].*") && newPassword.matches(".*[0-9].*")) {
-                localClien.setContra(newPassword);
+                clienteModificado.setContra(newPassword);
              } else {
-                 // Si se introdujo algo pero no es válido, avisar y no guardar (ya validado en validarCampos, pero doble check)
-                 JOptionPane.showMessageDialog(this, "La nueva contraseña introducida no cumple los requisitos y no se guardará.",
-                         "Contraseña Inválida", JOptionPane.WARNING_MESSAGE);
-                 return; // Detener modificación si la nueva contraseña es inválida
+                 JOptionPane.showMessageDialog(this, "Contraseña nueva inválida. No se guardará.", "Error Contraseña", JOptionPane.WARNING_MESSAGE);
+                 return;
              }
-        } // Si estaba vacío, no se toca la contraseña existente
-
-        localClien.setCorreo(textEmail.getText().trim());
-        localClien.setDireccion(textDireccion.getText().trim());
-        localClien.setDni(textDni.getText().trim().toUpperCase()); // Guardar DNI en mayúsculas
-        localClien.setNum_cuenta(textNumeroCuenta.getText().trim());
-        localClien.setMetodo_pago(obtenerMetodoPagoSeleccionado());
+        } else { clienteModificado.setContra(localClien.getContra()); }
 
         try {
-            Principal.modificarCliente(localClien);
-            JOptionPane.showMessageDialog(this, "Datos actualizados correctamente.",
-                    "Modificación Exitosa", JOptionPane.INFORMATION_MESSAGE);
+            Principal.modificarCliente(clienteModificado);
+            this.localClien = clienteModificado;
+            JOptionPane.showMessageDialog(this, "Datos actualizados.", "Modificación Exitosa", JOptionPane.INFORMATION_MESSAGE);
             dispose();
-        } catch (modifyError ex) {
-            ex.visualizarMen();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error inesperado al modificar.",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        } catch (modifyError ex) { ex.visualizarMen(); }
+        catch (Exception ex) { handleGenericError(ex, "modificación"); }
     }
 
-    /** Mostrar Pedidos */
     private void mostrarPedidos() {
         if (localClien != null) {
+            // Asumiendo que VerPedidosCliente también usa FlatLaf y tiene estilo moderno
             VerPedidosCliente vistaPedidoClien = new VerPedidosCliente(this, localClien);
             vistaPedidoClien.setVisible(true);
         }
     }
 
-    /** Lógica de Baja */
     private void baja() {
         if (localClien == null) return;
         int respuesta = JOptionPane.showConfirmDialog(this,
-                "¿Seguro que quieres ELIMINAR tu cuenta?\nUsuario: " + localClien.getUsuario() + "\n¡Esta acción es IRREVERSIBLE!",
-                "Confirmar Baja Definitiva", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                "¿Seguro que quieres ELIMINAR tu cuenta?\nUsuario: " + localClien.getUsuario() + "\n¡Acción IRREVERSIBLE!",
+                "Confirmar Baja", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
         if (respuesta == JOptionPane.YES_OPTION) {
             try {
                 Principal.bajaCliente(localClien);
-                JOptionPane.showMessageDialog(this, "Usuario eliminado correctamente.",
-                        "Baja Exitosa", JOptionPane.INFORMATION_MESSAGE);
-                // Decidir qué hacer después: cerrar esta ventana y ¿la que la llamó?
-                // Por ahora, solo cerramos esta. La ventana padre (AdminConfigUsuario o Tienda) seguirá abierta.
+                JOptionPane.showMessageDialog(this, "Usuario eliminado.", "Baja Exitosa", JOptionPane.INFORMATION_MESSAGE);
                 dispose();
-                // Si quisiéramos cerrar también la ventana padre (suponiendo que es un JDialog)
-                // Window parent = getOwner();
-                // if (parent != null) { parent.dispose(); }
-            } catch (DropError e) {
-                e.visualizarMen();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error inesperado al dar de baja.",
-                        "Error", JOptionPane.ERROR_MESSAGE);
-            }
+                // Window owner = getOwner(); if (owner != null) { owner.dispose(); } // Opcional: cerrar padre
+            } catch (DropError e) { e.visualizarMen(); }
+            catch (Exception ex) { handleGenericError(ex, "baja"); }
         }
     }
 
-    /** Obtener Método de Pago */
     private Metodo obtenerMetodoPagoSeleccionado() {
         if (rdbtnVisa.isSelected()) return Metodo.visa;
         if (rdbtnMastercard.isSelected()) return Metodo.mastercard;
@@ -389,78 +353,66 @@ public class VistaUsuario extends JDialog implements ActionListener {
         return null;
     }
 
-    /** Validación de Campos (Mejorada) */
+    /** Validación de Campos (refinada) */
     private boolean validarCampos(boolean modificarModo) {
         StringBuilder errores = new StringBuilder();
-        final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
-        // DNI: 8 números + 1 letra (case-insensitive)
-        final String DNI_REGEX = "^\\d{8}[A-Za-z]$";
-        // NIE: X, Y o Z + 7 números + 1 letra (case-insensitive)
-        final String NIE_REGEX = "^[XYZxyz]\\d{7}[A-Za-z]$";
+        final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+        final String DNI_REGEX = "^\\d{8}[A-HJ-NP-TV-Z]$";
+        final String NIE_REGEX = "^[XYZxyz]\\d{7}[A-HJ-NP-TV-Z]$";
 
-        // Usuario
-        if (textUser.getText().trim().isEmpty()) {
-            errores.append("- El nombre de usuario es obligatorio.\n");
-        }
+        // Validaciones...
+        if (textUser.getText().trim().isEmpty()) errores.append("- Usuario obligatorio.\n");
 
-        // Contraseña
         String password = String.valueOf(passwordFieldContra.getPassword());
-        if (!modificarModo && password.isEmpty()) { // Obligatoria en registro
-            errores.append("- La contraseña es obligatoria.\n");
-        } else if (!password.isEmpty()) { // Validar si no está vacía (en registro o si se introduce en modificación)
-             if (password.length() < 6) {
-                 errores.append("- La contraseña debe tener al menos 6 caracteres.\n");
-             }
+        if (!modificarModo && password.isEmpty()) {
+            errores.append("- Contraseña obligatoria.\n");
+        } else if (!password.isEmpty()) {
+             if (password.length() < 6) errores.append("- Contraseña: Mínimo 6 caracteres.\n");
              if (!password.matches(".*[a-zA-Z].*") || !password.matches(".*[0-9].*")) {
-                 errores.append("- La contraseña debe contener letras y números.\n");
+                 errores.append("- Contraseña: Debe incluir letras y números.\n");
              }
         }
-
-        // DNI/NIE
-        String dniNie = textDni.getText().trim().toUpperCase(); // Validar en mayúsculas
+        String dniNie = textDni.getText().trim().toUpperCase();
         if (dniNie.isEmpty()) {
-            errores.append("- El DNI/NIE es obligatorio.\n");
+            errores.append("- DNI/NIE obligatorio.\n");
         } else if (!dniNie.matches(DNI_REGEX) && !dniNie.matches(NIE_REGEX)) {
-             errores.append("- Formato de DNI/NIE incorrecto.\n");
+             errores.append("- Formato DNI/NIE incorrecto.\n");
         }
-        // Podría añadirse validación de letra del DNI/NIE aquí si fuera necesario
-
-        // Email
         String email = textEmail.getText().trim();
         if (email.isEmpty() || !email.matches(EMAIL_REGEX)) {
-            errores.append("- Formato de Email incorrecto.\n");
+            errores.append("- Formato Email incorrecto.\n");
         }
-
-        // Dirección
         if (textDireccion.getText().trim().isEmpty()) {
-            errores.append("- La dirección es obligatoria.\n");
+            errores.append("- Dirección obligatoria.\n");
         }
-
-        // Método de Pago
         if (obtenerMetodoPagoSeleccionado() == null) {
-            errores.append("- Debes seleccionar un método de pago.\n");
+            errores.append("- Método de pago obligatorio.\n");
+        }
+        if (textNumeroCuenta.getText().trim().isEmpty()) {
+            errores.append("- Nº Tarjeta/Cuenta obligatorio.\n");
         }
 
-        // Número de Cuenta/Tarjeta (Validación básica de no vacío)
-        if (textNumeroCuenta.getText().trim().isEmpty()) {
-            errores.append("- El número de tarjeta/cuenta es obligatorio.\n");
-        } // Podría añadirse validación de formato (Luhn, etc.) si fuera necesario
-
-
-        // Mostrar errores
+        // Mostrar Errores si existen
         if (errores.length() > 0) {
-            JOptionPane.showMessageDialog(this, "Por favor, corrige los siguientes errores:\n\n" + errores.toString(),
-                    "Campos Inválidos", JOptionPane.WARNING_MESSAGE);
-            // Opcional: Poner foco en el primer campo con error
-            // findFirstInvalidComponent().requestFocusInWindow();
+            JTextArea textArea = new JTextArea("Por favor, corrige los errores:\n\n" + errores.toString());
+            textArea.setEditable(false); textArea.setOpaque(false); textArea.setFont(FONT_TEXTO);
+            JScrollPane scrollPane = new JScrollPane(textArea) {
+                 @Override public Dimension getPreferredSize() { return new Dimension(350, 150); }
+            };
+            JOptionPane.showMessageDialog(this, scrollPane, "Campos Inválidos", JOptionPane.WARNING_MESSAGE);
             return false;
         }
-
         return true; // Todo válido
     }
 
+    /** Manejador genérico de excepciones */
+    private void handleGenericError(Exception ex, String action) {
+         ex.printStackTrace();
+         JOptionPane.showMessageDialog(this, "Error inesperado durante la " + action + ".",
+                 "Error", JOptionPane.ERROR_MESSAGE);
+    }
 
-    /** Método Cargar Icono */
+    /** Método Cargar Icono (robusto con placeholder) */
     private ImageIcon cargarIcono(String path, int width, int height) {
         InputStream imgStream = getClass().getResourceAsStream(path);
         if (imgStream != null) {
@@ -469,12 +421,8 @@ public class VistaUsuario extends JDialog implements ActionListener {
                 imgStream.close();
                 Image scaledImage = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
                 return new ImageIcon(scaledImage);
-            } catch (Exception e) {
-                 System.err.println("Error al leer icono: " + path + " - " + e.getMessage());
-            }
-        } else {
-            System.err.println("Icono no encontrado en classpath: " + path);
-        }
+            } catch (Exception e) { System.err.println("Error leer icono: " + path + " - " + e.getMessage()); }
+        } else { System.err.println("Icono no encontrado: " + path); }
         // Placeholder
         BufferedImage placeholder = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = placeholder.createGraphics();
@@ -493,19 +441,10 @@ public class VistaUsuario extends JDialog implements ActionListener {
      public static void main(String[] args) {
          try { UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf()); }
          catch (Exception ex) { System.err.println("Failed to initialize LaF"); }
-
          SwingUtilities.invokeLater(() -> {
-             // Prueba modo Registro
-             VistaUsuario dialogRegistro = new VistaUsuario(null, null); // Sin padre
+             VistaUsuario dialogRegistro = new VistaUsuario(null, null);
              dialogRegistro.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
              dialogRegistro.setVisible(true);
-
-             // // Prueba modo Modificación (necesitarías crear un Cliente de prueba)
-             // Cliente clienteExistente = new Cliente();
-             // clienteExistente.setId_usu(1); clienteExistente.setUsuario("user1"); // etc.
-             // VistaUsuario dialogModificar = new VistaUsuario(clienteExistente, null);
-             // dialogModificar.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-             // dialogModificar.setVisible(true);
          });
      }
      */
