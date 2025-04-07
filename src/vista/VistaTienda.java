@@ -4,314 +4,392 @@ import modelo.Articulo;
 import modelo.Cliente;
 import modelo.Compra;
 import modelo.Pedido;
-import controlador.Principal;
+import controlador.Principal; // Asumiendo métodos de acceso a datos
 
 import javax.swing.*;
+import javax.swing.border.Border; // Para bordes
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumnModel;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
-import java.awt.*; 
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage; // Importado para el icono placeholder
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-// Importa FlatLaf si lo vas a usar (recuerda añadir la dependencia y configurarlo en tu main)
-// import com.formdev.flatlaf.FlatClientProperties; // Para propiedades específicas de FlatLaf si es necesario
+// Importar FlatLaf (RECUERDA CONFIGURARLO EN TU main)
+// import com.formdev.flatlaf.FlatClientProperties; // Para propiedades específicas
+// import com.formdev.flatlaf.extras.FlatSVGIcon; // Si usas iconos SVG
+
+// Opcional pero recomendado para layouts flexibles: MigLayout
+// import net.miginfocom.swing.MigLayout;
 
 public class VistaTienda extends JDialog implements ActionListener {
 
-	private static final long serialVersionUID = 1L; // Mantener si es necesario
+	private static final long serialVersionUID = 1L;
 
-	// --- Componentes de la UI ---
+	// --- Componentes UI ---
 	private JTable tableArticulo;
 	private JButton btnUsuario, btnCompra, btnAdmin;
-	private JLabel lblTitulo;
-	private DefaultTableModel model; // Hacerlo miembro de la clase para acceso fácil
+	private JLabel lblTitulo, lblLogo;
+	private DefaultTableModel model;
+	private JTextField quantityEditorField;
 
 	// --- Datos ---
 	private Cliente localClien;
 
-	// --- Constantes (opcional, para mejor mantenimiento) ---
-	private static final Font FONT_TITULO = new Font("Segoe UI", Font.BOLD, 18); // Fuente moderna
-	private static final Font FONT_BOTON = new Font("Segoe UI", Font.BOLD, 12);
+	// --- Constantes de Estilo ---
+	private static final Font FONT_TITULO = new Font("Segoe UI", Font.BOLD, 24); // Ligeramente más grande
+	private static final Font FONT_BOTON = new Font("Segoe UI", Font.BOLD, 13);
 	private static final Font FONT_TABLA_HEADER = new Font("Segoe UI", Font.BOLD, 12);
 	private static final Font FONT_TABLA_CELDA = new Font("Segoe UI", Font.PLAIN, 12);
-	private static final int PADDING_GENERAL = 10; // Espaciado general
-	private static final int PADDING_INTERNO = 5; // Espaciado entre componentes
+
+	// Color de acento (se usará implícitamente por FlatLaf para botón primario)
+	// private static final Color COLOR_ACCENT = new Color(0x005A9C); // Ya no
+	// necesario si se usa buttonType=primary
+	private static final Color COLOR_VALIDATION_ERROR = Color.RED;
+
+	// Padding y Espaciado
+	private static final int PADDING_GENERAL = 15;
+	private static final int PADDING_INTERNO = 8;
+	private static final int PADDING_TABLA_CELDA_V = 5; // Más padding vertical en celdas
+	private static final int PADDING_TABLA_CELDA_H = 10; // Más padding horizontal en celdas
 
 	/**
-	 * Constructor de la ventana principal de la tienda.
-	 * 
-	 * @param clien El cliente que ha iniciado sesión.
-	 * @param owner La ventana padre (normalmente el JFrame principal o la ventana
-	 *              de login).
+	 * Constructor
 	 */
 	public VistaTienda(Cliente clien, Frame owner) {
-		// Configuración inicial del JDialog
-		super(owner, "DYE TOOLS - Tienda", true); // Título más descriptivo, modal al owner
+		super(owner, "DYE TOOLS - Tienda", true);
 		this.localClien = clien;
-		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); // Cierra solo esta ventana al pulsar la 'X'
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-		// --- Configuración del Layout Principal ---
-		// Usamos BorderLayout para estructurar: Título(Norte), Tabla(Centro),
-		// Botones(Sur)
+		// --- Layout Principal y Padding ---
 		setLayout(new BorderLayout(PADDING_GENERAL, PADDING_GENERAL));
-		// Añadimos un borde vacío alrededor de todo el contenido para dar aire
 		((JPanel) getContentPane()).setBorder(
 				BorderFactory.createEmptyBorder(PADDING_GENERAL, PADDING_GENERAL, PADDING_GENERAL, PADDING_GENERAL));
 
 		// --- Inicializar Componentes ---
 		initComponents();
 		configurarTabla();
+		cargarDatosTabla();
+		// Ajustar anchos DESPUÉS de cargar datos
+		ajustarAnchosColumnaTabla();
 
-		// --- Configuración Final de la Ventana ---
-		pack(); // Ajusta el tamaño de la ventana al contenido preferido de los componentes
-		setMinimumSize(new Dimension(550, 400)); // Establece un tamaño mínimo razonable
-		setLocationRelativeTo(owner); // Centra la ventana respecto al padre
+		// --- Configuración Final Ventana ---
+		pack(); // Ajustar al contenido
+		setMinimumSize(new Dimension(750, 550)); // Ajustar tamaño mínimo si es necesario
+		setLocationRelativeTo(owner); // Centrar
 	}
 
 	/**
-	 * Inicializa y configura los componentes básicos de la UI (Título, Botones).
+	 * Inicializa componentes básicos (Título, Logo, Botones).
 	 */
 	private void initComponents() {
-		// --- Panel Título (NORTH) ---
-		lblTitulo = new JLabel("DYE TOOLS - Catálogo", JLabel.CENTER); // Centrar título
+		// --- Panel Cabecera (NORTH) ---
+		JPanel panelCabecera = new JPanel(new FlowLayout(FlowLayout.CENTER, PADDING_INTERNO * 2, 0)); // Más espacio
+																										// entre logo y
+																										// título
+		panelCabecera.setBorder(BorderFactory.createEmptyBorder(PADDING_INTERNO, 0, PADDING_GENERAL, 0)); // Espacio
+																											// arriba/abajo
+
+		// Logo (Placeholder)
+		// *** CAMBIO: Aumentar tamaño del logo aún más (ej. a 64x64) ***
+		lblLogo = new JLabel(cargarIcono("/iconos/tienda_logo.png", 64, 64)); // Ajusta tamaño según necesidad
+		panelCabecera.add(lblLogo);
+
+		// Título
+		lblTitulo = new JLabel("DYE TOOLS - Catálogo");
 		lblTitulo.setFont(FONT_TITULO);
-		lblTitulo.setBorder(BorderFactory.createEmptyBorder(0, 0, PADDING_GENERAL, 0)); // Espacio debajo del título
-		add(lblTitulo, BorderLayout.NORTH);
+		panelCabecera.add(lblTitulo);
+
+		add(panelCabecera, BorderLayout.NORTH);
 
 		// --- Panel Botones (SOUTH) ---
-		JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, PADDING_INTERNO, 0)); // FlowLayout centrado
-																									// con gaps H/V
-		panelBotones.setBorder(BorderFactory.createEmptyBorder(PADDING_GENERAL, 0, 0, 0)); // Espacio encima de los
-																							// botones
+		JPanel panelBotones = new JPanel();
+		panelBotones.setLayout(new BoxLayout(panelBotones, BoxLayout.X_AXIS));
+		panelBotones.setBorder(BorderFactory.createEmptyBorder(PADDING_GENERAL, 0, 0, 0)); // Espacio arriba
 
-		// Botón Usuario
-		btnUsuario = new JButton("Mi Cuenta");
-		btnUsuario.setFont(FONT_BOTON);
-		btnUsuario.setIcon(cargarIcono("/iconos/user.png")); // Placeholder - Carga tu icono!
-		btnUsuario.addActionListener(this);
-		panelBotones.add(btnUsuario);
+		// Crear botones
+		btnUsuario = crearBoton("Mi Cuenta", "/iconos/user.png");
+		btnAdmin = crearBoton("Admin Panel", "/iconos/admin.png");
+		btnCompra = crearBoton("Ver Carrito", "/iconos/cart.png");
 
-		// Botón Admin (condicional)
-		btnAdmin = new JButton("Admin Panel");
-		btnAdmin.setFont(FONT_BOTON);
-		btnAdmin.setIcon(cargarIcono("/iconos/admin.png")); // Placeholder - Carga tu icono!
-		btnAdmin.addActionListener(this);
-		// Visibilidad basada en el cliente (maneja el caso de cliente null también)
+		// *** CAMBIO: Estilo Botón Carrito usando Propiedad FlatLaf ***
+		// Indicar que es el botón de acción principal, el tema (FlatLaf) se encargará
+		// del estilo
+		// para asegurar buena visibilidad y coherencia.
+		btnCompra.putClientProperty("JButton.buttonType", "primary");
+		// Quitar estilos manuales de color para no interferir con el tema
+		// btnCompra.setBackground(COLOR_ACCENT); // <- Quitar
+		// btnCompra.setForeground(Color.WHITE); // <- Quitar
+
+		// Visibilidad Admin
 		btnAdmin.setVisible(localClien != null && localClien.isEsAdmin());
-		panelBotones.add(btnAdmin);
 
-		// Espaciador flexible entre grupos de botones (si Admin es visible)
+		// Añadir botones al panel (Alternativa BoxLayout)
+		panelBotones.add(btnUsuario);
 		if (btnAdmin.isVisible()) {
-			panelBotones.add(Box.createHorizontalStrut(50)); // Espacio fijo
-			// O podrías tener un layout más complejo (ej GridBagLayout) para alinear a
-			// izquierda y derecha
+			panelBotones.add(Box.createHorizontalStrut(PADDING_INTERNO));
+			panelBotones.add(btnAdmin);
 		}
-
-		// Botón Compra
-		btnCompra = new JButton("Ver Carrito");
-		btnCompra.setFont(FONT_BOTON);
-		btnCompra.setIcon(cargarIcono("/iconos/cart.png")); // Placeholder - Carga tu icono!
-		btnCompra.addActionListener(this);
+		panelBotones.add(Box.createHorizontalGlue()); // Empujar a la derecha
 		panelBotones.add(btnCompra);
 
 		add(panelBotones, BorderLayout.SOUTH);
 	}
 
 	/**
-	 * Configura la JTable (modelo, columnas, renderers, listener).
+	 * Crea y configura un JButton estándar.
+	 */
+	private JButton crearBoton(String texto, String iconoPath) {
+		JButton btn = new JButton(texto);
+		btn.setFont(FONT_BOTON);
+		btn.setIcon(cargarIcono(iconoPath, 16, 16));
+		btn.addActionListener(this);
+		btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btn.setFocusPainted(false);
+		btn.setMargin(new Insets(PADDING_INTERNO, PADDING_INTERNO * 2, PADDING_INTERNO, PADDING_INTERNO * 2));
+		return btn;
+	}
+
+	/**
+	 * Configura la JTable (modelo, columnas, renderers, editor, listener).
 	 */
 	private void configurarTabla() {
-		tableArticulo = new JTable();
-		tableArticulo.setFont(FONT_TABLA_CELDA); // Fuente para las celdas
-		tableArticulo.setRowHeight(tableArticulo.getRowHeight() + PADDING_INTERNO); // Más altura de fila
-		tableArticulo.setIntercellSpacing(new Dimension(PADDING_INTERNO, PADDING_INTERNO / 2)); // Espaciado entre
-																								// celdas
-
-		// --- Modelo de la Tabla ---
+		// --- Modelo ---
 		model = new DefaultTableModel() {
-			private static final long serialVersionUID = 1L; // Mantener si es necesario
-
-			// Define los tipos de datos de las columnas para una correcta edición y
-			// renderizado
+			// *** CAMBIO: Actualizar índices por eliminación de ID_ART de la vista ***
+			// Indices del MODELO: ID(0, oculto), Nombre(1), Desc(2), Precio(3), Oferta(4),
+			// Stock(5), Cant(6)
 			@Override
 			public Class<?> getColumnClass(int columnIndex) {
 				switch (columnIndex) {
 				case 0:
-					return Integer.class; // id_art (oculto)
-				case 1:
-					return String.class; // Nombre
-				case 2:
-					return String.class; // Descripción
+					return Integer.class; // ID (Modelo col 0)
 				case 3:
-					return Double.class; // Precio
+					return Double.class; // Precio (Modelo col 3)
 				case 4:
-					return Double.class; // Oferta
+					return Double.class; // Oferta (Modelo col 4)
 				case 5:
-					return Integer.class; // Stock
+					return Integer.class; // Stock (Modelo col 5)
 				case 6:
-					return Integer.class; // Cantidad a comprar (editable)
+					return Integer.class; // Cantidad (Modelo col 6, editable)
 				default:
-					return Object.class;
+					return String.class; // Nombre (1), Desc (2)
 				}
 			}
 
-			// Hacer editable solo la columna "Cantidad"
 			@Override
 			public boolean isCellEditable(int row, int column) {
-				return column == 6; // Solo la columna 6 (Cantidad) es editable
+				// La editabilidad se basa en el índice del MODELO
+				return column == 6; // Modelo col 6 = Cantidad
 			}
 		};
-		addWindowListener(new WindowAdapter() {
+		// *** CAMBIO: Mantener ID_ART en el MODELO (índice 0) pero se OCULTARÁ de la
+		// vista ***
+		model.addColumn("ID_ART"); // Modelo Col 0
+		model.addColumn("Nombre"); // Modelo Col 1
+		model.addColumn("Descripción"); // Modelo Col 2
+		model.addColumn("Precio (€)"); // Modelo Col 3
+		model.addColumn("Oferta (%)"); // Modelo Col 4
+		model.addColumn("Stock"); // Modelo Col 5
+		model.addColumn("Cantidad"); // Modelo Col 6
+
+		// --- Creación Tabla ---
+		tableArticulo = new JTable(model) {
 			@Override
-			public void windowActivated(WindowEvent e) {
-				if (tableArticulo != null) {
-					cargarDatosTabla();
+			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+				// 'column' aquí es el índice del MODELO
+				Component c = super.prepareRenderer(renderer, row, column);
+				// Colores alternos
+				if (!isRowSelected(row)) {
+					Color alternateColor = UIManager.getColor("Table.alternateRowColor");
+					if (alternateColor == null)
+						alternateColor = new Color(0, 0, 0, 10);
+					c.setBackground(row % 2 != 0 ? alternateColor : getBackground());
 				}
+				// Padding en celdas
+				if (c instanceof JComponent) {
+					((JComponent) c).setBorder(BorderFactory.createEmptyBorder(PADDING_TABLA_CELDA_V,
+							PADDING_TABLA_CELDA_H, PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H));
+				}
+				// Alinear números a la derecha (basado en índice del MODELO)
+				if (column >= 3 && column <= 6 && c instanceof JLabel) { // Precio, Oferta, Stock, Cantidad
+					((JLabel) c).setHorizontalAlignment(SwingConstants.RIGHT);
+				} else if (c instanceof JLabel) { // Nombre, Descripción
+					((JLabel) c).setHorizontalAlignment(SwingConstants.LEFT);
+				}
+				return c;
 			}
+		};
 
-		});
-
-		// Añadir columnas al modelo (incluyendo id_art aunque se oculte)
-		model.addColumn("ID_ART"); // Columna 0
-		model.addColumn("Nombre"); // Columna 1
-		model.addColumn("Descripción"); // Columna 2
-		model.addColumn("Precio (€)"); // Columna 3 - Añadir unidad
-		model.addColumn("Oferta (%)"); // Columna 4 - Añadir unidad
-		model.addColumn("Stock"); // Columna 5
-		model.addColumn("Cantidad"); // Columna 6
-
-		tableArticulo.setModel(model);
-
-		// --- Configuración de Columnas (Ocultar ID, Anchos) ---
-		TableColumnModel columnModel = tableArticulo.getColumnModel();
-
-		// Ocultar la columna ID_ART (columna 0)
-		columnModel.removeColumn(columnModel.getColumn(0));
-		// OJO: Aunque se quite de la vista, sigue existiendo en el *modelo* (índice 0).
-		// Las referencias posteriores a columnas en la *vista* se desplazan (Nombre es
-		// ahora 0 en vista, pero 1 en modelo)
-		// Es más seguro referirse a columnas por su índice en el *modelo* al
-		// obtener/establecer datos.
-
-		// Ajustar anchos preferidos (ajusta estos valores según necesidad)
-		columnModel.getColumn(0).setPreferredWidth(150); // Nombre (índice 0 en vista)
-		columnModel.getColumn(1).setPreferredWidth(200); // Descripción (índice 1 en vista)
-		columnModel.getColumn(2).setPreferredWidth(70); // Precio (índice 2 en vista)
-		columnModel.getColumn(3).setPreferredWidth(70); // Oferta (índice 3 en vista)
-		columnModel.getColumn(4).setPreferredWidth(60); // Stock (índice 4 en vista)
-		columnModel.getColumn(5).setPreferredWidth(70); // Cantidad (índice 5 en vista)
-
-		// --- Configuración Adicional de la Tabla ---
-		tableArticulo.setAutoCreateRowSorter(true); // Permitir ordenar por columnas
-		tableArticulo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Solo seleccionar una fila/celda a la vez
-		tableArticulo.setCellSelectionEnabled(false); // Seleccionar filas enteras mejor que celdas
+		// --- Propiedades Tabla ---
+		tableArticulo.setFont(FONT_TABLA_CELDA);
+		tableArticulo.setRowHeight(tableArticulo.getRowHeight() + PADDING_INTERNO * 2); // Mayor altura
+		tableArticulo.setGridColor(UIManager.getColor("Table.gridColor"));
+		tableArticulo.setShowGrid(false);
+		tableArticulo.setShowHorizontalLines(true);
+		tableArticulo.setIntercellSpacing(new Dimension(0, 1));
+		tableArticulo.setAutoCreateRowSorter(true); // Permite ordenar
+		tableArticulo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tableArticulo.setCellSelectionEnabled(true);
 		tableArticulo.setRowSelectionAllowed(true);
-
-		// Configurar cabecera de la tabla
-		JTableHeader header = tableArticulo.getTableHeader();
-		header.setFont(FONT_TABLA_HEADER);
-		header.setReorderingAllowed(false);
-
-		// Para que pinte bien el fondo (especialmente con L&F modernos)
 		tableArticulo.setFillsViewportHeight(true);
 
-		tableArticulo.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(new JTextField()) {
-			private static final long serialVersionUID = 1L;
+		// --- Cabecera Tabla ---
+		JTableHeader header = tableArticulo.getTableHeader();
+		header.setFont(FONT_TABLA_HEADER);
+		header.setReorderingAllowed(false); // No permitir reordenar columnas manualmente
+		// *** CAMBIO: No permitir redimensionar columnas manualmente ***
+		header.setResizingAllowed(false);
 
-			@Override
-			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
-					int column) {
-				JTextField field = (JTextField) super.getTableCellEditorComponent(table, value, isSelected, row,
-						column);
+		// --- Configuración Columnas (OCULTAR ID_ART de la VISTA) ---
+		TableColumnModel columnModel = tableArticulo.getColumnModel();
+		// Obtener la columna que corresponde al índice 0 del MODELO (ID_ART)
+		TableColumn idColumn = columnModel.getColumn(model.getColumnCount() - 1); // Esto es propenso a errores si se
+																					// reordena el modelo
+																					// Mejorar obteniendo por
+																					// identificador si es posible, o
+																					// asegurarse que sea la primera
+		// *** CAMBIO: Ocultar la columna ID_ART de la VISTA ***
+		// Es crucial hacer esto ANTES de referirse a otros índices de vista
+		// OJO: Si se permite reordenar columnas, obtener la columna por identificador
+		// es más robusto
+		try {
+			TableColumn columnToHide = tableArticulo.getColumn("ID_ART"); // Obtener por nombre del modelo
+			// Removerla del modelo de columnas de la vista
+			columnModel.removeColumn(columnToHide);
+			// Alternativa si falla getColumn(String): remover por índice 0 de vista (si es
+			// la primera añadida al modelo y no se ha reordenado)
+			// columnModel.removeColumn(columnModel.getColumn(0));
+		} catch (IllegalArgumentException e) {
+			System.err.println("No se pudo encontrar la columna 'ID_ART' para ocultarla.");
+			// Intentar remover la primera columna visible, asumiendo que es ID_ART
+			try {
+				if (columnModel.getColumnCount() > 0) {
+					// CUIDADO: Esto removería la primera columna visible, sea cual sea
+					// columnModel.removeColumn(columnModel.getColumn(0));
+					System.err
+							.println("Aviso: Se intentó remover la primera columna visible como fallback para ID_ART.");
+				}
+			} catch (Exception ex) {
+				System.err.println("Fallo al remover columna por índice.");
+			}
+		}
 
-				// Crear un DocumentListener para detectar cambios mientras se escribe
-				field.getDocument().addDocumentListener(new DocumentListener() {
-					@Override
-					public void insertUpdate(DocumentEvent e) {
-						verificarNumero(field);
-					}
+		// --- Editor Personalizado para Cantidad ---
+		// El índice de vista para "Cantidad" ahora es 5 (porque ID_ART en modelo 0 se
+		// ocultó)
+		// Indices VISTA: Nombre(0), Desc(1), Precio(2), Oferta(3), Stock(4),
+		// Cantidad(5)
+		int cantidadViewIndex = 5; // Índice de la columna "Cantidad" en la *vista*
 
-					@Override
-					public void removeUpdate(DocumentEvent e) {
-						verificarNumero(field);
-					}
+		quantityEditorField = new JTextField();
+		quantityEditorField.setHorizontalAlignment(SwingConstants.RIGHT);
+		quantityEditorField.setBorder(BorderFactory.createEmptyBorder(1, 3, 1, 3));
+		quantityEditorField.getDocument().addDocumentListener(new DocumentListener() {
+			private void verificarNumero() {
+				String text = quantityEditorField.getText();
+				boolean valido = text.matches("[0-9]*");
 
-					@Override
-					public void changedUpdate(DocumentEvent e) {
-						verificarNumero(field);
-					}
-
-					// Verificar si el valor es numérico
-					private void verificarNumero(JTextField field) {
-						String text = field.getText();
-
-						// Si el texto no es un número, deshabilitar el botón
-						if (!text.matches("[0-9]*")) {
-							field.setForeground(Color.RED);
-							btnCompra.setEnabled(false); // Deshabilitar el botón
-						} else {
-							field.setForeground(Color.BLACK);
-							btnCompra.setEnabled(true); // Habilitar el botón
+				if (!valido && !text.isEmpty()) {
+					quantityEditorField.setForeground(COLOR_VALIDATION_ERROR);
+				} else {
+					quantityEditorField.setForeground(UIManager.getColor("TextField.foreground"));
+					if (valido && !text.isEmpty()) {
+						try {
+							int filaEditada = tableArticulo.getEditingRow();
+							int filaModelo = tableArticulo.convertRowIndexToModel(filaEditada);
+							if (filaModelo != -1) {
+								int cantidad = Integer.parseInt(text);
+								int stock = (Integer) model.getValueAt(filaModelo, 5); // Stock Modelo col 5
+								if (cantidad > stock || cantidad < 0) {
+									quantityEditorField.setForeground(COLOR_VALIDATION_ERROR);
+								}
+							}
+						} catch (Exception ignored) {
+							quantityEditorField.setForeground(COLOR_VALIDATION_ERROR);
 						}
 					}
-				});
+				}
+			}
 
-				return field; // Devolver el JTextField para que funcione como editor de la celda
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				verificarNumero();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				verificarNumero();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				verificarNumero();
 			}
 		});
+		// Aplicar editor a la columna de vista correcta (índice 5)
+		columnModel.getColumn(cantidadViewIndex).setCellEditor(new DefaultCellEditor(quantityEditorField));
 
-		// --- Listener para validar la cantidad ingresada ---
-		model.addTableModelListener(new TableModelListener() {
-			@Override
-			public void tableChanged(TableModelEvent e) {
-				// Verificar si el cambio fue una ACTUALIZACIÓN en la columna de CANTIDAD
-				// (índice 6 del *modelo*)
-				if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) {
-					int filaModelo = e.getFirstRow(); // Índice de la fila en el *modelo*
+		// --- Listener para Validar al Terminar Edición (en el Modelo) ---
+		model.addTableModelListener(e -> {
+			// Se sigue refiriendo a la columna 6 del MODELO (Cantidad)
+			if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) {
+				int filaModelo = e.getFirstRow();
+				if (filaModelo < 0 || filaModelo >= model.getRowCount())
+					return;
 
-					// Obtener valores del *modelo* usando los índices del modelo
-					Object cantidadObj = model.getValueAt(filaModelo, 6); // Cantidad (col 6)
-					Object stockObj = model.getValueAt(filaModelo, 5); // Stock (col 5)
+				Object cantidadObj = model.getValueAt(filaModelo, 6);
+				Object stockObj = model.getValueAt(filaModelo, 5); // Stock Modelo col 5
 
-					// Asegurarse de que los valores no sean nulos y sean Integers
-					if (cantidadObj != null && stockObj instanceof Integer) {
-						int stockDisponible = (Integer) stockObj;
-						try {
-							int cantidadIngresada = Integer.parseInt(cantidadObj.toString());
-							// Validar que la cantidad no sea negativa y no exceda el stock
-							if (cantidadIngresada < 0) {
-								// No permitir negativos, poner a 0
-								model.setValueAt(0, filaModelo, 6);
-							} else if (cantidadIngresada > stockDisponible) {
-								// Si excede el stock, advertir y ajustar al máximo posible (stock)
+				if (cantidadObj == null || cantidadObj.toString().isEmpty()) {
+					Object currentValue = model.getValueAt(filaModelo, 6);
+					// Establecer a 0 solo si no es ya 0 o null para evitar bucles
+					if (currentValue != null && !(currentValue instanceof Integer && (Integer) currentValue == 0)) {
+						SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
+					}
+					return;
+				}
+
+				if (stockObj instanceof Integer) {
+					int stockDisponible = (Integer) stockObj;
+					try {
+						int cantidadIngresada = Integer.parseInt(cantidadObj.toString());
+						if (cantidadIngresada < 0) {
+							SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
+						} else if (cantidadIngresada > stockDisponible) {
+							SwingUtilities.invokeLater(() -> {
+								JOptionPane
+										.showMessageDialog(VistaTienda.this,
+												"La cantidad excede el stock disponible (" + stockDisponible
+														+ "). Se ajustará.",
+												"Stock Insuficiente", JOptionPane.WARNING_MESSAGE);
 								model.setValueAt(stockDisponible, filaModelo, 6);
-							}
-						} catch (NumberFormatException e2) {
-							model.setValueAt(null, filaModelo, 6);
-							btnCompra.setEnabled(true);
+							});
 						}
+					} catch (NumberFormatException ex) {
+						SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
 					}
 				}
 			}
 		});
 
-		// --- Añadir Tabla con ScrollPane (CENTER) ---
+		// --- ScrollPane ---
 		JScrollPane scrollPane = new JScrollPane(tableArticulo);
-		scrollPane.setBorder(BorderFactory.createEmptyBorder(0, PADDING_INTERNO, 0, PADDING_INTERNO)); // Padding
-																										// lateral para
-																										// el scroll
+		scrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
 		add(scrollPane, BorderLayout.CENTER);
 	}
 
@@ -320,151 +398,241 @@ public class VistaTienda extends JDialog implements ActionListener {
 	 * tabla.
 	 */
 	public void cargarDatosTabla() {
-		// Limpiar tabla antes de cargar nuevos datos
+		if (tableArticulo.isEditing()) {
+			tableArticulo.getCellEditor().stopCellEditing();
+		}
 		model.setRowCount(0);
-
-		// Obtener los artículos del controlador/DAO
 		Map<Integer, Articulo> articulos = Principal.obtenerTodosArticulos();
 
 		if (articulos != null && !articulos.isEmpty()) {
 			for (Articulo art : articulos.values()) {
-				// Añadir solo artículos con stock > 0
 				if (art.getStock() > 0) {
-					model.addRow(new Object[] { art.getId_art(), // Col 0 (Modelo) - ID (oculto en vista)
-							art.getNombre(), // Col 1 (Modelo) - Nombre
-							art.getDescripcion(), // Col 2 (Modelo) - Descripción
-							art.getPrecio(), // Col 3 (Modelo) - Precio (usar Double)
-							art.getOferta(), // Col 4 (Modelo) - Oferta (usar Double)
-							art.getStock(), // Col 5 (Modelo) - Stock
-							null // Col 6 (Modelo) - Cantidad inicial (null o 0)
+					// *** CAMBIO: Asegurar que el ID_ART se añade en la posición 0 del Object[] ***
+					model.addRow(new Object[] { art.getId_art(), // Modelo Col 0 (Oculto en vista)
+							art.getNombre(), // Modelo Col 1
+							art.getDescripcion(), // Modelo Col 2
+							art.getPrecio(), // Modelo Col 3
+							art.getOferta(), // Modelo Col 4
+							art.getStock(), // Modelo Col 5
+							0 // Modelo Col 6 - Cantidad inicial 0
 					});
 				}
 			}
 		} else {
-			// Opcional: Mostrar un mensaje si no hay artículos
-			System.out.println("No se encontraron artículos o hubo un error al cargarlos.");
-			// Podrías mostrar un JLabel en lugar de la tabla indicando "No hay artículos
-			// disponibles".
+			System.out.println("No se encontraron artículos.");
 		}
+		// Ajustar anchos DESPUÉS de que los datos estén en la tabla y esta sea visible
+		// SwingUtilities.invokeLater(this::ajustarAnchosColumnaTabla);
 	}
 
 	/**
-	 * Maneja los eventos de clic en los botones.
-	 * 
-	 * @param e El evento de acción.
+	 * Ajusta el ancho preferido de cada columna visible de la tabla para que se
+	 * ajuste al contenido. Llamar DESPUÉS de cargar datos y de que la tabla sea
+	 * visible.
 	 */
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		Object source = e.getSource();
-
-		if (source == btnUsuario) {
-			mostrarVistaUsuario();
-		} else if (source == btnAdmin) {
-			mostrarVistaAdmin();
-		} else if (source == btnCompra) {
-			abrirCarrito();
-		}
-	}
-
-	/**
-	 * Muestra la ventana de gestión de datos del usuario.
-	 */
-	private void mostrarVistaUsuario() {
-		if (localClien != null) {
-			// Crear y mostrar la ventana de usuario, pasándole esta ventana como 'owner'
-			// Asumiendo que VistaUsuario es un JDialog
-			VistaUsuario vistaUsuario = new VistaUsuario(localClien, this); // 'this' es el JDialog VistaTienda
-			vistaUsuario.setVisible(true);
-			// No es necesario ocultar/mostrar VistaTienda si VistaUsuario es modal
-		} else {
-			JOptionPane.showMessageDialog(this, "No hay un cliente identificado.", "Error", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
-	/**
-	 * Muestra la ventana intermedia de administración.
-	 */
-	private void mostrarVistaAdmin() {
-		// Asumiendo que VentanaIntermedia es un JDialog o JFrame que toma un Owner
-		// Si es JDialog, pasar 'this'. Si necesita JFrame, pasar (Frame)getOwner()
-		VentanaIntermedia menuAdmin = new VentanaIntermedia(this); // Pasando este JDialog como owner
-		menuAdmin.setVisible(true);
-		// No es necesario ocultar/mostrar VistaTienda si VentanaIntermedia es modal
-		// Si tras cerrar la ventana admin hay cambios (ej. nuevo artículo), refrescar:
-		// cargarDatosTabla();
-	}
-
-	/**
-	 * Recopila los artículos seleccionados (con cantidad > 0) y abre la ventana del
-	 * carrito.
-	 */
-	private void abrirCarrito() {
-		Pedido pedidoActual = new Pedido(Principal.obtenerUltimoIdPed(), localClien.getId_usu(), 0,
-				LocalDateTime.now());
-		List<Compra> comprasParaCarrito = recopilarCompras(pedidoActual.getId_ped());
-
-		if (comprasParaCarrito.isEmpty()) {
-			JOptionPane.showMessageDialog(this, "No has seleccionado ningún artículo o cantidad.", "Carrito Vacío",
-					JOptionPane.INFORMATION_MESSAGE);
+	private void ajustarAnchosColumnaTabla() {
+		// Asegurarse de que la tabla tenga un tamaño antes de calcular
+		tableArticulo.revalidate();
+		if (tableArticulo.getWidth() == 0) {
+			// Si la tabla aún no tiene tamaño, posponer o usar pack() antes
+			SwingUtilities.invokeLater(this::ajustarAnchosColumnaTabla);
 			return;
 		}
 
+		TableColumnModel columnModel = tableArticulo.getColumnModel();
+		final int PADDING = PADDING_TABLA_CELDA_H * 2;
+
+		for (int columnView = 0; columnView < tableArticulo.getColumnCount(); columnView++) { // Iterar vistas
+			TableColumn tableColumn = columnModel.getColumn(columnView);
+			int headerWidth = getColumnHeaderWidth(tableArticulo, columnView);
+			int contentWidth = getMaximumColumnContentWidth(tableArticulo, columnView);
+			int preferredWidth = Math.max(headerWidth, contentWidth) + PADDING;
+
+			// Indices VISTA: Nombre(0), Desc(1), Precio(2), Oferta(3), Stock(4),
+			// Cantidad(5)
+			if (columnView == 0)
+				tableColumn.setMinWidth(150); // Nombre
+			if (columnView == 1)
+				tableColumn.setMinWidth(200); // Descripción
+			if (columnView == 2)
+				tableColumn.setMinWidth(75); // Precio
+			if (columnView == 3)
+				tableColumn.setMinWidth(75); // Oferta
+			if (columnView == 4)
+				tableColumn.setMinWidth(65); // Stock
+			if (columnView == 5) { // Cantidad
+				tableColumn.setMinWidth(75);
+				tableColumn.setMaxWidth(110); // Limitar ancho máximo de cantidad
+			}
+
+			tableColumn.setPreferredWidth(preferredWidth);
+		}
+		// Forzar redibujo de la cabecera para aplicar anchos
+		tableArticulo.getTableHeader().resizeAndRepaint();
+	}
+
+	// --- Métodos Auxiliares para Ancho de Columna (Sin cambios) ---
+	private int getColumnHeaderWidth(JTable table, int columnIndexView) {
+		TableColumn column = table.getColumnModel().getColumn(columnIndexView);
+		TableCellRenderer renderer = column.getHeaderRenderer();
+		if (renderer == null) {
+			renderer = table.getTableHeader().getDefaultRenderer();
+		}
+		Component comp = renderer.getTableCellRendererComponent(table, column.getHeaderValue(), false, false, -1,
+				columnIndexView);
+		return comp.getPreferredSize().width;
+	}
+
+	private int getMaximumColumnContentWidth(JTable table, int columnIndexView) {
+		int maxWidth = 0;
+		for (int row = 0; row < table.getRowCount(); row++) {
+			TableCellRenderer renderer = table.getCellRenderer(row, columnIndexView);
+			Component comp = table.prepareRenderer(renderer, row, columnIndexView);
+			maxWidth = Math.max(maxWidth, comp.getPreferredSize().width);
+		}
+		return maxWidth;
+	}
+
+	// --- Manejo de Acciones ---
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Object source = e.getSource();
+		if (source == btnUsuario)
+			mostrarVistaUsuario();
+		else if (source == btnAdmin)
+			mostrarVistaAdmin();
+		else if (source == btnCompra)
+			abrirCarrito();
+	}
+
+	// --- Métodos de Navegación/Acción ---
+	private void mostrarVistaUsuario() {
+		if (localClien != null) {
+			VistaUsuario vistaUsuario = new VistaUsuario(localClien, this);
+			vistaUsuario.setVisible(true);
+		} else {
+			JOptionPane.showMessageDialog(this, "Cliente no identificado.", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void mostrarVistaAdmin() {
+		VentanaIntermedia menuAdmin = new VentanaIntermedia(this);
+		menuAdmin.setVisible(true);
+		cargarDatosTabla();
+		ajustarAnchosColumnaTabla(); // Reajustar
+	}
+
+	private void abrirCarrito() {
+		if (tableArticulo.isEditing()) {
+			if (!tableArticulo.getCellEditor().stopCellEditing()) {
+				return;
+			}
+		}
+		if (!validarCantidadesParaCarrito()) {
+			JOptionPane.showMessageDialog(this, "Corrige cantidades inválidas antes de continuar.",
+					"Cantidades Inválidas", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		Pedido pedidoActual = new Pedido(Principal.obtenerUltimoIdPed(), localClien.getId_usu(), 0,
+				LocalDateTime.now());
+		List<Compra> comprasParaCarrito = recopilarCompras(pedidoActual.getId_ped());
+		if (comprasParaCarrito.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "Añade artículos al carrito (cantidad > 0).", "Carrito Vacío",
+					JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
 		VistaCarrito carritoDialog = new VistaCarrito(this, comprasParaCarrito, pedidoActual);
 		carritoDialog.setVisible(true);
+		cargarDatosTabla();
+		ajustarAnchosColumnaTabla(); // Reajustar
 	}
 
 	/**
-	 * Recorre el modelo de la tabla y crea una lista de objetos Compra para los
-	 * artículos con cantidad > 0.
-	 * @param idePed 
-	 * 
-	 * @return Una lista de objetos Compra.
+	 * Verifica si todas las cantidades son válidas.
+	 */
+	private boolean validarCantidadesParaCarrito() {
+		if (tableArticulo.isEditing()) {
+			if (!tableArticulo.getCellEditor().stopCellEditing()) {
+				return false;
+			}
+		}
+		for (int i = 0; i < model.getRowCount(); i++) {
+			Object cantidadObj = model.getValueAt(i, 6); // Cantidad Modelo Col 6
+			if (cantidadObj != null && !cantidadObj.toString().isEmpty()) {
+				try {
+					int cantidad = Integer.parseInt(cantidadObj.toString());
+					int stock = (Integer) model.getValueAt(i, 5); // Stock Modelo Col 5
+					if (cantidad < 0 || cantidad > stock) {
+						return false;
+					}
+				} catch (NumberFormatException e) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Recopila las compras basándose en el modelo de la tabla.
 	 */
 	private List<Compra> recopilarCompras(int idePed) {
 		List<Compra> listaCompra = new ArrayList<>();
 		for (int i = 0; i < model.getRowCount(); i++) {
-			// Obtener cantidad del modelo (índice 6)
-			Object valor = model.getValueAt(i, 6);
+			// *** CAMBIO: Obtener ID del MODELO (col 0) y Cantidad del MODELO (col 6) ***
+			Object valorId = model.getValueAt(i, 0); // ID Artículo (Modelo col 0)
+			Object valorCantidad = model.getValueAt(i, 6); // Cantidad (Modelo col 6)
 
-			if (tableArticulo.isEditing() && tableArticulo.getEditingRow() == i) {
-				Component editor = tableArticulo.getEditorComponent();
-				if (editor instanceof JTextField txtField) {
-					valor = txtField.getText();
-				}
-			}
-			if (valor != null) {
+			if (valorCantidad != null && valorId instanceof Integer) {
 				try {
-					int cantidadFinal = Integer.parseInt(valor.toString());
-					if (cantidadFinal > 0) {
-						Compra palCarro = new Compra((Integer) model.getValueAt(i, 0), idePed, cantidadFinal);
+					int cantidadFinal = Integer.parseInt(valorCantidad.toString());
+					if (cantidadFinal > 0) { // Solo añadir si la cantidad es positiva
+						int idArt = (Integer) valorId;
+						Compra palCarro = new Compra(idArt, idePed, cantidadFinal);
 						listaCompra.add(palCarro);
 					}
 				} catch (NumberFormatException e) {
-					model.setValueAt(null, i, 6);
+					System.err.println("Error formato al recopilar compra fila " + i + ": " + valorCantidad);
 				}
 			}
 		}
 		return listaCompra;
 	}
 
-	/**
-	 * Método auxiliar para cargar iconos. Maneja errores si el icono no se
-	 * encuentra.
-	 * 
-	 * @param path Ruta del icono dentro del classpath (ej. "/iconos/user.png").
-	 * @return Un ImageIcon o null si no se pudo cargar.
-	 */
-	private ImageIcon cargarIcono(String path) {
+	// --- Método Cargar Icono ---
+	private ImageIcon cargarIcono(String path, int width, int height) {
 		java.net.URL imgURL = getClass().getResource(path);
 		if (imgURL != null) {
-			// Escalar icono si es necesario (ejemplo a 16x16)
 			ImageIcon originalIcon = new ImageIcon(imgURL);
-			Image image = originalIcon.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
-			return new ImageIcon(image);
-			// return new ImageIcon(imgURL); // Sin escalar
+			if (originalIcon.getIconWidth() != width || originalIcon.getIconHeight() != height) {
+				Image image = originalIcon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+				return new ImageIcon(image);
+			} else {
+				return originalIcon;
+			}
 		} else {
-			System.err.println("No se pudo encontrar el icono: " + path);
-			return null; // O un icono por defecto
+			System.err.println("Icono no encontrado: " + path);
+			// Crear placeholder
+			BufferedImage placeholder = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g2d = placeholder.createGraphics();
+			try {
+				g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				g2d.setColor(Color.LIGHT_GRAY);
+				g2d.fillRect(0, 0, width, height);
+				g2d.setColor(Color.DARK_GRAY);
+				g2d.drawRect(0, 0, width - 1, height - 1);
+				g2d.setColor(Color.RED);
+				g2d.setStroke(new BasicStroke(2));
+				g2d.drawLine(width / 4, height / 4, 3 * width / 4, 3 * height / 4);
+				g2d.drawLine(width / 4, 3 * height / 4, 3 * width / 4, height / 4);
+			} finally {
+				g2d.dispose();
+			}
+			return new ImageIcon(placeholder);
 		}
+	}
+
+	private ImageIcon cargarIcono(String path) {
+		return cargarIcono(path, 16, 16);
 	}
 }
