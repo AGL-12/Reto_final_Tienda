@@ -309,8 +309,6 @@ public class DaoImplementMySQL implements Dao {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			// Manejo de errores de base de datos
-
 		} finally {
 			closeConnection();
 		}
@@ -537,7 +535,6 @@ public class DaoImplementMySQL implements Dao {
 	@Override
 	public List<Articulo> obtenerArticulosPedido(int id_clien) {
 		List<Articulo> listaArticulo = new ArrayList<>();
-		// TODO Auto-generated method stub
 		openConnection();
 		ResultSet rs = null;
 
@@ -555,7 +552,6 @@ public class DaoImplementMySQL implements Dao {
 				listaArticulo.add(art);
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			try {
@@ -573,8 +569,6 @@ public class DaoImplementMySQL implements Dao {
 	@Override
 	public List<Pedido> obtenerPedidosCliente(int id_usu) {
 		List<Pedido> listaPedidos = new ArrayList<>();
-		// TODO Auto-generated method stub
-
 		openConnection();
 		ResultSet rs = null;
 		try {
@@ -614,7 +608,6 @@ public class DaoImplementMySQL implements Dao {
 				stmt.executeUpdate();
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			closeConnection();
@@ -636,7 +629,6 @@ public class DaoImplementMySQL implements Dao {
 
 			stmt.executeUpdate();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			closeConnection();
@@ -658,7 +650,6 @@ public class DaoImplementMySQL implements Dao {
 			stmt.executeUpdate();
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			closeConnection();
@@ -731,7 +722,6 @@ public class DaoImplementMySQL implements Dao {
 					rs.close();
 				closeConnection();
 			} catch (SQLException e) {
-				System.err.println("Error al cerrar la conexión: " + e.getMessage());
 				e.printStackTrace();
 			}
 		}

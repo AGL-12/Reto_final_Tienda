@@ -119,6 +119,7 @@ public class AdminConfigUsuario extends JDialog implements ActionListener {
 						VistaUsuario vista = new VistaUsuario(localClien, this);
 						vista.setVisible(true);
 					}
+					//TODO
 					break;
 				}
 

@@ -43,7 +43,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
     private JDialog VentanaIntermedia;
     private JComboBox<Articulo> comboBoxArticulo; 
     private Map<Integer, Articulo> articulos;
-
+    private JLabel lblNombre,lblDescripcion,lblStock,lblPrecio,lblArticulo,lblOferta,lblSeccion;
 
     private final Color COLOR_ERROR = Color.RED;
     private final Color COLOR_NORMAL = Color.BLACK;
@@ -61,7 +61,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         setBounds(100, 100, 450, 350);
         getContentPane().setLayout(null);
 
-        JLabel lblNombre = new JLabel("Name");
+        lblNombre = new JLabel("Name");
         lblNombre.setFont(new Font("Tahoma", Font.PLAIN, 18));
         lblNombre.setBounds(61, 52, 46, 28);
         getContentPane().add(lblNombre);
@@ -71,7 +71,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         getContentPane().add(textNombre);
         textNombre.setColumns(10);
 
-        JLabel lblDescripcion = new JLabel("Description");
+        lblDescripcion = new JLabel("Description");
         lblDescripcion.setFont(new Font("Tahoma", Font.PLAIN, 18));
         lblDescripcion.setBounds(19, 84, 98, 28);
         getContentPane().add(lblDescripcion);
@@ -81,7 +81,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         textDescripcion.setBounds(117, 91, 183, 20);
         getContentPane().add(textDescripcion);
 
-        JLabel lblStock = new JLabel("Stock");
+        lblStock = new JLabel("Stock");
         lblStock.setFont(new Font("Tahoma", Font.PLAIN, 18));
         lblStock.setBounds(59, 120, 48, 28);
         getContentPane().add(lblStock);
@@ -91,7 +91,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         textStock.setBounds(117, 122, 183, 20);
         getContentPane().add(textStock);
 
-        JLabel lblPrecio = new JLabel("Price");
+        lblPrecio = new JLabel("Price");
         lblPrecio.setFont(new Font("Tahoma", Font.PLAIN, 18));
         lblPrecio.setBounds(59, 148, 48, 28);
         getContentPane().add(lblPrecio);
@@ -101,7 +101,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         textPrecio.setBounds(117, 153, 183, 20);
         getContentPane().add(textPrecio);
 
-        JLabel lblOferta = new JLabel("Offer");
+        lblOferta = new JLabel("Offer");
         lblOferta.setFont(new Font("Tahoma", Font.PLAIN, 18));
         lblOferta.setBounds(59, 177, 48, 28);
         getContentPane().add(lblOferta);
@@ -111,7 +111,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         textOferta.setBounds(117, 184, 183, 20);
         getContentPane().add(textOferta);
 
-        JLabel lblSeccion = new JLabel("Section");
+        lblSeccion = new JLabel("Section");
         lblSeccion.setFont(new Font("Tahoma", Font.PLAIN, 18));
         lblSeccion.setBounds(48, 213, 69, 28);
         getContentPane().add(lblSeccion);
@@ -147,7 +147,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         getContentPane().add(comboBoxSeccion);
         comboBoxSeccion.setSelectedIndex(-1);
 
-        JLabel lblArticulo = new JLabel("Articulo");
+        lblArticulo = new JLabel("Articulo");
         lblArticulo.setFont(new Font("Tahoma", Font.PLAIN, 18));
         lblArticulo.setBounds(48, 20, 69, 28);
         getContentPane().add(lblArticulo);
@@ -315,10 +315,11 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 
     private void modificar() {
         Articulo art = recopilarInformacion();
+        Articulo seleccionado;
         if (art == null) return;
 
         try {
-            Articulo seleccionado = (Articulo) comboBoxArticulo.getSelectedItem();
+            seleccionado = (Articulo) comboBoxArticulo.getSelectedItem();
             if (seleccionado != null && seleccionado.getId_art() != 0) {
                  art.setId_art(seleccionado.getId_art());
                  Principal.modificarArticulo(art);
@@ -334,12 +335,13 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 
     private void eliminar() {
          Articulo art = null;
+         int confirm;
          if(comboBoxArticulo.getSelectedIndex() > 0){
             art = (Articulo) comboBoxArticulo.getSelectedItem();
         }
 
         if (art != null && art.getId_art() != 0) {
-             int confirm = JOptionPane.showConfirmDialog(this,
+             confirm = JOptionPane.showConfirmDialog(this,
                      "¿Está seguro de que desea eliminar el artículo '" + art.getNombre() + "'?",
                      "Confirmar Eliminación",
                      JOptionPane.YES_NO_OPTION,
@@ -378,7 +380,6 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
     private void añadir() {
         Articulo art = recopilarInformacion(); 
         if (art == null) return;
-
         try {
              art.setId_art(0); 
              Principal.añadirArticulo(art);
@@ -391,12 +392,10 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 
 
     private Articulo recopilarInformacion() {
-
-         if (!comprobarCampos()){ 
+    	Articulo art = new Articulo(); 
+    	if (!comprobarCampos()){ 
               return null; 
          }
-
-        Articulo art = new Articulo();
         try {
             art.setNombre(textNombre.getText().trim());
             art.setDescripcion(textDescripcion.getText().trim());
@@ -406,10 +405,8 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
             art.setSeccion((Seccion) comboBoxSeccion.getSelectedItem());
             return art;
         } catch (NumberFormatException e) {
-             System.err.println("Error de formato inesperado en recopilarInformacion.");
              return null;
         } catch (Exception e){
-             System.err.println("Error inesperado en recopilarInformacion: " + e.getMessage());
              return null;
         }
 
@@ -418,6 +415,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 
     private boolean comprobarCampos() {
         boolean verificador = true; 
+        int stock;
 
         if (textNombre.getText().trim().isEmpty() ||
             textDescripcion.getText().trim().isEmpty() ||
@@ -439,7 +437,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 
         if (verificador) { 
              try {
-                 int stock = Integer.parseInt(textStock.getText().trim());
+                 stock = Integer.parseInt(textStock.getText().trim());
                  if (stock < 0) {
                      verificador = false;
                      textStock.setForeground(COLOR_ERROR);
