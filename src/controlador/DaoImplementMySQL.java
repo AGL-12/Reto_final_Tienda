@@ -44,7 +44,7 @@ public class DaoImplementMySQL implements Dao {
 	final String MODIFICAR_ARTICULO = "UPDATE articulo SET nombre = ?, descripcion = ?, stock = ?, precio = ?, oferta = ?, seccion = ? WHERE id_art = ?";
 
 	final String LOGIN = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
-	final String INSERTAR_CLIENTE = "INSERT INTO cliente(usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?)";
+	final String INSERTAR_CLIENTE = "INSERT INTO cliente(id_clien, usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?,?)";
 	final String ELIMINAR_CLIENTE = "DELETE from cliente where id_clien=?";
 	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?;";
 
@@ -283,8 +283,49 @@ public class DaoImplementMySQL implements Dao {
 		}
 		return paraCargar;
 	}
-
+	
 	@Override
+	public void altaCliente(Cliente clien) throws AltaError {
+	    try {
+	        // Verificación previa de usuario existente (puedes mantenerla)
+	        if (existeUsuario(clien.getUsuario())) {
+	            throw new AltaError("El nombre de usuario '" + clien.getUsuario() + "' ya existe.");
+	        }
+
+	        openConnection();
+
+	        // Generación del ID usando tu método (ahora corregido)
+	        int nuevoIdCliente = obtenerNewIdCliente();
+	        clien.setId_usu(nuevoIdCliente); // Asigna el ID al objeto
+
+	        // Prepara el statement con el SQL MODIFICADO (8 placeholders)
+	        stmt = con.prepareStatement(INSERTAR_CLIENTE);
+
+	        // Asigna los parámetros en el orden CORRECTO según el nuevo SQL
+	        stmt.setInt(1, clien.getId_usu());           // 1º '?' -> id_clien
+	        stmt.setString(2, clien.getUsuario());       // 2º '?' -> usuario
+	        stmt.setString(3, clien.getContra());        // 3º '?' -> contra
+	        stmt.setString(4, clien.getDni());           // 4º '?' -> dni
+	        stmt.setString(5, clien.getCorreo());        // 5º '?' -> correo
+	        stmt.setString(6, clien.getDireccion());     // 6º '?' -> direccion
+	        stmt.setString(7, clien.getMetodo_pago().name()); // 7º '?' -> metodo_pago
+	        stmt.setString(8, clien.getNum_cuenta());    // 8º '?' -> num_cuenta
+
+	        stmt.executeUpdate();
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        // Considera si este error podría ser por una condición de carrera (race condition)
+	        // si dos hilos llaman a obtenerNewIdCliente() casi al mismo tiempo.
+	        throw new AltaError("Error de base de datos al intentar registrar el cliente.");
+	    } catch (AltaError ae) {
+	        throw ae; // Relanza la excepción de usuario duplicado
+	    } finally {
+	        closeConnection();
+	    }
+	}
+
+	/*@Override
 	public void altaCliente(Cliente clien) throws AltaError {
 	
 		try {
@@ -315,7 +356,7 @@ public class DaoImplementMySQL implements Dao {
 		} finally {
 			closeConnection();
 		}
-	}
+	}*/
 
 	@Override
 	public void modificarCliente(Cliente clien) throws modifyError {
@@ -508,7 +549,7 @@ public class DaoImplementMySQL implements Dao {
 		return busca;
 	}
 
-	@Override
+	/*@Override
 	public int obtenerNewIdCliente() {
 		int ultimoId = 0;
 		ResultSet rs = null;
@@ -534,7 +575,7 @@ public class DaoImplementMySQL implements Dao {
 		}
 		return ultimoId + 1;
 	}
-
+*/
 	@Override
 	public List<Articulo> obtenerArticulosPedido(int id_clien) {
 		List<Articulo> listaArticulo = new ArrayList<>();
@@ -705,10 +746,11 @@ public class DaoImplementMySQL implements Dao {
 			try {
 				if (rs != null)
 					rs.close();
-				closeConnection();
+				
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
+			closeConnection();
 		}
 
 		return usuarioExiste;
@@ -738,5 +780,36 @@ public class DaoImplementMySQL implements Dao {
 			}
 		}
 		return ultimoIdArt + 1;
+	}
+	
+	@Override
+	public int obtenerNewIdCliente() {
+	    int ultimoId = 0;
+	    ResultSet rs = null;
+	  
+	    openConnection();
+	    try {
+	      
+	        stmt = con.prepareStatement(newIdCliente); //
+	        rs = stmt.executeQuery();
+
+	        if (rs.next()) {
+	            ultimoId = rs.getInt(1);
+	        }
+	       
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	       
+	    } finally {
+	      
+	        try {
+	            if (rs != null)
+	                rs.close();
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	       // closeConnection(); 
+	    }
+	    return ultimoId + 1;
 	}
 }
