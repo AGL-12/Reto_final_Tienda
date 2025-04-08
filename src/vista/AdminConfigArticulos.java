@@ -44,7 +44,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
     private JComboBox<Articulo> comboBoxArticulo; 
     private Map<Integer, Articulo> articulos;
     private JLabel lblNombre,lblDescripcion,lblStock,lblPrecio,lblArticulo,lblOferta,lblSeccion;
-
+    private DocumentListener validationListener;
     private final Color COLOR_ERROR = Color.RED;
     private final Color COLOR_NORMAL = Color.BLACK;
 
@@ -177,7 +177,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
          }
 
 
-        DocumentListener validationListener = new DocumentListener() {
+        validationListener = new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 actualizarValidacion(e);
