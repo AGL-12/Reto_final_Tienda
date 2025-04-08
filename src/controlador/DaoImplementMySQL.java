@@ -286,13 +286,15 @@ public class DaoImplementMySQL implements Dao {
 
 	@Override
 	public void altaCliente(Cliente clien) throws AltaError {
-
+	
 		try {
 			// Primero verificamos si el usuario ya existe
 			if (existeUsuario(clien.getUsuario())) {
 				throw new AltaError();
 			} else {
 				openConnection();
+				int nuevoIdCliente = obtenerNewIdCliente();
+				clien.setId_usu(nuevoIdCliente);
 				// Si el usuario no existe, procedemos con la inserción
 				stmt = con.prepareStatement(INSERTAR_CLIENTE);
 				stmt.setInt(1, clien.getId_usu());

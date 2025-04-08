@@ -12,9 +12,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableCellRenderer; // Necesario para transparencia
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellEditor; // Necesario para transparencia
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -22,7 +23,8 @@ import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage; // Importado para el icono placeholder
+import java.awt.image.BufferedImage;
+import java.net.URL; // Necesario para cargar imagen de fondo
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +32,8 @@ import java.util.Map;
 import java.util.Objects;
 
 // Importar FlatLaf (RECUERDA CONFIGURARLO EN TU main)
-// import com.formdev.flatlaf.FlatClientProperties; // Para propiedades específicas
-// import com.formdev.flatlaf.extras.FlatSVGIcon; // Si usas iconos SVG
+// import com.formdev.flatlaf.FlatClientProperties;
+// import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 // Opcional pero recomendado para layouts flexibles: MigLayout
 // import net.miginfocom.swing.MigLayout;
@@ -46,25 +48,23 @@ public class VistaTienda extends JDialog implements ActionListener {
     private JLabel lblTitulo, lblLogo;
     private DefaultTableModel model;
     private JTextField quantityEditorField;
+    private BackgroundPanel panelFondo; // Panel que tendrá el fondo
 
     // --- Datos ---
     private Cliente localClien;
 
     // --- Constantes de Estilo ---
-    private static final Font FONT_TITULO = new Font("Segoe UI", Font.BOLD, 24); // Ligeramente más grande
+    private static final Font FONT_TITULO = new Font("Segoe UI", Font.BOLD, 24);
     private static final Font FONT_BOTON = new Font("Segoe UI", Font.BOLD, 13);
     private static final Font FONT_TABLA_HEADER = new Font("Segoe UI", Font.BOLD, 12);
     private static final Font FONT_TABLA_CELDA = new Font("Segoe UI", Font.PLAIN, 12);
-
-    // Color de acento (se usará implícitamente por FlatLaf para botón primario)
-    // private static final Color COLOR_ACCENT = new Color(0x005A9C); // Ya no necesario si se usa buttonType=primary
     private static final Color COLOR_VALIDATION_ERROR = Color.RED;
 
     // Padding y Espaciado
     private static final int PADDING_GENERAL = 15;
     private static final int PADDING_INTERNO = 8;
-    private static final int PADDING_TABLA_CELDA_V = 5; // Más padding vertical en celdas
-    private static final int PADDING_TABLA_CELDA_H = 10; // Más padding horizontal en celdas
+    private static final int PADDING_TABLA_CELDA_V = 5;
+    private static final int PADDING_TABLA_CELDA_H = 10;
 
     /**
      * Constructor
@@ -74,22 +74,27 @@ public class VistaTienda extends JDialog implements ActionListener {
         this.localClien = clien;
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        // --- Layout Principal y Padding ---
-        setLayout(new BorderLayout(PADDING_GENERAL, PADDING_GENERAL));
-        ((JPanel) getContentPane()).setBorder(BorderFactory.createEmptyBorder(
-                PADDING_GENERAL, PADDING_GENERAL, PADDING_GENERAL, PADDING_GENERAL));
+        // --- Layout para el BackgroundPanel (para contener otros componentes) ---
+        panelFondo = new BackgroundPanel("/imagenes/fondoTienda.png");
+        panelFondo.setLayout(new BorderLayout()); // Necesario para organizar los demás paneles
 
-        // --- Inicializar Componentes ---
-        initComponents();
+        // *** CAMBIO CLAVE: Establecer panelFondo como ContentPane ***
+        setContentPane(panelFondo);
+
+        // --- Inicializar Componentes (Cabecera y Botones) ---
+        initComponents(); // Se añaden a NORTH y SOUTH
+
+        // --- Configurar Tabla (El ScrollPane se añadirá DENTRO del panelFondo) ---
         configurarTabla();
+
+        // --- Cargar datos y ajustar ---
         cargarDatosTabla();
-        // Ajustar anchos DESPUÉS de cargar datos
         ajustarAnchosColumnaTabla();
 
         // --- Configuración Final Ventana ---
-        pack(); // Ajustar al contenido
-        setMinimumSize(new Dimension(750, 550)); // Ajustar tamaño mínimo si es necesario
-        setLocationRelativeTo(owner); // Centrar
+        pack();
+        setMinimumSize(new Dimension(750, 550));
+        setLocationRelativeTo(owner);
     }
 
     /**
@@ -97,51 +102,38 @@ public class VistaTienda extends JDialog implements ActionListener {
      */
     private void initComponents() {
         // --- Panel Cabecera (NORTH) ---
-        JPanel panelCabecera = new JPanel(new FlowLayout(FlowLayout.CENTER, PADDING_INTERNO * 2, 0)); // Más espacio entre logo y título
-        panelCabecera.setBorder(BorderFactory.createEmptyBorder(PADDING_INTERNO, 0, PADDING_GENERAL, 0)); // Espacio arriba/abajo
+        JPanel panelCabecera = new JPanel(new FlowLayout(FlowLayout.CENTER, PADDING_INTERNO * 2, 0));
+        panelCabecera.setBorder(BorderFactory.createEmptyBorder(PADDING_INTERNO, 0, PADDING_GENERAL, 0));
+        panelCabecera.setOpaque(false); // <<< --- HACER TRANSPARENTE
 
-        // Logo (Placeholder)
-        // *** CAMBIO: Aumentar tamaño del logo aún más (ej. a 64x64) ***
-        lblLogo = new JLabel(cargarIcono("/iconos/tienda_logo.png", 64, 64)); // Ajusta tamaño según necesidad
+        lblLogo = new JLabel(cargarIcono("/iconos/tienda_logo.png", 64, 64));
         panelCabecera.add(lblLogo);
-
-        // Título
         lblTitulo = new JLabel("DYE TOOLS - Catálogo");
         lblTitulo.setFont(FONT_TITULO);
+        // Opcional: Cambiar color si no contrasta con el fondo
+        // lblTitulo.setForeground(Color.WHITE);
         panelCabecera.add(lblTitulo);
-
         add(panelCabecera, BorderLayout.NORTH);
 
         // --- Panel Botones (SOUTH) ---
         JPanel panelBotones = new JPanel();
         panelBotones.setLayout(new BoxLayout(panelBotones, BoxLayout.X_AXIS));
-        panelBotones.setBorder(BorderFactory.createEmptyBorder(PADDING_GENERAL, 0, 0, 0)); // Espacio arriba
+        panelBotones.setBorder(BorderFactory.createEmptyBorder(PADDING_GENERAL, 0, 0, 0));
+        panelBotones.setOpaque(false); // <<< --- HACER TRANSPARENTE
 
-        // Crear botones
         btnUsuario = crearBoton("Mi Cuenta", "/iconos/user.png");
         btnAdmin = crearBoton("Admin Panel", "/iconos/admin.png");
         btnCompra = crearBoton("Ver Carrito", "/iconos/cart.png");
-
-        // *** CAMBIO: Estilo Botón Carrito usando Propiedad FlatLaf ***
-        // Indicar que es el botón de acción principal, el tema (FlatLaf) se encargará del estilo
-        // para asegurar buena visibilidad y coherencia.
         btnCompra.putClientProperty("JButton.buttonType", "primary");
-        // Quitar estilos manuales de color para no interferir con el tema
-        // btnCompra.setBackground(COLOR_ACCENT); // <- Quitar
-        // btnCompra.setForeground(Color.WHITE);   // <- Quitar
-
-        // Visibilidad Admin
         btnAdmin.setVisible(localClien != null && localClien.isEsAdmin());
 
-        // Añadir botones al panel (Alternativa BoxLayout)
         panelBotones.add(btnUsuario);
         if (btnAdmin.isVisible()) {
             panelBotones.add(Box.createHorizontalStrut(PADDING_INTERNO));
             panelBotones.add(btnAdmin);
         }
-        panelBotones.add(Box.createHorizontalGlue()); // Empujar a la derecha
+        panelBotones.add(Box.createHorizontalGlue());
         panelBotones.add(btnCompra);
-
         add(panelBotones, BorderLayout.SOUTH);
     }
 
@@ -156,6 +148,10 @@ public class VistaTienda extends JDialog implements ActionListener {
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.setFocusPainted(false);
         btn.setMargin(new Insets(PADDING_INTERNO, PADDING_INTERNO * 2, PADDING_INTERNO, PADDING_INTERNO * 2));
+        // Opcional: Hacer botones semi-transparentes si se quiere
+        // btn.setOpaque(false);
+        // btn.setContentAreaFilled(false); // Quita el fondo por defecto
+        // btn.setBorderPainted(true); // Mantener borde
         return btn;
     }
 
@@ -165,8 +161,6 @@ public class VistaTienda extends JDialog implements ActionListener {
     private void configurarTabla() {
         // --- Modelo ---
         model = new DefaultTableModel() {
-            // *** CAMBIO: Actualizar índices por eliminación de ID_ART de la vista ***
-            // Indices del MODELO: ID(0, oculto), Nombre(1), Desc(2), Precio(3), Oferta(4), Stock(5), Cant(6)
             @Override
             public Class<?> getColumnClass(int columnIndex) {
                 switch (columnIndex) {
@@ -180,42 +174,65 @@ public class VistaTienda extends JDialog implements ActionListener {
             }
             @Override
             public boolean isCellEditable(int row, int column) {
-                // La editabilidad se basa en el índice del MODELO
                 return column == 6; // Modelo col 6 = Cantidad
             }
         };
-        // *** CAMBIO: Mantener ID_ART en el MODELO (índice 0) pero se OCULTARÁ de la vista ***
-        model.addColumn("ID_ART");       // Modelo Col 0
-        model.addColumn("Nombre");       // Modelo Col 1
+        model.addColumn("ID_ART");     // Modelo Col 0
+        model.addColumn("Nombre");     // Modelo Col 1
         model.addColumn("Descripción");  // Modelo Col 2
-        model.addColumn("Precio (€)");   // Modelo Col 3
-        model.addColumn("Oferta (%)");   // Modelo Col 4
-        model.addColumn("Stock");        // Modelo Col 5
+        model.addColumn("Precio (€)");  // Modelo Col 3
+        model.addColumn("Oferta (%)");  // Modelo Col 4
+        model.addColumn("Stock");      // Modelo Col 5
         model.addColumn("Cantidad");     // Modelo Col 6
 
         // --- Creación Tabla ---
         tableArticulo = new JTable(model) {
             @Override
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-                // 'column' aquí es el índice del MODELO
                 Component c = super.prepareRenderer(renderer, row, column);
-                // Colores alternos
-                if (!isRowSelected(row)) {
-                    Color alternateColor = UIManager.getColor("Table.alternateRowColor");
-                    if (alternateColor == null) alternateColor = new Color(0,0,0, 10);
-                    c.setBackground(row % 2 != 0 ? alternateColor : getBackground());
-                }
-                // Padding en celdas
+
+                // --- Hacer celda transparente ---
                 if (c instanceof JComponent) {
-                    ((JComponent) c).setBorder(BorderFactory.createEmptyBorder(
-                        PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H,
-                        PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H));
+                    ((JComponent)c).setOpaque(false);
                 }
-                // Alinear números a la derecha (basado en índice del MODELO)
-                if (column >= 3 && column <= 6 && c instanceof JLabel) { // Precio, Oferta, Stock, Cantidad
-                    ((JLabel) c).setHorizontalAlignment(SwingConstants.RIGHT);
-                } else if (c instanceof JLabel) { // Nombre, Descripción
-                    ((JLabel) c).setHorizontalAlignment(SwingConstants.LEFT);
+
+                // --- Colores de fondo semi-transparentes ---
+                Color alternateColor = new Color(230, 240, 255, 100); // Azul claro semi-transparente
+                Color baseColor = new Color(255, 255, 255, 120); // Blanco semi-transparente
+
+                if (!isRowSelected(row)) {
+                    c.setBackground(row % 2 != 0 ? alternateColor : baseColor);
+                    // Asegurar que el texto sea visible
+                    c.setForeground(Color.BLACK); // O el color que mejor contraste
+                } else {
+                    // Color de selección también semi-transparente
+                    Color selectionColor = tableArticulo.getSelectionBackground();
+                    c.setBackground(new Color(selectionColor.getRed(), selectionColor.getGreen(), selectionColor.getBlue(), 150));
+                    // Asegurar texto visible en selección
+                    c.setForeground(Color.blue); // O un color fijo
+                }
+
+                // --- Padding (sin cambios) ---
+                if (c instanceof JComponent) {
+                   ((JComponent) c).setBorder(BorderFactory.createEmptyBorder(
+                           PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H,
+                           PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H));
+                }
+                // --- Alineación (sin cambios) ---
+                if (column >= 3 && column <= 6 && c instanceof JLabel) {
+                   ((JLabel) c).setHorizontalAlignment(SwingConstants.RIGHT);
+                } else if (c instanceof JLabel) {
+                   ((JLabel) c).setHorizontalAlignment(SwingConstants.LEFT);
+                }
+                return c;
+           }
+
+            // --- Hacer Editor Transparente ---
+            @Override
+            public Component prepareEditor(TableCellEditor editor, int row, int column) {
+                Component c = super.prepareEditor(editor, row, column);
+                if (c instanceof JComponent) {
+                    ((JComponent)c).setOpaque(false);
                 }
                 return c;
             }
@@ -223,128 +240,108 @@ public class VistaTienda extends JDialog implements ActionListener {
 
         // --- Propiedades Tabla ---
         tableArticulo.setFont(FONT_TABLA_CELDA);
-        tableArticulo.setRowHeight(tableArticulo.getRowHeight() + PADDING_INTERNO * 2); // Mayor altura
-        tableArticulo.setGridColor(UIManager.getColor("Table.gridColor"));
-        tableArticulo.setShowGrid(false);
+        tableArticulo.setRowHeight(tableArticulo.getRowHeight() + PADDING_INTERNO * 2);
+        tableArticulo.setGridColor(new Color(180, 180, 180, 100)); // Grid semi-transparente
+        tableArticulo.setShowGrid(true); // O false si prefieres sin grid
         tableArticulo.setShowHorizontalLines(true);
         tableArticulo.setIntercellSpacing(new Dimension(0, 1));
-        tableArticulo.setAutoCreateRowSorter(true); // Permite ordenar
+        tableArticulo.setAutoCreateRowSorter(true);
         tableArticulo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tableArticulo.setCellSelectionEnabled(true);
-        tableArticulo.setRowSelectionAllowed(true);
-        tableArticulo.setFillsViewportHeight(true);
+        tableArticulo.setOpaque(false); // <<< --- HACER TABLA TRANSPARENTE ---
+        tableArticulo.setFillsViewportHeight(true); // Ayuda a que el fondo se vea mejor
 
         // --- Cabecera Tabla ---
         JTableHeader header = tableArticulo.getTableHeader();
         header.setFont(FONT_TABLA_HEADER);
-        header.setReorderingAllowed(false); // No permitir reordenar columnas manualmente
-        // *** CAMBIO: No permitir redimensionar columnas manualmente ***
+        header.setReorderingAllowed(false);
         header.setResizingAllowed(false);
+        header.setOpaque(false); // <<< --- HACER CABECERA TRANSPARENTE
 
-        // --- Configuración Columnas (OCULTAR ID_ART de la VISTA) ---
+        // --- Ocultar Columna ID_ART (sin cambios) ---
         TableColumnModel columnModel = tableArticulo.getColumnModel();
-        // Obtener la columna que corresponde al índice 0 del MODELO (ID_ART)
-        TableColumn idColumn = columnModel.getColumn(model.getColumnCount() -1); // Esto es propenso a errores si se reordena el modelo
-                                                                                  // Mejorar obteniendo por identificador si es posible, o asegurarse que sea la primera
-        // *** CAMBIO: Ocultar la columna ID_ART de la VISTA ***
-        // Es crucial hacer esto ANTES de referirse a otros índices de vista
-        // OJO: Si se permite reordenar columnas, obtener la columna por identificador es más robusto
         try {
-             TableColumn columnToHide = tableArticulo.getColumn("ID_ART"); // Obtener por nombre del modelo
-             // Removerla del modelo de columnas de la vista
+             TableColumn columnToHide = tableArticulo.getColumn("ID_ART");
              columnModel.removeColumn(columnToHide);
-             // Alternativa si falla getColumn(String): remover por índice 0 de vista (si es la primera añadida al modelo y no se ha reordenado)
-             // columnModel.removeColumn(columnModel.getColumn(0));
         } catch (IllegalArgumentException e) {
-            System.err.println("No se pudo encontrar la columna 'ID_ART' para ocultarla.");
-            // Intentar remover la primera columna visible, asumiendo que es ID_ART
-             try {
-                if (columnModel.getColumnCount() > 0) {
-                     // CUIDADO: Esto removería la primera columna visible, sea cual sea
-                     // columnModel.removeColumn(columnModel.getColumn(0));
-                     System.err.println("Aviso: Se intentó remover la primera columna visible como fallback para ID_ART.");
-                }
-             } catch (Exception ex) { System.err.println("Fallo al remover columna por índice.");}
+             System.err.println("No se pudo encontrar/ocultar la columna 'ID_ART'.");
         }
 
-
         // --- Editor Personalizado para Cantidad ---
-        // El índice de vista para "Cantidad" ahora es 5 (porque ID_ART en modelo 0 se ocultó)
-        // Indices VISTA: Nombre(0), Desc(1), Precio(2), Oferta(3), Stock(4), Cantidad(5)
-        int cantidadViewIndex = 5; // Índice de la columna "Cantidad" en la *vista*
-
         quantityEditorField = new JTextField();
         quantityEditorField.setHorizontalAlignment(SwingConstants.RIGHT);
         quantityEditorField.setBorder(BorderFactory.createEmptyBorder(1, 3, 1, 3));
+        quantityEditorField.setOpaque(false); // <<< --- HACER EDITOR TRANSPARENTE ---
         quantityEditorField.getDocument().addDocumentListener(new DocumentListener() {
             private void verificarNumero() {
                 String text = quantityEditorField.getText();
                 boolean valido = text.matches("[0-9]*");
+                Color foregroundColor = UIManager.getColor("TextField.foreground"); // Color normal
 
                 if (!valido && !text.isEmpty()) {
-                    quantityEditorField.setForeground(COLOR_VALIDATION_ERROR);
-                } else {
-                    quantityEditorField.setForeground(UIManager.getColor("TextField.foreground"));
-                    if (valido && !text.isEmpty()) {
-                        try {
-                            int filaEditada = tableArticulo.getEditingRow();
+                    foregroundColor = COLOR_VALIDATION_ERROR;
+                } else if (valido && !text.isEmpty()) {
+                    try {
+                        int filaEditada = tableArticulo.getEditingRow();
+                        if (filaEditada != -1) {
                             int filaModelo = tableArticulo.convertRowIndexToModel(filaEditada);
-                            if (filaModelo != -1) {
+                             if (filaModelo != -1) {
                                 int cantidad = Integer.parseInt(text);
                                 int stock = (Integer) model.getValueAt(filaModelo, 5); // Stock Modelo col 5
                                 if (cantidad > stock || cantidad < 0) {
-                                     quantityEditorField.setForeground(COLOR_VALIDATION_ERROR);
+                                    foregroundColor = COLOR_VALIDATION_ERROR;
                                 }
-                            }
-                        } catch (Exception ignored) {
-                             quantityEditorField.setForeground(COLOR_VALIDATION_ERROR);
+                             }
                         }
+                    } catch (Exception ignored) {
+                         foregroundColor = COLOR_VALIDATION_ERROR;
                     }
                 }
+                // Cambiar color del texto en el editor
+                quantityEditorField.setForeground(foregroundColor);
+                // Opcional: Cambiar color del caret si es necesario
+                // quantityEditorField.setCaretColor(foregroundColor);
             }
-             @Override public void insertUpdate(DocumentEvent e) { verificarNumero(); }
-             @Override public void removeUpdate(DocumentEvent e) { verificarNumero(); }
-             @Override public void changedUpdate(DocumentEvent e) { verificarNumero(); }
-        });
-        // Aplicar editor a la columna de vista correcta (índice 5)
+            @Override public void insertUpdate(DocumentEvent e) { verificarNumero(); }
+            @Override public void removeUpdate(DocumentEvent e) { verificarNumero(); }
+            @Override public void changedUpdate(DocumentEvent e) { verificarNumero(); }
+       });
+        int cantidadViewIndex = 5; // Índice de vista para Cantidad
         columnModel.getColumn(cantidadViewIndex).setCellEditor(new DefaultCellEditor(quantityEditorField));
 
-        // --- Listener para Validar al Terminar Edición (en el Modelo) ---
-         model.addTableModelListener(e -> {
-            // Se sigue refiriendo a la columna 6 del MODELO (Cantidad)
-            if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) {
+        // --- Listener del Modelo (sin cambios) ---
+        model.addTableModelListener(e -> {
+            if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) { // Columna Cantidad (Modelo)
                 int filaModelo = e.getFirstRow();
-                 if (filaModelo < 0 || filaModelo >= model.getRowCount()) return;
+                if (filaModelo < 0 || filaModelo >= model.getRowCount()) return;
 
                 Object cantidadObj = model.getValueAt(filaModelo, 6);
-                Object stockObj = model.getValueAt(filaModelo, 5); // Stock Modelo col 5
+                Object stockObj = model.getValueAt(filaModelo, 5);
 
                 if (cantidadObj == null || cantidadObj.toString().isEmpty()) {
-                     Object currentValue = model.getValueAt(filaModelo, 6);
-                     // Establecer a 0 solo si no es ya 0 o null para evitar bucles
-                     if (currentValue != null && !(currentValue instanceof Integer && (Integer)currentValue == 0)){
-                        SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
-                     }
-                    return;
+                   Object currentValue = model.getValueAt(filaModelo, 6);
+                   if (currentValue != null && !(currentValue instanceof Integer && (Integer)currentValue == 0)){
+                       SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
+                   }
+                   return;
                 }
 
                 if (stockObj instanceof Integer) {
-                    int stockDisponible = (Integer) stockObj;
-                    try {
-                        int cantidadIngresada = Integer.parseInt(cantidadObj.toString());
-                        if (cantidadIngresada < 0) {
-                             SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
-                        } else if (cantidadIngresada > stockDisponible) {
-                            SwingUtilities.invokeLater(() -> {
-                                JOptionPane.showMessageDialog(VistaTienda.this,
-                                    "La cantidad excede el stock disponible (" + stockDisponible + "). Se ajustará.",
-                                    "Stock Insuficiente", JOptionPane.WARNING_MESSAGE);
-                                model.setValueAt(stockDisponible, filaModelo, 6);
-                            });
-                        }
-                    } catch (NumberFormatException ex) {
-                         SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
-                    }
+                   int stockDisponible = (Integer) stockObj;
+                   try {
+                       int cantidadIngresada = Integer.parseInt(cantidadObj.toString());
+                       if (cantidadIngresada < 0) {
+                           SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
+                       } else if (cantidadIngresada > stockDisponible) {
+                           SwingUtilities.invokeLater(() -> {
+                               JOptionPane.showMessageDialog(VistaTienda.this,
+                                   "La cantidad excede el stock disponible (" + stockDisponible + "). Se ajustará.",
+                                   "Stock Insuficiente", JOptionPane.WARNING_MESSAGE);
+                               model.setValueAt(stockDisponible, filaModelo, 6);
+                           });
+                       }
+                   } catch (NumberFormatException ex) {
+                       SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
+                   }
                 }
             }
         });
@@ -352,79 +349,78 @@ public class VistaTienda extends JDialog implements ActionListener {
         // --- ScrollPane ---
         JScrollPane scrollPane = new JScrollPane(tableArticulo);
         scrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
-        add(scrollPane, BorderLayout.CENTER);
+        scrollPane.setOpaque(false); // El JScrollPane en sí puede ser transparente
+        scrollPane.getViewport().setOpaque(true); // Hacer el viewport opaco
+        scrollPane.getViewport().setBackground(Color.WHITE); // Establecer el fondo del viewport a blanco
+
+        // *** CAMBIO CLAVE: Añadir el ScrollPane DENTRO del panelFondo ***
+        panelFondo.add(scrollPane, BorderLayout.CENTER);
     }
 
-     /**
+    /**
      * Carga (o recarga) los datos de los artículos desde la base de datos a la tabla.
      */
     public void cargarDatosTabla() {
-         if (tableArticulo.isEditing()) {
+        if (tableArticulo.isEditing()) {
             tableArticulo.getCellEditor().stopCellEditing();
-         }
+        }
         model.setRowCount(0);
         Map<Integer, Articulo> articulos = Principal.obtenerTodosArticulos();
 
         if (articulos != null && !articulos.isEmpty()) {
             for (Articulo art : articulos.values()) {
                 if (art.getStock() > 0) {
-                    // *** CAMBIO: Asegurar que el ID_ART se añade en la posición 0 del Object[] ***
                     model.addRow(new Object[]{
-                            art.getId_art(),        // Modelo Col 0 (Oculto en vista)
-                            art.getNombre(),        // Modelo Col 1
-                            art.getDescripcion(),   // Modelo Col 2
-                            art.getPrecio(),        // Modelo Col 3
-                            art.getOferta(),        // Modelo Col 4
-                            art.getStock(),         // Modelo Col 5
-                            0                       // Modelo Col 6 - Cantidad inicial 0
+                            art.getId_art(),       // Modelo Col 0 (Oculto en vista)
+                            art.getNombre(),       // Modelo Col 1
+                            art.getDescripcion(),  // Modelo Col 2
+                            art.getPrecio(),       // Modelo Col 3
+                            art.getOferta(),       // Modelo Col 4
+                            art.getStock(),        // Modelo Col 5
+                            0                      // Modelo Col 6 - Cantidad inicial 0
                     });
                 }
             }
         } else {
             System.out.println("No se encontraron artículos.");
         }
-        // Ajustar anchos DESPUÉS de que los datos estén en la tabla y esta sea visible
-        // SwingUtilities.invokeLater(this::ajustarAnchosColumnaTabla);
+        // No es necesario llamar a ajustar anchos aquí si ya se llama tras cargar datos en el constructor
     }
 
-     /**
-      * Ajusta el ancho preferido de cada columna visible de la tabla para que se ajuste al contenido.
-      * Llamar DESPUÉS de cargar datos y de que la tabla sea visible.
-      */
-     private void ajustarAnchosColumnaTabla() {
-         // Asegurarse de que la tabla tenga un tamaño antes de calcular
-         tableArticulo.revalidate();
-         if (tableArticulo.getWidth() == 0) {
-             // Si la tabla aún no tiene tamaño, posponer o usar pack() antes
-             SwingUtilities.invokeLater(this::ajustarAnchosColumnaTabla);
-             return;
-         }
+    /**
+     * Ajusta el ancho preferido de cada columna visible de la tabla.
+     */
+    private void ajustarAnchosColumnaTabla() {
+        tableArticulo.revalidate();
+        if (tableArticulo.getWidth() == 0) {
+            SwingUtilities.invokeLater(this::ajustarAnchosColumnaTabla);
+            return;
+        }
 
-         TableColumnModel columnModel = tableArticulo.getColumnModel();
-         final int PADDING = PADDING_TABLA_CELDA_H * 2;
+        TableColumnModel columnModel = tableArticulo.getColumnModel();
+        final int PADDING = PADDING_TABLA_CELDA_H * 2;
 
-         for (int columnView = 0; columnView < tableArticulo.getColumnCount(); columnView++) { // Iterar vistas
-             TableColumn tableColumn = columnModel.getColumn(columnView);
-             int headerWidth = getColumnHeaderWidth(tableArticulo, columnView);
-             int contentWidth = getMaximumColumnContentWidth(tableArticulo, columnView);
-             int preferredWidth = Math.max(headerWidth, contentWidth) + PADDING;
+        for (int columnView = 0; columnView < tableArticulo.getColumnCount(); columnView++) {
+            TableColumn tableColumn = columnModel.getColumn(columnView);
+            int headerWidth = getColumnHeaderWidth(tableArticulo, columnView);
+            int contentWidth = getMaximumColumnContentWidth(tableArticulo, columnView);
+            int preferredWidth = Math.max(headerWidth, contentWidth) + PADDING;
 
-             // Indices VISTA: Nombre(0), Desc(1), Precio(2), Oferta(3), Stock(4), Cantidad(5)
-             if (columnView == 0) tableColumn.setMinWidth(150); // Nombre
-             if (columnView == 1) tableColumn.setMinWidth(200); // Descripción
-             if (columnView == 2) tableColumn.setMinWidth(75);  // Precio
-             if (columnView == 3) tableColumn.setMinWidth(75);  // Oferta
-             if (columnView == 4) tableColumn.setMinWidth(65);  // Stock
-             if (columnView == 5) { // Cantidad
+            // Indices VISTA: Nombre(0), Desc(1), Precio(2), Oferta(3), Stock(4), Cantidad(5)
+            if (columnView == 0) tableColumn.setMinWidth(150); // Nombre
+            if (columnView == 1) tableColumn.setMinWidth(200); // Descripción
+            if (columnView == 2) tableColumn.setMinWidth(75);  // Precio
+            if (columnView == 3) tableColumn.setMinWidth(75);  // Oferta
+            if (columnView == 4) tableColumn.setMinWidth(65);  // Stock
+            if (columnView == 5) { // Cantidad
                 tableColumn.setMinWidth(75);
-                tableColumn.setMaxWidth(110); // Limitar ancho máximo de cantidad
-             }
+                tableColumn.setMaxWidth(110);
+            }
 
-             tableColumn.setPreferredWidth(preferredWidth);
-         }
-         // Forzar redibujo de la cabecera para aplicar anchos
-         tableArticulo.getTableHeader().resizeAndRepaint();
-     }
+            tableColumn.setPreferredWidth(preferredWidth);
+        }
+        tableArticulo.getTableHeader().resizeAndRepaint();
+    }
 
     // --- Métodos Auxiliares para Ancho de Columna (Sin cambios) ---
     private int getColumnHeaderWidth(JTable table, int columnIndexView) {
@@ -439,13 +435,21 @@ public class VistaTienda extends JDialog implements ActionListener {
         int maxWidth = 0;
         for (int row = 0; row < table.getRowCount(); row++) {
             TableCellRenderer renderer = table.getCellRenderer(row, columnIndexView);
-            Component comp = table.prepareRenderer(renderer, row, columnIndexView);
-            maxWidth = Math.max(maxWidth, comp.getPreferredSize().width);
+            // Importante usar prepareRenderer para obtener el componente real con sus paddings, etc.
+             Component comp = table.prepareRenderer(renderer, row, columnIndexView);
+             // Si el componente tiene borde (como nuestro padding), hay que tenerlo en cuenta
+             if (comp instanceof JComponent) {
+                 Insets insets = ((JComponent) comp).getInsets();
+                 maxWidth = Math.max(maxWidth, comp.getPreferredSize().width + insets.left + insets.right);
+             } else {
+                maxWidth = Math.max(maxWidth, comp.getPreferredSize().width);
+             }
         }
         return maxWidth;
     }
 
-    // --- Manejo de Acciones ---
+
+    // --- Manejo de Acciones (sin cambios) ---
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
@@ -454,25 +458,26 @@ public class VistaTienda extends JDialog implements ActionListener {
         else if (source == btnCompra) abrirCarrito();
     }
 
-    // --- Métodos de Navegación/Acción ---
+    // --- Métodos de Navegación/Acción (sin cambios) ---
     private void mostrarVistaUsuario() {
-         if (localClien != null) {
-             VistaUsuario vistaUsuario = new VistaUsuario(localClien, this);
-             vistaUsuario.setVisible(true);
-         } else { JOptionPane.showMessageDialog(this, "Cliente no identificado.", "Error", JOptionPane.ERROR_MESSAGE); }
+        if (localClien != null) {
+            VistaUsuario vistaUsuario = new VistaUsuario(localClien, this);
+            vistaUsuario.setVisible(true);
+        } else { JOptionPane.showMessageDialog(this, "Cliente no identificado.", "Error", JOptionPane.ERROR_MESSAGE); }
     }
 
     private void mostrarVistaAdmin() {
         VentanaIntermedia menuAdmin = new VentanaIntermedia(this);
         menuAdmin.setVisible(true);
+        // Recargar y reajustar por si cambian datos en admin
         cargarDatosTabla();
-        ajustarAnchosColumnaTabla(); // Reajustar
+        ajustarAnchosColumnaTabla();
     }
 
     private void abrirCarrito() {
-         if (tableArticulo.isEditing()) {
+        if (tableArticulo.isEditing()) {
             if (!tableArticulo.getCellEditor().stopCellEditing()) { return; }
-         }
+        }
         if (!validarCantidadesParaCarrito()) {
             JOptionPane.showMessageDialog(this, "Corrige cantidades inválidas antes de continuar.", "Cantidades Inválidas", JOptionPane.WARNING_MESSAGE);
             return;
@@ -485,29 +490,33 @@ public class VistaTienda extends JDialog implements ActionListener {
         }
         VistaCarrito carritoDialog = new VistaCarrito(this, comprasParaCarrito, pedidoActual);
         carritoDialog.setVisible(true);
+        // Recargar y reajustar tras volver del carrito (el stock puede haber cambiado)
         cargarDatosTabla();
-        ajustarAnchosColumnaTabla(); // Reajustar
+        ajustarAnchosColumnaTabla();
     }
 
-     /**
-      * Verifica si todas las cantidades son válidas.
-      */
-     private boolean validarCantidadesParaCarrito() {
-          if (tableArticulo.isEditing()) {
-             if (!tableArticulo.getCellEditor().stopCellEditing()) { return false; }
-          }
-         for (int i = 0; i < model.getRowCount(); i++) {
-             Object cantidadObj = model.getValueAt(i, 6); // Cantidad Modelo Col 6
-             if (cantidadObj != null && !cantidadObj.toString().isEmpty()) {
-                 try {
-                     int cantidad = Integer.parseInt(cantidadObj.toString());
-                     int stock = (Integer) model.getValueAt(i, 5); // Stock Modelo Col 5
-                     if (cantidad < 0 || cantidad > stock) { return false; }
-                 } catch (NumberFormatException e) { return false; }
-             }
-         }
-         return true;
-     }
+    /**
+     * Verifica si todas las cantidades son válidas.
+     */
+    private boolean validarCantidadesParaCarrito() {
+        if (tableArticulo.isEditing()) {
+            if (!tableArticulo.getCellEditor().stopCellEditing()) { return false; }
+        }
+        for (int i = 0; i < model.getRowCount(); i++) {
+            Object cantidadObj = model.getValueAt(i, 6); // Cantidad Modelo Col 6
+            if (cantidadObj != null && !cantidadObj.toString().isEmpty()) {
+                try {
+                    int cantidad = Integer.parseInt(cantidadObj.toString());
+                    int stock = (Integer) model.getValueAt(i, 5); // Stock Modelo Col 5
+                    if (cantidad < 0 || cantidad > stock) { return false; }
+                } catch (NumberFormatException e) { return false; } // Si no es número válido
+            } else {
+                 // Si está vacío, podría considerarse 0 (válido), o inválido si prefieres.
+                 // Asumimos que vacío o null es 0 y válido por ahora.
+            }
+        }
+        return true;
+    }
 
     /**
      * Recopila las compras basándose en el modelo de la tabla.
@@ -515,7 +524,6 @@ public class VistaTienda extends JDialog implements ActionListener {
     private List<Compra> recopilarCompras(int idePed) {
         List<Compra> listaCompra = new ArrayList<>();
         for (int i = 0; i < model.getRowCount(); i++) {
-            // *** CAMBIO: Obtener ID del MODELO (col 0) y Cantidad del MODELO (col 6) ***
             Object valorId = model.getValueAt(i, 0);       // ID Artículo (Modelo col 0)
             Object valorCantidad = model.getValueAt(i, 6); // Cantidad (Modelo col 6)
 
@@ -528,21 +536,22 @@ public class VistaTienda extends JDialog implements ActionListener {
                         listaCompra.add(palCarro);
                     }
                 } catch (NumberFormatException e) {
-                    System.err.println("Error formato al recopilar compra fila " + i + ": " + valorCantidad);
+                    // Ignorar o loguear si una cantidad no es numérica (debería ser 0 por validación)
+                     System.err.println("Error formato al recopilar compra fila " + i + ": " + valorCantidad);
                 }
             }
         }
         return listaCompra;
     }
 
-    // --- Método Cargar Icono ---
+    // --- Método Cargar Icono (sin cambios) ---
     private ImageIcon cargarIcono(String path, int width, int height) {
         java.net.URL imgURL = getClass().getResource(path);
         if (imgURL != null) {
             ImageIcon originalIcon = new ImageIcon(imgURL);
             if (originalIcon.getIconWidth() != width || originalIcon.getIconHeight() != height) {
-                 Image image = originalIcon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
-                 return new ImageIcon(image);
+                Image image = originalIcon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+                return new ImageIcon(image);
             } else { return originalIcon; }
         } else {
             System.err.println("Icono no encontrado: " + path);
@@ -560,28 +569,101 @@ public class VistaTienda extends JDialog implements ActionListener {
             return new ImageIcon(placeholder);
         }
     }
-     private ImageIcon cargarIcono(String path) { return cargarIcono(path, 16, 16); }
+    private ImageIcon cargarIcono(String path) { return cargarIcono(path, 16, 16); }
+
+
+    // ========================================================================
+    // ===              CLASE INTERNA PARA EL PANEL DE FONDO              ===
+    // ========================================================================
+    private class BackgroundPanel extends JPanel {
+
+        private Image backgroundImage;
+
+        public BackgroundPanel(String imagePath) {
+            loadImage(imagePath);
+            // Necesita un layout para poder añadir el JScrollPane encima
+            setLayout(new BorderLayout());
+             // Hacer el propio panel de fondo transparente por si acaso
+             // (aunque paintComponent lo sobreescribirá)
+            setOpaque(false);
+        }
+
+        private void loadImage(String path) {
+            // Usamos getResource de la clase externa (VistaTienda)
+            URL imgURL = VistaTienda.this.getClass().getResource(path);
+            if (imgURL != null) {
+                backgroundImage = new ImageIcon(imgURL).getImage();
+            } else {
+                System.err.println("No se pudo cargar la imagen de fondo: " + path);
+                backgroundImage = null;
+            }
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g); // Importante para limpiar y pintar bordes si los tuviera
+
+            if (backgroundImage != null) {
+                // Dibujar imagen escalada para cubrir el panel
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        }
+
+        // Opcional: El tamaño preferido será dictado por el contenido (JScrollPane)
+        // y el layout del JDialog, por lo que no es estrictamente necesario aquí.
+        /*
+        @Override
+        public Dimension getPreferredSize() {
+            if (backgroundImage != null && getComponentCount() == 0) { // Solo si está vacío
+                return new Dimension(backgroundImage.getWidth(this), backgroundImage.getHeight(this));
+            } else {
+                return super.getPreferredSize();
+            }
+        }
+        */
+    }
+    // ========================================================================
+
 
     // --- Main de Ejemplo (Comentado por defecto) ---
     /*
     public static void main(String[] args) {
         try {
-             UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf());
-             UIManager.put("Button.arc", 10); UIManager.put("Component.arc", 8);
-             UIManager.put("Table.showHorizontalLines", true); UIManager.put("Table.showVerticalLines", false);
-             UIManager.put("Table.intercellSpacing", new Dimension(0,1));
-             // Indicar a FlatLaf que use el estilo primario para botones con la propiedad
-             // UIManager.put("Button.defaultButtonFollowsFocus", true); // Opcional
+            // Usar FlatLaf recomendado
+            UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf());
+            UIManager.put("Button.arc", 10); UIManager.put("Component.arc", 8);
+            UIManager.put("Table.showHorizontalLines", true); UIManager.put("Table.showVerticalLines", true); // O false
+            UIManager.put("Table.intercellSpacing", new Dimension(0,1));
+            // Ajustar colores de FlatLaf si es necesario para el contraste con el fondo
+            // UIManager.put("Table.background", new Color(255,255,255,100)); // Ejemplo
+            // UIManager.put("TableHeader.background", new Color(200,220,240,150)); // Ejemplo
         } catch (Exception e) { e.printStackTrace(); }
 
+        // Datos de prueba
         Cliente clientePrueba = new Cliente(); clientePrueba.setId_usu(1);
         clientePrueba.setUsuario("testuser"); clientePrueba.setEsAdmin(true);
+        // Simular carga de artículos si Principal no está disponible
+        // Principal.cargarArticulosIniciales(); // O algo similar
 
         SwingUtilities.invokeLater(() -> {
+            // Crear un Frame padre invisible o uno real si existe
             JFrame framePadre = new JFrame();
+            framePadre.setUndecorated(true); // Para que no se vea el frame padre
+            framePadre.setLocationRelativeTo(null);
+
             VistaTienda dialog = new VistaTienda(clientePrueba, framePadre);
             dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-            dialog.setVisible(true);
+
+            // Listener para cerrar el frame padre cuando se cierre el diálogo
+             dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                 @Override
+                 public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                    framePadre.dispose();
+                    System.exit(0); // Terminar aplicación si es la ventana principal
+                 }
+             });
+
+            dialog.setVisible(true); // Mostrar la tienda
         });
     }
     */
