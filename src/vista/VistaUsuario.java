@@ -33,6 +33,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	private ButtonGroup paymentMethodGroup; // Grupo para radio buttons
 	private JButton btnRegistrarse, btnModificar, btnDrop, btnMostrarPedidos;
 	private JLabel lblTitulo;
+	private JCheckBox checkVerPass;
 
 	// --- Datos ---
 	private Cliente localClien; // El cliente actual (null si es registro)
@@ -54,8 +55,6 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	 */
 	public VistaUsuario(Cliente clien, Window ventPadre) { // Acepta Window (JFrame o JDialog)
 		super(ventPadre, clien == null ? "Registro de Usuario" : "Mis Datos", ModalityType.APPLICATION_MODAL); // Título
-																												// dinámico
-																												// y
 																												// modal
 		this.localClien = clien;
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -94,54 +93,49 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		// "[]": Define las propiedades de las columnas de espacio entre label y
 		// componente.
 		// "[grow]": Define la columna de componentes (que crezcan horizontalmente).
-		JPanel formPanel = new JPanel(new MigLayout("fillx, insets 0", // Layout constraints: fill horizontalmente, sin
-																		// insets propios
-				"[align label]" + GAP_LABEL_COMPONENT + "[grow, fill]", // Column constraints: label, gap, component
-																		// (grow+fill)
-				"" // Row constraints: default gaps defined by unrel below
-		));
+		JPanel formPanel = new JPanel(new MigLayout("fillx, insets 0", "[label]rel[grow,fill]", "[][][][][][][][]"));
 		mainPanel.add(formPanel, BorderLayout.CENTER);
 
 		// --- Campos del Formulario ---
 		// Usuario
 		JLabel lblUsuario = new JLabel("Usuario:");
 		lblUsuario.setFont(FONT_LABEL);
-		formPanel.add(lblUsuario);
+		formPanel.add(lblUsuario, "cell 0 0");
 		textUser = new JTextField();
 		textUser.setFont(FONT_TEXTO);
-		formPanel.add(textUser, "wrap " + GAP_ROW); // wrap: ir a nueva línea, unrel: espacio vertical
+		formPanel.add(textUser, "cell 1 0"); // wrap: ir a nueva línea, unrel: espacio vertical
 
 		// Contraseña
 		JLabel lblPassword = new JLabel("Contraseña:");
 		lblPassword.setFont(FONT_LABEL);
-		formPanel.add(lblPassword);
+		formPanel.add(lblPassword, "cell 0 1");
 		passwordFieldContra = new JPasswordField();
 		passwordFieldContra.setFont(FONT_TEXTO);
-		formPanel.add(passwordFieldContra, "wrap " + GAP_ROW);
+		formPanel.add(passwordFieldContra, "flowx,cell 1 1,growx");
 
 		// DNI/NIE
 		JLabel lblDni = new JLabel("DNI/NIE:");
 		lblDni.setFont(FONT_LABEL);
-		formPanel.add(lblDni);
+		formPanel.add(lblDni, "cell 0 2");
 		textDni = new JTextField();
 		textDni.setFont(FONT_TEXTO);
-		formPanel.add(textDni, "wrap " + GAP_ROW);
+		formPanel.add(textDni, "cell 1 2");
 
 		// Email
 		JLabel lblEmail = new JLabel("Email:");
 		lblEmail.setFont(FONT_LABEL);
-		formPanel.add(lblEmail);
+		formPanel.add(lblEmail, "cell 0 3");
 		textEmail = new JTextField();
 		textEmail.setFont(FONT_TEXTO);
-		formPanel.add(textEmail, "wrap " + GAP_ROW);
+		formPanel.add(textEmail, "cell 1 3");
 
 		// Dirección
 		JLabel lblDireccion = new JLabel("Dirección:");
 		lblDireccion.setFont(FONT_LABEL);
-		formPanel.add(lblDireccion);
+		formPanel.add(lblDireccion, "cell 0 4");
 		textDireccion = new JTextField();
 		textDireccion.setFont(FONT_TEXTO);
-		formPanel.add(textDireccion, "wrap " + GAP_ROW);
+		formPanel.add(textDireccion, "cell 1 4");
 
 		// --- Sección Método de Pago (Panel anidado) ---
 		JPanel paymentPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_GENERAL / 2, 0)); // FlowLayout para
@@ -172,16 +166,38 @@ public class VistaUsuario extends JDialog implements ActionListener {
 
 		// Añadir el panel de pago al formulario principal, ocupando todo el ancho
 		// (span)
-		formPanel.add(paymentPanel, "span 2, growx, wrap " + GAP_ROW); // span 2: ocupa 2 columnas, growx: crece
-																		// horizontalmente
+		formPanel.add(paymentPanel, "cell 0 5 2 1,growx"); // span 2: ocupa 2 columnas, growx: crece
+															// horizontalmente
 
 		// Número de Cuenta/Tarjeta
 		JLabel lblNumeroCuenta = new JLabel("Nº Tarjeta/Cuenta:");
 		lblNumeroCuenta.setFont(FONT_LABEL);
-		formPanel.add(lblNumeroCuenta);
+		formPanel.add(lblNumeroCuenta, "cell 0 6");
 		textNumeroCuenta = new JTextField();
 		textNumeroCuenta.setFont(FONT_TEXTO);
-		formPanel.add(textNumeroCuenta, "wrap " + GAP_ROW);
+		formPanel.add(textNumeroCuenta, "cell 1 6");
+
+		checkVerPass = new JCheckBox();
+		// Estilo visual
+		checkVerPass.setIcon(cargarIcono("/iconos/verpassoff.png"));
+		checkVerPass.setSelectedIcon(cargarIcono("/iconos/verpass.png"));
+		checkVerPass.setOpaque(false);
+		checkVerPass.setContentAreaFilled(false);
+		checkVerPass.setBorderPainted(false);
+		checkVerPass.setFocusPainted(false);
+		formPanel.add(checkVerPass, "cell 1 1");
+
+		// Lógica del checkbox
+		checkVerPass.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (checkVerPass.isSelected()) {
+					passwordFieldContra.setEchoChar((char) 0); // Muestra texto
+				} else {
+					passwordFieldContra.setEchoChar('\u2022'); // Oculta con puntitos
+				}
+			}
+		});
 
 		// --- Panel de Botones (SOUTH) ---
 		// Usamos MigLayout también para controlar el flujo y posible alineación
@@ -241,12 +257,10 @@ public class VistaUsuario extends JDialog implements ActionListener {
 
 			// Cargar datos del cliente en los campos
 			textUser.setText(localClien.getUsuario());
-			// Por seguridad, no solemos precargar la contraseña existente en un campo
-			// editable.
-			// Dejarlo vacío para que el usuario la introduzca si quiere cambiarla.
-			// Si quieres mostrarla (no recomendado):
-			// passwordFieldContra.setText(localClien.getContra());
+			textUser.setEnabled(false);
+			passwordFieldContra.setText(localClien.getContra());
 			textDni.setText(localClien.getDni());
+			textDni.setEnabled(false);
 			textEmail.setText(localClien.getCorreo());
 			textDireccion.setText(localClien.getDireccion());
 			textNumeroCuenta.setText(localClien.getNum_cuenta());
@@ -305,7 +319,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 
 		try {
 			Principal.altaCliente(nuevoCliente);
-			JOptionPane.showMessageDialog(null, "Cliente creado exitosamente.");
+			JOptionPane.showMessageDialog(this, "Cliente creado exitosamente.");
 		} catch (AltaError e) {
 			e.visualizarMen();
 		}

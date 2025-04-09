@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,16 +14,11 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import java.sql.Statement;
-
-//import com.mysql.cj.xdevapi.Statement;
-
-import modelo.Articulo;
-
 import excepciones.AltaError;
 import excepciones.DropError;
 import excepciones.LoginError;
 import excepciones.modifyError;
+import modelo.Articulo;
 import modelo.Cliente;
 import modelo.Compra;
 import modelo.Metodo;
@@ -44,31 +38,28 @@ public class DaoImplementMySQL implements Dao {
 	final String MODIFICAR_ARTICULO = "UPDATE articulo SET nombre = ?, descripcion = ?, stock = ?, precio = ?, oferta = ?, seccion = ? WHERE id_art = ?";
 
 	final String LOGIN = "SELECT * FROM cliente WHERE usuario = ? AND contra = ?";
-	final String INSERTAR_CLIENTE = "INSERT INTO cliente(usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?)";
+	final String INSERTAR_CLIENTE = "INSERT INTO cliente(id_clien,usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?,?)";
 	final String ELIMINAR_CLIENTE = "DELETE from cliente where id_clien=?";
 	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?;";
-
-	// Sentencias SQL
+	final String select_cliente = "select * from cliente";
+	final String newIdCliente = "SELECT MAX(id_clien) FROM cliente";
 
 	final String INTRODUCIR_PEDIDO = "INSERT INTO pedido (id_ped, id_clien, total, fecha_compra) VALUES (?, ?, ?, ?)";
-	final String INTRODUCIR_COMPRA = "INSERT INTO compra(id_art, id_ped, cantidad) VALUES (?, ?, ?)";
-	final String MAX_ARTICULO = "SELECT MAX(ID_ART)FROM ARTICULO";
-	final String select_cliente = "select * from cliente";
-	final String pedido_cliente = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?)";
 	final String pedido_compra = "select * from compra where id_ped in (Select id_ped from pedido where id_clien=?)";
-	final String TODOS_ARTICULOS = "SELECT * FROM articulo";
-	final String newIdPedido = "SELECT MAX(id_ped) FROM pedido";
 	final String CREAR_PEDIDO_CLIENTE = "insert into pedido (id_clien,fecha_compra) values (?,?)";
-	final String CANTIDAD_COMPRA = "UPDATE articulo SET stock = stock - ? WHERE id_art = ?";
-	final String crear_pediod_cliente = "insert into pedido (id_clien,fecha_compra) values (?,?)";
-	final String newIdCliente = "SELECT MAX(id_clien) FROM cliente";
-	final String busca_articulo = "SELECT * FROM articulo where id_art=?";
-	final String pedidos_cliente = "SELECT * FROM pedido where id_clien=?";
+	final String newIdPedido = "SELECT MAX(id_ped) FROM pedido";
 	final String insert_pedido = "insert into pedido (id_ped,id_clien,total,fecha_compra) values (?,?,?,?)";
+	final String pedidos_cliente = "SELECT * FROM pedido where id_clien=?";
+
+	final String CANTIDAD_COMPRA = "UPDATE articulo SET stock = stock - ? WHERE id_art = ?";
+	final String INTRODUCIR_COMPRA = "INSERT INTO compra(id_art, id_ped, cantidad) VALUES (?, ?, ?)";
 	final String insert_listaCompra = "insert into compra (id_art, id_ped, cantidad) values (?,?,?)";
-	final String update_stockArticulo = "Update articulo set stock=? where id_art=?";
+
+	final String MAX_ARTICULO = "SELECT MAX(ID_ART)FROM ARTICULO";
 	final String OBTENER_ARTICULOS = "SELECT a.id_art, a.nombre, a.precio, a.oferta, c.cantidad FROM articulo a JOIN compra c ON a.id_art = c.id_art WHERE c.id_ped = ?";
-	final String maxIdPedido = "SELECT MAX(id_ped) FROM pedido";
+	final String TODOS_ARTICULOS = "SELECT * FROM articulo";
+	final String busca_articulo = "SELECT * FROM articulo where id_art=?";
+	final String update_stockArticulo = "Update articulo set stock=? where id_art=?";
 
 	public DaoImplementMySQL() {
 		this.configFile = ResourceBundle.getBundle("modelo.configClase");
@@ -98,6 +89,16 @@ public class DaoImplementMySQL implements Dao {
 				con.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void closeResult(ResultSet rs) {
+		if (rs != null) {
+			try {
+				rs.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -137,7 +138,7 @@ public class DaoImplementMySQL implements Dao {
 		} catch (SQLException e) {
 			throw new LoginError("Error con el SQL");
 		} finally {
-
+			closeResult(rs);
 			closeConnection();
 		}
 		return usuarioAutenticado;
@@ -244,15 +245,8 @@ public class DaoImplementMySQL implements Dao {
 			e.getMessage();
 			e.printStackTrace();
 		} finally {
-
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-				closeConnection();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			closeResult(rs);
+			closeConnection();
 		}
 
 		// Retornar el Map con todos los clientes
@@ -280,35 +274,32 @@ public class DaoImplementMySQL implements Dao {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			closeConnection();
+			closeResult(rs);
 		}
 		return paraCargar;
 	}
 
 	@Override
 	public void altaCliente(Cliente clien) throws AltaError {
-
+		openConnection();
 		try {
-			// Primero verificamos si el usuario ya existe
-			if (existeUsuario(clien.getUsuario())) {
-				throw new AltaError();
-			} else {
-				openConnection();
-				// Si el usuario no existe, procedemos con la inserción
-				stmt = con.prepareStatement(INSERTAR_CLIENTE);
-				stmt.setInt(1, clien.getId_usu());
-				stmt.setString(2, clien.getUsuario());
-				stmt.setString(3, clien.getContra());
-				stmt.setString(4, clien.getDni());
-				stmt.setString(5, clien.getCorreo());
-				stmt.setString(6, clien.getDireccion());
-				stmt.setString(7, clien.getMetodo_pago().name());
-				stmt.setString(8, clien.getNum_cuenta());
+			// Si el usuario no existe, procedemos con la inserción
+			stmt = con.prepareStatement(INSERTAR_CLIENTE);
+			stmt.setInt(1, clien.getId_usu());
+			stmt.setString(2, clien.getUsuario());
+			stmt.setString(3, clien.getContra());
+			stmt.setString(4, clien.getDni());
+			stmt.setString(5, clien.getCorreo());
+			stmt.setString(6, clien.getDireccion());
+			stmt.setString(7, clien.getMetodo_pago().name());
+			stmt.setString(8, clien.getNum_cuenta());
 
-				stmt.executeUpdate();
-			}
+			stmt.executeUpdate();
+
 		} catch (SQLException e) {
 			e.printStackTrace();
-			// Manejo de errores de base de datos
 
 		} finally {
 			closeConnection();
@@ -375,6 +366,7 @@ public class DaoImplementMySQL implements Dao {
 		} catch (SQLException e) {
 			JOptionPane.showMessageDialog(null, "Error al cargar los articulos", "Error", JOptionPane.ERROR_MESSAGE);
 		} finally {
+			closeResult(rs);
 			closeConnection();
 		}
 
@@ -386,7 +378,7 @@ public class DaoImplementMySQL implements Dao {
 		openConnection();
 		try {
 			stmt = con.prepareStatement(INTRODUCIR_PEDIDO);
-			
+
 			stmt.setInt(1, ped.getId_ped());
 			stmt.setInt(2, ped.getId_usu());
 			stmt.setFloat(3, ped.getTotal());
@@ -412,20 +404,20 @@ public class DaoImplementMySQL implements Dao {
 
 				stmt.executeUpdate();
 			}
-			for (Compra comp : listaCompra) {
-				updateStockArticulo(comp);
-			}
+
 		} catch (SQLException e) {
 			throw new SQLException("Error al insertar los artículos en la compra", e);
 		} finally {
 			closeConnection();
+			for (Compra comp : listaCompra) {
+				updateStockArticulo(comp);
+			}
 		}
 	}
 
 	public void actualizarStock(int idArticulo, int cantidadComprada) throws SQLException {
-
+		openConnection();
 		try {
-			openConnection();
 			stmt = con.prepareStatement(CANTIDAD_COMPRA);
 
 			stmt.setInt(1, cantidadComprada);
@@ -444,7 +436,7 @@ public class DaoImplementMySQL implements Dao {
 	public void crearPedidoUsuario(Pedido nuevoBD) {
 		openConnection();
 		try {
-			stmt = con.prepareStatement(crear_pediod_cliente);
+			stmt = con.prepareStatement(CREAR_PEDIDO_CLIENTE);
 
 			stmt.setInt(1, nuevoBD.getId_ped());
 			stmt.setInt(2, nuevoBD.getId_usu());
@@ -455,6 +447,8 @@ public class DaoImplementMySQL implements Dao {
 			stmt.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			closeConnection();
 		}
 	}
 
@@ -474,7 +468,8 @@ public class DaoImplementMySQL implements Dao {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-				closeConnection();
+			closeResult(rs);
+			closeConnection();
 		}
 		return ultimoId + 1;
 	}
@@ -482,7 +477,7 @@ public class DaoImplementMySQL implements Dao {
 	@Override
 	public Articulo buscarArticulo(int id_art) {
 		openConnection();
-		ResultSet rs;
+		ResultSet rs = null;
 		Articulo busca = null;
 
 		try {
@@ -501,6 +496,9 @@ public class DaoImplementMySQL implements Dao {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			closeConnection();
+			closeResult(rs);
 		}
 
 		return busca;
@@ -512,8 +510,7 @@ public class DaoImplementMySQL implements Dao {
 		ResultSet rs = null;
 		openConnection();
 		try {
-			openConnection();
-			stmt = con.prepareStatement(maxIdPedido);
+			stmt = con.prepareStatement(newIdCliente);
 			rs = stmt.executeQuery();
 
 			if (rs.next()) {
@@ -522,13 +519,8 @@ public class DaoImplementMySQL implements Dao {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			try {
-				if (rs != null)
-					rs.close();
-				closeConnection();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			closeResult(rs);
+			closeConnection();
 		}
 		return ultimoId + 1;
 	}
@@ -554,16 +546,10 @@ public class DaoImplementMySQL implements Dao {
 				listaArticulo.add(art);
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			try {
-				if (rs != null)
-					rs.close();
-				closeConnection();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			closeResult(rs);
+			closeConnection();
 		}
 
 		return listaArticulo;
@@ -593,8 +579,10 @@ public class DaoImplementMySQL implements Dao {
 				listaPedidos.add(ped);
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			closeResult(rs);
+			closeConnection();
 		}
 		return listaPedidos;
 	}
@@ -618,9 +606,9 @@ public class DaoImplementMySQL implements Dao {
 			e.printStackTrace();
 		} finally {
 			closeConnection();
-			for (Compra compra : localListaCompra) {
-				updateStockArticulo(compra);
-			}
+		}
+		for (Compra compra : localListaCompra) {
+			updateStockArticulo(compra);
 		}
 	}
 
@@ -638,7 +626,7 @@ public class DaoImplementMySQL implements Dao {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}finally {
+		} finally {
 			closeConnection();
 		}
 	}

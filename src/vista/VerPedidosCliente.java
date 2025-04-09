@@ -34,8 +34,6 @@ import modelo.Articulo;
 import modelo.Cliente;
 import modelo.Pedido;
 
-import com.formdev.flatlaf.FlatLightLaf;
-
 public class VerPedidosCliente extends JDialog {
 
 	private static final long serialVersionUID = 1L;
@@ -55,7 +53,6 @@ public class VerPedidosCliente extends JDialog {
 		// Usa super() para establecer título y modalidad correctamente.
 		// Usa getUsuario() como en el main de ejemplo, o getNombre() si prefieres.
 		super(padre, "Pedidos de " + (clien != null ? clien.getUsuario() : "Cliente Desconocido"), true);
-		// setModal(true); // Esta línea ya no es necesaria, se hace en super()
 
 		// --- Renderers ---
 		rightRenderer = new DefaultTableCellRenderer();
@@ -78,6 +75,8 @@ public class VerPedidosCliente extends JDialog {
 
 		// --- Modelo Tabla Pedidos ---
 		modelPedidos = new DefaultTableModel() {
+			private static final long serialVersionUID = 1L;
+
 			// Evitar que las celdas sean editables (alternativa a setDefaultEditor)
 			@Override
 			public boolean isCellEditable(int row, int column) {
@@ -89,19 +88,17 @@ public class VerPedidosCliente extends JDialog {
 		modelPedidos.addColumn("Fecha de Compra");
 
 		// --- Carga Datos Pedidos ---
-		if (clien != null && Principal.obtenerPedidosCliente(clien.getId_usu()) != null) {
-			List<Pedido> pedidos = Principal.obtenerPedidosCliente(clien.getId_usu());
+		List<Pedido> pedidos = Principal.obtenerPedidosCliente(clien.getId_usu());
+		if (clien != null && pedidos != null) {
 			for (Pedido ped : pedidos) {
 				String precioTotalFormateado = String.format("%.2f", ped.getTotal());
 				modelPedidos.addRow(new Object[] { ped.getId_ped(), precioTotalFormateado, ped.getFecha_compra() });
 			}
-		} else {
-			System.err.println("Cliente o lista de pedidos nula en VerPedidosCliente");
-			modelPedidos.addRow(new Object[] { "", "No hay pedidos disponibles", "" });
 		}
-
 		// --- Creación Tabla Pedidos con Mejoras ---
 		tablePedidos = new JTable(modelPedidos) {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				Component c = super.prepareRenderer(renderer, row, column);
@@ -123,8 +120,6 @@ public class VerPedidosCliente extends JDialog {
 				return c;
 			}
 		};
-		// tablePedidos.setDefaultEditor(Object.class, null); // Ya no es necesario por
-		// isCellEditable
 		tablePedidos.setFillsViewportHeight(true);
 		tablePedidos.setRowHeight(tablePedidos.getRowHeight() + 4); // Aumentar ligeramente altura de fila para padding
 
@@ -149,16 +144,23 @@ public class VerPedidosCliente extends JDialog {
 
 		// --- Listener Doble Click ---
 		tablePedidos.addMouseListener(new MouseAdapter() {
+			private int selectedRow;
+			private Object idObj;
+			private int idPedido;
+			private boolean pestanaExiste;
+			private String tituloBuscado;
+
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				
 				if (e.getClickCount() == 2) { // Detecta doble clic
-					int selectedRow = tablePedidos.getSelectedRow();
+					selectedRow = tablePedidos.getSelectedRow();
 					if (selectedRow != -1) {
-						Object idObj = modelPedidos.getValueAt(selectedRow, 0);
+						idObj = modelPedidos.getValueAt(selectedRow, 0);
 						if (idObj instanceof Integer) {
-							int idPedido = (Integer) idObj;
-							boolean pestanaExiste = false;
-							String tituloBuscado = "Pedido " + idPedido;
+							idPedido = (Integer) idObj;
+							pestanaExiste = false;
+							tituloBuscado = "Pedido " + idPedido;
 							for (int i = 0; i < tabbedPane.getTabCount(); i++) {
 								Component tabComp = tabbedPane.getTabComponentAt(i);
 								String tituloActual = tabbedPane.getTitleAt(i);
@@ -222,6 +224,7 @@ public class VerPedidosCliente extends JDialog {
 		modelDetalle.addColumn("Dto. (%)"); // Abreviado
 		modelDetalle.addColumn("P. Total (€)"); // Abreviado
 
+//		List<Compra> listaCompraPediso = Principal.obtenerCompraDePedido();
 		// --- Carga Datos Artículos ---
 		List<Articulo> articulos = Principal.obtenerArticulosPorPedido(idPedido);
 		if (articulos != null) {
@@ -397,27 +400,4 @@ public class VerPedidosCliente extends JDialog {
 		// table.repaint();
 	}
 
-	// --- Método main de ejemplo para probar (igual que antes) ---
-	/*
-	 * public static void main(String[] args) { try { UIManager.setLookAndFeel( new
-	 * FlatLightLaf() ); UIManager.put( "TabbedPane.showTabSeparators", true ); //
-	 * UIManager.put( "Table.alternateRowColor", new Color(240, 245, 250) ); // Ya
-	 * se usa fallback en prepareRenderer //
-	 * UIManager.put("Table.showVerticalLines", false); // Otra forma de ocultar
-	 * líneas verticales // UIManager.put("Table.showHorizontalLines", true); }
-	 * catch( Exception ex ) { System.err.println( "Failed to initialize LaF" ); }
-	 * 
-	 * Cliente clienteEjemplo = new Cliente(); clienteEjemplo.setId_usu(1);
-	 * clienteEjemplo.setUsuario("Cliente de Prueba Longevo"); // Nombre más largo
-	 * para probar ancho
-	 * 
-	 * EventQueue.invokeLater(() -> { try { // Simular datos para la tabla (esto
-	 * debería venir de Principal) // Si no tienes Principal funcionando,
-	 * necesitarás crear datos falsos aquí // y modificar cómo se cargan los datos
-	 * en el constructor y agregarPestañaArticulos
-	 * 
-	 * VerPedidosCliente dialog = new VerPedidosCliente(null, clienteEjemplo);
-	 * dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-	 * dialog.setVisible(true); } catch (Exception e) { e.printStackTrace(); } }); }
-	 */
 }
