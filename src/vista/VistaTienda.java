@@ -95,7 +95,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 		ajustarAnchosColumnaTabla();
 
 		pack();
-		// Cambia tamaño de la ventana completa
+		// Cambia tamaño de la ventana completagg
 		setMinimumSize(new Dimension(900, 700));
 		setLocationRelativeTo(owner);
 	}
