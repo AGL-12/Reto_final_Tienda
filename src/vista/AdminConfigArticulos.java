@@ -36,7 +36,6 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
     private JTextField textPrecio;
     private JTextField textOferta;
     private JButton btnAlta;
-    private JButton btnBaja;
     private JButton btnModify;
     private JButton btnSalir;
     private JComboBox<Seccion> comboBoxSeccion;
@@ -122,13 +121,6 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         getContentPane().add(btnAlta);
         btnAlta.addActionListener(this);
 
-        btnBaja = new JButton("Delete");
-        btnBaja.setFont(new Font("Tahoma", Font.PLAIN, 18));
-        btnBaja.setBounds(329, 84, 97, 23);
-        getContentPane().add(btnBaja);
-        btnBaja.addActionListener(this);
-        btnBaja.setEnabled(false);
-
         btnModify = new JButton("Modify");
         btnModify.setFont(new Font("Tahoma", Font.PLAIN, 18));
         btnModify.setBounds(329, 135, 97, 23);
@@ -159,14 +151,15 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         comboBoxArticulo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+            	if(comboBoxArticulo.getSelectedIndex()>0) {
+            		camposEditables(false);
+            	}else {
+            		camposEditables(true);
+            	}
                 boolean isItemSelected = comboBoxArticulo.getSelectedIndex() > 0;
                 btnAlta.setEnabled(!isItemSelected);
-                btnBaja.setEnabled(isItemSelected);
                 btnModify.setEnabled(isItemSelected);
                 enseñarInfo();
-                validarCampo(textStock);
-                validarCampo(textPrecio);
-                validarCampo(textOferta);
             }
         });
         comboBoxArticulo.setSelectedIndex(0);
@@ -206,9 +199,16 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         textOferta.getDocument().addDocumentListener(validationListener);
 
     }
+    private void camposEditables(boolean activado) {
+        textPrecio.setEditable(activado);
+        textOferta.setEditable(activado);
+        textNombre.setEditable(activado);
+        textDescripcion.setEditable(activado);
+        comboBoxSeccion.setEnabled(activado);
+    }
 
 
-    private void validarCampo(JTextField campo) {
+     private void validarCampo(JTextField campo) {
         String texto = campo.getText().trim();
         boolean valido = true;
 
@@ -257,7 +257,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == btnAlta || e.getSource() == btnBaja || e.getSource() == btnModify) {
+        if (e.getSource() == btnAlta  || e.getSource() == btnModify) {
             validarCampo(textStock);
             validarCampo(textPrecio);
             validarCampo(textOferta);
@@ -265,8 +265,6 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
             if (comprobarCampos()) { 
                 if (e.getSource() == btnAlta) {
                     añadir();
-                } else if (e.getSource() == btnBaja) {
-                    eliminar();
                 } else if (e.getSource() == btnModify) {
                     modificar();
                 }
@@ -331,34 +329,6 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
             JOptionPane.showMessageDialog(this, "Error al modificar artículo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         } 
-    }
-
-    private void eliminar() {
-         Articulo art = null;
-         int confirm;
-         if(comboBoxArticulo.getSelectedIndex() > 0){
-            art = (Articulo) comboBoxArticulo.getSelectedItem();
-        }
-
-        if (art != null && art.getId_art() != 0) {
-             confirm = JOptionPane.showConfirmDialog(this,
-                     "¿Está seguro de que desea eliminar el artículo '" + art.getNombre() + "'?",
-                     "Confirmar Eliminación",
-                     JOptionPane.YES_NO_OPTION,
-                     JOptionPane.WARNING_MESSAGE);
-
-             if (confirm == JOptionPane.YES_OPTION) {
-                try {
-                    Principal.eliminarArticulo(art);
-                    JOptionPane.showMessageDialog(this, "Artículo eliminado correctamente.");
-                } catch (modifyError e) {
-                    JOptionPane.showMessageDialog(this, "Error al eliminar artículo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    e.printStackTrace();
-                }
-             }
-        } else {
-             JOptionPane.showMessageDialog(this, "Por favor, seleccione un artículo para eliminar.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
-        }
     }
 
     private void limpiar() {
