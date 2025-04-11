@@ -50,6 +50,7 @@ public class DaoImplementMySQL implements Dao {
 	final String newIdPedido = "SELECT MAX(id_ped) FROM pedido";
 	final String insert_pedido = "insert into pedido (id_ped,id_clien,total,fecha_compra) values (?,?,?,?)";
 	final String pedidos_cliente = "SELECT * FROM pedido where id_clien=?";
+	final String totalGastadoPedidos = "SELECT TOTALGASTADO(?) as resultado";
 
 	final String CANTIDAD_COMPRA = "UPDATE articulo SET stock = stock - ? WHERE id_art = ?";
 	final String INTRODUCIR_COMPRA = "INSERT INTO compra(id_art, id_ped, cantidad) VALUES (?, ?, ?)";
@@ -732,5 +733,34 @@ public class DaoImplementMySQL implements Dao {
 			}
 		}
 		return ultimoIdArt + 1;
+	}
+
+	@Override
+	public float totalGastado(Cliente clien) {
+		float resultado = 0;
+		ResultSet rs = null;
+		try {
+			openConnection();
+			stmt = con.prepareStatement(totalGastadoPedidos);
+			stmt.setInt(1, clien.getId_usu());
+			rs = stmt.executeQuery();
+			if (rs.next()) {
+				resultado = rs.getFloat("resultado");
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			closeConnection();
+
+		}
+		return resultado;
 	}
 }
