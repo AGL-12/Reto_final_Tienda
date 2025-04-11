@@ -7,12 +7,9 @@ import modelo.Pedido;
 import controlador.Principal; // Asumiendo métodos de acceso a datos
 
 import javax.swing.*;
-import javax.swing.border.Border; // Para bordes
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
