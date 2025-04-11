@@ -10,7 +10,6 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	private JButton btnConfigArticulos;
-	private JButton btnConfigPedidos;
 	private JButton btnConfigUsuario;
 
 	/**
@@ -30,11 +29,6 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		btnConfigArticulos.setBounds(247, 150, 140, 50);
 		getContentPane().add(btnConfigArticulos);
 		btnConfigArticulos.addActionListener(this);
-
-		btnConfigPedidos = new JButton("Config Pedidos");
-		btnConfigPedidos.setBounds(247, 52, 140, 50);
-		getContentPane().add(btnConfigPedidos);
-		btnConfigPedidos.addActionListener(this);
 
 		btnConfigUsuario = new JButton("Config usuario");
 		btnConfigUsuario.setBounds(38, 150, 140, 50);

@@ -172,236 +172,219 @@ public class VistaTienda extends JDialog implements ActionListener {
 	}
 
 	/**
-	 * Configura la JTable (modelo, columnas, renderers, editor, listener).
-	 */
-	private void configurarTabla() {
-		// --- Modelo ---
-		model = new DefaultTableModel() {
-			@Override
-			public Class<?> getColumnClass(int columnIndex) {
-				switch (columnIndex) {
-				case 0:
-					return Integer.class; // ID (Modelo col 0)
-				case 3:
-					return Double.class; // Precio (Modelo col 3)
-				case 4:
-					return Double.class; // Oferta (Modelo col 4)
-				case 5:
-					return Integer.class; // Stock (Modelo col 5)
-				case 6:
-					return Integer.class; // Cantidad (Modelo col 6, editable)
-				default:
-					return String.class; // Nombre (1), Desc (2)
-				}
-			}
+     * Configura la JTable (modelo, columnas, renderers, editor, listener).
+     */
+    private void configurarTabla() {
+        // --- Modelo ---
+        model = new DefaultTableModel() {
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                switch (columnIndex) {
+                    case 0: return Integer.class; // ID (Modelo col 0)
+                    case 3: return Double.class;  // Precio (Modelo col 3)
+                    case 4: return Double.class;  // Oferta (Modelo col 4)
+                    case 5: return Integer.class; // Stock (Modelo col 5)
+                    case 6: return Integer.class; // Cantidad (Modelo col 6, editable)
+                    default: return String.class; // Nombre (1), Desc (2)
+                }
+            }
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 6; // Modelo col 6 = Cantidad
+            }
+        };
+        model.addColumn("ID_ART");     // Modelo Col 0
+        model.addColumn("Nombre");     // Modelo Col 1
+        model.addColumn("Descripción");  // Modelo Col 2
+        model.addColumn("Precio (€)");  // Modelo Col 3
+        model.addColumn("Oferta (%)");  // Modelo Col 4
+        model.addColumn("Stock");      // Modelo Col 5
+        model.addColumn("Cantidad");     // Modelo Col 6
 
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				return column == 6; // Modelo col 6 = Cantidad
-			}
-		};
-		model.addColumn("ID_ART"); // Modelo Col 0
-		model.addColumn("Nombre"); // Modelo Col 1
-		model.addColumn("Descripción"); // Modelo Col 2
-		model.addColumn("Precio (€)"); // Modelo Col 3
-		model.addColumn("Oferta (%)"); // Modelo Col 4
-		model.addColumn("Stock"); // Modelo Col 5
-		model.addColumn("Cantidad"); // Modelo Col 6
 
-		// --- Creación Tabla ---
-		tableArticulo = new JTable(model) {
-			@Override
-			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-				Component c = super.prepareRenderer(renderer, row, column);
-				if (c instanceof JComponent) {
-					((JComponent) c).setOpaque(false);
-				}
-				Color alternateColor = new Color(230, 240, 255, 100);
-				Color baseColor = new Color(255, 255, 255, 120);
+        // --- Creación Tabla ---
+        tableArticulo = new JTable(model) {
+            @Override
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                if (c instanceof JComponent) {
+                    ((JComponent)c).setOpaque(false);
+                }
+                Color alternateColor = new Color(230, 240, 255, 100);
+                Color baseColor = new Color(255, 255, 255, 120);
+                if (!isRowSelected(row)) {
+                    c.setBackground(row % 2 != 0 ? alternateColor : baseColor);
+                    c.setForeground(Color.BLACK);
+                } else {
+                    Color selectionColor = tableArticulo.getSelectionBackground();
+                    c.setBackground(new Color(selectionColor.getRed(), selectionColor.getGreen(), selectionColor.getBlue(), 150));
+                    c.setForeground(Color.blue);
+                }
+                if (c instanceof JComponent) {
+                   ((JComponent) c).setBorder(BorderFactory.createEmptyBorder(
+                           PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H,
+                           PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H));
+                }
+                 if(c instanceof DefaultTableCellRenderer){
+                    DefaultTableCellRenderer rendererComp = (DefaultTableCellRenderer) c;
+                    int modelColumn = tableArticulo.convertColumnIndexToModel(column);
+                    if (modelColumn >= 3 && modelColumn <= 6) {
+                        rendererComp.setHorizontalAlignment(SwingConstants.RIGHT);
+                    } else {
+                        rendererComp.setHorizontalAlignment(SwingConstants.LEFT);
+                    }
+                 }
+                return c;
+           }
+            @Override
+            public Component prepareEditor(TableCellEditor editor, int row, int column) {
+                Component c = super.prepareEditor(editor, row, column);
+                if (c instanceof JComponent) {
+                    ((JComponent)c).setOpaque(false);
+                }
+                if (c instanceof JTextField) {
+                    ((JTextField) c).setOpaque(true);
+                    ((JTextField) c).setBackground(Color.WHITE);
+                }
+                return c;
+            }
+        };
+        
+   
+        
+        
+        // --- Propiedades Tabla ---
+        tableArticulo.setFont(FONT_TABLA_CELDA);
+        tableArticulo.setRowHeight(tableArticulo.getRowHeight() + PADDING_INTERNO);
+        tableArticulo.setGridColor(new Color(180, 180, 180, 100));
+        tableArticulo.setShowGrid(true);
+        tableArticulo.setShowHorizontalLines(true);
+        tableArticulo.setShowVerticalLines(false);
+        tableArticulo.setIntercellSpacing(new Dimension(0, 1));
+        tableArticulo.setAutoCreateRowSorter(true);
+        tableArticulo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-				Color selectionColor = tableArticulo.getSelectionBackground();
-				c.setBackground(
-						new Color(selectionColor.getRed(), selectionColor.getGreen(), selectionColor.getBlue(), 150));
-				c.setForeground(Color.blue);
+        // --- Cabecera Tabla ---
+        JTableHeader header = tableArticulo.getTableHeader();
+        header.setFont(FONT_TABLA_HEADER);
+        header.setReorderingAllowed(false);
+        header.setResizingAllowed(true);
+        header.setOpaque(false);
+        if(header.getDefaultRenderer() instanceof JLabel){
+             ((JLabel)header.getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
+        }
 
-				if (c instanceof JComponent) {
-					((JComponent) c).setBorder(BorderFactory.createEmptyBorder(PADDING_TABLA_CELDA_V,
-							PADDING_TABLA_CELDA_H, PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H));
-				}
-				if (c instanceof DefaultTableCellRenderer) {
-					DefaultTableCellRenderer rendererComp = (DefaultTableCellRenderer) c;
-					int modelColumn = tableArticulo.convertColumnIndexToModel(column);
-					if (modelColumn >= 3 && modelColumn <= 6) {
-						rendererComp.setHorizontalAlignment(SwingConstants.RIGHT);
-					} else {
-						rendererComp.setHorizontalAlignment(SwingConstants.LEFT);
-					}
-				}
-				return c;
-			}
+        // --- Ocultar Columna ID_ART ---
+        TableColumnModel columnModel = tableArticulo.getColumnModel();
+        try {
+             TableColumn columnToHide = tableArticulo.getColumn("ID_ART");
+             columnModel.removeColumn(columnToHide);
+        } catch (IllegalArgumentException e) {
+             // System.err.println("No se pudo encontrar/ocultar la columna 'ID_ART'."); // REMOVED
+        }
 
-			@Override
-			public Component prepareEditor(TableCellEditor editor, int row, int column) {
-				Component c = super.prepareEditor(editor, row, column);
-				if (c instanceof JComponent) {
-					((JComponent) c).setOpaque(false);
-				}
-				if (c instanceof JTextField) {
-					((JTextField) c).setOpaque(true);
-					((JTextField) c).setBackground(Color.WHITE);
-				}
-				return c;
-			}
-		};
+        // --- Editor Personalizado para Cantidad ---
+        quantityEditorField = new JTextField();
+        quantityEditorField.setHorizontalAlignment(SwingConstants.RIGHT);
+        quantityEditorField.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        quantityEditorField.setOpaque(true);
+        quantityEditorField.setBackground(Color.white);
+        quantityEditorField.setForeground(UIManager.getColor("TextField.foreground"));
 
-		// --- Propiedades Tabla ---
-		tableArticulo.setFont(FONT_TABLA_CELDA);
-		tableArticulo.setRowHeight(tableArticulo.getRowHeight() + PADDING_INTERNO);
-		tableArticulo.setGridColor(new Color(180, 180, 180, 100));
-		tableArticulo.setShowGrid(true);
-		tableArticulo.setShowHorizontalLines(true);
-		tableArticulo.setShowVerticalLines(false);
-		tableArticulo.setIntercellSpacing(new Dimension(0, 1));
-		tableArticulo.setAutoCreateRowSorter(true);
-		tableArticulo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        quantityEditorField.getDocument().addDocumentListener(new DocumentListener() {
+           private void verificarNumero() {
+                String text = quantityEditorField.getText();
+                boolean valido = text.matches("[0-9]*");
+                Color foregroundColor = UIManager.getColor("TextField.foreground");
+                if (text.isEmpty()) {
+                    // ok
+                } else if (!valido) {
+                    foregroundColor = COLOR_VALIDATION_ERROR;
+                } else {
+                    try {
+                        int filaEditada = tableArticulo.getEditingRow();
+                        if (filaEditada != -1) {
+                            int filaModelo = tableArticulo.convertRowIndexToModel(filaEditada);
+                             if (filaModelo != -1) {
+                                int cantidad = Integer.parseInt(text);
+                                Object stockObj = model.getValueAt(filaModelo, 5);
+                                if (stockObj instanceof Integer) {
+                                    int stock = (Integer) stockObj;
+                                    if (cantidad > stock || cantidad < 0) {
+                                        foregroundColor = COLOR_VALIDATION_ERROR;
+                                    }
+                                } else {
+                                     foregroundColor = COLOR_VALIDATION_ERROR;
+                                }
+                             }
+                        }
+                    } catch (NumberFormatException | IndexOutOfBoundsException ignored) {
+                         foregroundColor = COLOR_VALIDATION_ERROR;
+                    }
+                }
+                quantityEditorField.setForeground(foregroundColor);
+            }
+            @Override public void insertUpdate(DocumentEvent e) { verificarNumero(); }
+            @Override public void removeUpdate(DocumentEvent e) { verificarNumero(); }
+            @Override public void changedUpdate(DocumentEvent e) { /* No necesario */ }
+       });
 
-		// --- Cabecera Tabla ---
-		JTableHeader header = tableArticulo.getTableHeader();
-		header.setFont(FONT_TABLA_HEADER);
-		header.setReorderingAllowed(false);
-		header.setResizingAllowed(true);
-		header.setOpaque(false);
-		if (header.getDefaultRenderer() instanceof JLabel) {
-			((JLabel) header.getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
-		}
+        // Índices VISTA tras ocultar ID: Nom(0), Desc(1), Precio(2), Oferta(3), Stock(4), Cant(5)
+        int cantidadViewIndex = 5;
+        if (cantidadViewIndex < columnModel.getColumnCount()) {
+            columnModel.getColumn(cantidadViewIndex).setCellEditor(new DefaultCellEditor(quantityEditorField));
+        } else {
+            // System.err.println("Error: Índice de columna de vista 'Cantidad' fuera de rango."); // REMOVED
+        }
 
-		// --- Ocultar Columna ID_ART ---
-		TableColumnModel columnModel = tableArticulo.getColumnModel();
-		try {
-			TableColumn columnToHide = tableArticulo.getColumn("ID_ART");
-			columnModel.removeColumn(columnToHide);
-		} catch (IllegalArgumentException e) {
-			// System.err.println("No se pudo encontrar/ocultar la columna 'ID_ART'."); //
-			// REMOVED
-		}
+        // --- Listener del Modelo ---
+        model.addTableModelListener(e -> {
+             if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) { // Cantidad (Modelo)
+                int filaModelo = e.getFirstRow();
+                if (filaModelo < 0 || filaModelo >= model.getRowCount()) return;
 
-		// --- Editor Personalizado para Cantidad ---
-		quantityEditorField = new JTextField();
-		quantityEditorField.setHorizontalAlignment(SwingConstants.RIGHT);
-		quantityEditorField.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-		quantityEditorField.setOpaque(true);
-		quantityEditorField.setBackground(Color.white);
-		quantityEditorField.setForeground(UIManager.getColor("TextField.foreground"));
+                Object cantidadObj = model.getValueAt(filaModelo, 6);
+                Object stockObj = model.getValueAt(filaModelo, 5);
 
-		quantityEditorField.getDocument().addDocumentListener(new DocumentListener() {
-			private void verificarNumero() {
-				String text = quantityEditorField.getText();
-				boolean valido = text.matches("[0-9]*");
-				Color foregroundColor = UIManager.getColor("TextField.foreground");
-				if (text.isEmpty()) {
-					// ok
-				} else if (!valido) {
-					foregroundColor = COLOR_VALIDATION_ERROR;
-				} else {
-					try {
-						int filaEditada = tableArticulo.getEditingRow();
-						if (filaEditada != -1) {
-							int filaModelo = tableArticulo.convertRowIndexToModel(filaEditada);
-							if (filaModelo != -1) {
-								int cantidad = Integer.parseInt(text);
-								Object stockObj = model.getValueAt(filaModelo, 5);
-								if (stockObj instanceof Integer) {
-									int stock = (Integer) stockObj;
-									if (cantidad > stock || cantidad < 0) {
-										foregroundColor = COLOR_VALIDATION_ERROR;
-									}
-								} else {
-									foregroundColor = COLOR_VALIDATION_ERROR;
-								}
-							}
-						}
-					} catch (NumberFormatException | IndexOutOfBoundsException ignored) {
-						foregroundColor = COLOR_VALIDATION_ERROR;
-					}
-				}
-				quantityEditorField.setForeground(foregroundColor);
-			}
+                if (cantidadObj == null || cantidadObj.toString().isEmpty()) {
+                    Object currentValue = model.getValueAt(filaModelo, e.getColumn());
+                    if (currentValue != null && !(currentValue instanceof Integer && (Integer)currentValue == 0)) {
+                        SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
+                    }
+                    return;
+                }
 
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				verificarNumero();
-			}
+                if (stockObj instanceof Integer) {
+                   int stockDisponible = (Integer) stockObj;
+                   try {
+                       int cantidadIngresada = Integer.parseInt(cantidadObj.toString());
+                       if (cantidadIngresada < 0) {
+                           SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
+                       } else if (cantidadIngresada > stockDisponible) {
+                           SwingUtilities.invokeLater(() -> {
+                               JOptionPane.showMessageDialog(VistaTienda.this,
+                                   "La cantidad ("+ cantidadIngresada +") excede el stock disponible (" + stockDisponible + "). Se ajustará al máximo.",
+                                   "Stock Insuficiente", JOptionPane.WARNING_MESSAGE);
+                               model.setValueAt(stockDisponible, filaModelo, 6);
+                           });
+                       }
+                   } catch (NumberFormatException ex) {
+                       SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
+                   }
+                } else {
+                    SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
+                }
+            }
+        });
 
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				verificarNumero();
-			}
-
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				/* No necesario */ }
-		});
-
-		// Índices VISTA tras ocultar ID: Nom(0), Desc(1), Precio(2), Oferta(3),
-		// Stock(4), Cant(5)
-		int cantidadViewIndex = 5;
-		if (cantidadViewIndex < columnModel.getColumnCount()) {
-			columnModel.getColumn(cantidadViewIndex).setCellEditor(new DefaultCellEditor(quantityEditorField));
-		} else {
-			// System.err.println("Error: Índice de columna de vista 'Cantidad' fuera de
-			// rango."); // REMOVED
-		}
-
-		// --- Listener del Modelo ---
-		model.addTableModelListener(e -> {
-			if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) { // Cantidad (Modelo)
-				int filaModelo = e.getFirstRow();
-				if (filaModelo < 0 || filaModelo >= model.getRowCount())
-					return;
-
-				Object cantidadObj = model.getValueAt(filaModelo, 6);
-				Object stockObj = model.getValueAt(filaModelo, 5);
-
-				if (cantidadObj == null || cantidadObj.toString().isEmpty()) {
-					Object currentValue = model.getValueAt(filaModelo, e.getColumn());
-					if (currentValue != null && !(currentValue instanceof Integer && (Integer) currentValue == 0)) {
-						SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
-					}
-					return;
-				}
-
-				if (stockObj instanceof Integer) {
-					int stockDisponible = (Integer) stockObj;
-					try {
-						int cantidadIngresada = Integer.parseInt(cantidadObj.toString());
-						if (cantidadIngresada < 0) {
-							SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
-						} else if (cantidadIngresada > stockDisponible) {
-							SwingUtilities.invokeLater(() -> {
-								JOptionPane.showMessageDialog(VistaTienda.this,
-										"La cantidad (" + cantidadIngresada + ") excede el stock disponible ("
-												+ stockDisponible + "). Se ajustará al máximo.",
-										"Stock Insuficiente", JOptionPane.WARNING_MESSAGE);
-								model.setValueAt(stockDisponible, filaModelo, 6);
-							});
-						}
-					} catch (NumberFormatException ex) {
-						SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
-					}
-				} else {
-					SwingUtilities.invokeLater(() -> model.setValueAt(0, filaModelo, 6));
-				}
-			}
-		});
-
-		// --- ScrollPane ---
-		JScrollPane scrollPane = new JScrollPane(tableArticulo);
-
-		scrollPane.setBorder(BorderFactory.createEmptyBorder(0, PADDING_GENERAL, 0, PADDING_GENERAL));
-		scrollPane.setOpaque(false);
-		scrollPane.getViewport().setOpaque(false);
-		getContentPane().add(scrollPane, BorderLayout.CENTER);
-	}
+        // --- ScrollPane ---
+        JScrollPane scrollPane = new JScrollPane(tableArticulo);
+    
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(0, PADDING_GENERAL, 0, PADDING_GENERAL));
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        getContentPane().add(scrollPane, BorderLayout.CENTER);
+    }
 
 	/**
 	 * Carga (o recarga) los datos de los artículos desde la base de datos a la
