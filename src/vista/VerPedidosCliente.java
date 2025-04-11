@@ -315,7 +315,7 @@ public class VerPedidosCliente extends JDialog {
 		ImageIcon closeIcon = null;
 		try {
 			// ¡¡¡REEMPLAZA CON TU RUTA AL ICONO!!!
-			java.net.URL imgURL = getClass().getResource("iconos/icono_cerrar_16.png");
+			java.net.URL imgURL = getClass().getResource("iconos/closeTab.png");
 			if (imgURL != null) {
 				closeIcon = new ImageIcon(imgURL);
 			} else {
