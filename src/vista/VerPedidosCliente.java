@@ -38,6 +38,8 @@ import modelo.Pedido;
 public class VerPedidosCliente extends JDialog {
 
 	private static final long serialVersionUID = 1L;
+	private JLabel lblTotalGastado;
+	private float totalGastado;
 	private JTable tablePedidos;
 	private DefaultTableModel modelPedidos;
 	private JTabbedPane tabbedPane;
@@ -192,7 +194,14 @@ public class VerPedidosCliente extends JDialog {
 
 		// --- Añadir Pestaña Pedidos ---
 		tabbedPane.addTab("Pedidos", panelPedidos);
+		JPanel panelInferior = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		panelInferior.setBorder(new EmptyBorder(5, 5, 5, 10));
 
+		totalGastado = Principal.totalGastado(clien);
+		lblTotalGastado = new JLabel("Total Gastado: " + totalGastado + " €");
+		lblTotalGastado.setHorizontalAlignment(SwingConstants.RIGHT);
+		panelInferior.add(lblTotalGastado);
+		getContentPane().add(panelInferior, BorderLayout.SOUTH);
 		// *** Mejora: Ajustar anchos de columna DESPUÉS de añadir datos y al scrollpane
 		// ***
 		adjustColumnWidths(tablePedidos);
