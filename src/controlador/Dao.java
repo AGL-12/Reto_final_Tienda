@@ -57,4 +57,6 @@ public interface Dao {
 	public int obtenerCantidadArticuloEnPedido(int idPedido, int idArticulo);
 
 	public int obtenerUltimoIdArt();
+
+	float totalGastado(Cliente clien);
 }

@@ -5,24 +5,24 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import java.awt.Color; // <-- Importar Color
+import java.awt.Color; 
 import java.awt.Font;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent; // <-- Importar DocumentEvent
-import javax.swing.event.DocumentListener; // <-- Importar DocumentListener
+import javax.swing.event.DocumentEvent; 
+import javax.swing.event.DocumentListener; 
 
 import controlador.Principal;
 import excepciones.modifyError;
 import modelo.Articulo;
-import modelo.Cliente; // No se usa
+import modelo.Cliente; 
 import modelo.Seccion;
 
-import javax.swing.ComboBoxModel; // No se usa directamente
+import javax.swing.ComboBoxModel; 
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter; // No se usa
-import java.awt.event.MouseEvent; // No se usa
+import java.awt.event.MouseAdapter; 
+import java.awt.event.MouseEvent; 
 import java.util.Map;
 
 import javax.swing.JComboBox;
@@ -36,15 +36,14 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
     private JTextField textPrecio;
     private JTextField textOferta;
     private JButton btnAlta;
-    private JButton btnBaja;
     private JButton btnModify;
     private JButton btnSalir;
     private JComboBox<Seccion> comboBoxSeccion;
     private JDialog VentanaIntermedia;
     private JComboBox<Articulo> comboBoxArticulo; 
     private Map<Integer, Articulo> articulos;
-
-
+    private JLabel lblNombre,lblDescripcion,lblStock,lblPrecio,lblArticulo,lblOferta,lblSeccion;
+    private DocumentListener validationListener;
     private final Color COLOR_ERROR = Color.RED;
     private final Color COLOR_NORMAL = Color.BLACK;
 
@@ -61,7 +60,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         setBounds(100, 100, 450, 350);
         getContentPane().setLayout(null);
 
-        JLabel lblNombre = new JLabel("Name");
+        lblNombre = new JLabel("Name");
         lblNombre.setFont(new Font("Tahoma", Font.PLAIN, 18));
         lblNombre.setBounds(61, 52, 46, 28);
         getContentPane().add(lblNombre);
@@ -71,7 +70,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         getContentPane().add(textNombre);
         textNombre.setColumns(10);
 
-        JLabel lblDescripcion = new JLabel("Description");
+        lblDescripcion = new JLabel("Description");
         lblDescripcion.setFont(new Font("Tahoma", Font.PLAIN, 18));
         lblDescripcion.setBounds(19, 84, 98, 28);
         getContentPane().add(lblDescripcion);
@@ -81,7 +80,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         textDescripcion.setBounds(117, 91, 183, 20);
         getContentPane().add(textDescripcion);
 
-        JLabel lblStock = new JLabel("Stock");
+        lblStock = new JLabel("Stock");
         lblStock.setFont(new Font("Tahoma", Font.PLAIN, 18));
         lblStock.setBounds(59, 120, 48, 28);
         getContentPane().add(lblStock);
@@ -91,7 +90,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         textStock.setBounds(117, 122, 183, 20);
         getContentPane().add(textStock);
 
-        JLabel lblPrecio = new JLabel("Price");
+        lblPrecio = new JLabel("Price");
         lblPrecio.setFont(new Font("Tahoma", Font.PLAIN, 18));
         lblPrecio.setBounds(59, 148, 48, 28);
         getContentPane().add(lblPrecio);
@@ -101,7 +100,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         textPrecio.setBounds(117, 153, 183, 20);
         getContentPane().add(textPrecio);
 
-        JLabel lblOferta = new JLabel("Offer");
+        lblOferta = new JLabel("Offer");
         lblOferta.setFont(new Font("Tahoma", Font.PLAIN, 18));
         lblOferta.setBounds(59, 177, 48, 28);
         getContentPane().add(lblOferta);
@@ -111,7 +110,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         textOferta.setBounds(117, 184, 183, 20);
         getContentPane().add(textOferta);
 
-        JLabel lblSeccion = new JLabel("Section");
+        lblSeccion = new JLabel("Section");
         lblSeccion.setFont(new Font("Tahoma", Font.PLAIN, 18));
         lblSeccion.setBounds(48, 213, 69, 28);
         getContentPane().add(lblSeccion);
@@ -121,13 +120,6 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         btnAlta.setBounds(329, 37, 97, 23);
         getContentPane().add(btnAlta);
         btnAlta.addActionListener(this);
-
-        btnBaja = new JButton("Delete");
-        btnBaja.setFont(new Font("Tahoma", Font.PLAIN, 18));
-        btnBaja.setBounds(329, 84, 97, 23);
-        getContentPane().add(btnBaja);
-        btnBaja.addActionListener(this);
-        btnBaja.setEnabled(false);
 
         btnModify = new JButton("Modify");
         btnModify.setFont(new Font("Tahoma", Font.PLAIN, 18));
@@ -147,7 +139,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         getContentPane().add(comboBoxSeccion);
         comboBoxSeccion.setSelectedIndex(-1);
 
-        JLabel lblArticulo = new JLabel("Articulo");
+        lblArticulo = new JLabel("Articulo");
         lblArticulo.setFont(new Font("Tahoma", Font.PLAIN, 18));
         lblArticulo.setBounds(48, 20, 69, 28);
         getContentPane().add(lblArticulo);
@@ -159,14 +151,15 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         comboBoxArticulo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+            	if(comboBoxArticulo.getSelectedIndex()>0) {
+            		camposEditables(false);
+            	}else {
+            		camposEditables(true);
+            	}
                 boolean isItemSelected = comboBoxArticulo.getSelectedIndex() > 0;
                 btnAlta.setEnabled(!isItemSelected);
-                btnBaja.setEnabled(isItemSelected);
                 btnModify.setEnabled(isItemSelected);
                 enseñarInfo();
-                validarCampo(textStock);
-                validarCampo(textPrecio);
-                validarCampo(textOferta);
             }
         });
         comboBoxArticulo.setSelectedIndex(0);
@@ -177,7 +170,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
          }
 
 
-        DocumentListener validationListener = new DocumentListener() {
+        validationListener = new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 actualizarValidacion(e);
@@ -206,9 +199,16 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
         textOferta.getDocument().addDocumentListener(validationListener);
 
     }
+    private void camposEditables(boolean activado) {
+        textPrecio.setEditable(activado);
+        textOferta.setEditable(activado);
+        textNombre.setEditable(activado);
+        textDescripcion.setEditable(activado);
+        comboBoxSeccion.setEnabled(activado);
+    }
 
 
-    private void validarCampo(JTextField campo) {
+     private void validarCampo(JTextField campo) {
         String texto = campo.getText().trim();
         boolean valido = true;
 
@@ -257,7 +257,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == btnAlta || e.getSource() == btnBaja || e.getSource() == btnModify) {
+        if (e.getSource() == btnAlta  || e.getSource() == btnModify) {
             validarCampo(textStock);
             validarCampo(textPrecio);
             validarCampo(textOferta);
@@ -265,8 +265,6 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
             if (comprobarCampos()) { 
                 if (e.getSource() == btnAlta) {
                     añadir();
-                } else if (e.getSource() == btnBaja) {
-                    eliminar();
                 } else if (e.getSource() == btnModify) {
                     modificar();
                 }
@@ -315,10 +313,11 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 
     private void modificar() {
         Articulo art = recopilarInformacion();
+        Articulo seleccionado;
         if (art == null) return;
 
         try {
-            Articulo seleccionado = (Articulo) comboBoxArticulo.getSelectedItem();
+            seleccionado = (Articulo) comboBoxArticulo.getSelectedItem();
             if (seleccionado != null && seleccionado.getId_art() != 0) {
                  art.setId_art(seleccionado.getId_art());
                  Principal.modificarArticulo(art);
@@ -330,33 +329,6 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
             JOptionPane.showMessageDialog(this, "Error al modificar artículo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         } 
-    }
-
-    private void eliminar() {
-         Articulo art = null;
-         if(comboBoxArticulo.getSelectedIndex() > 0){
-            art = (Articulo) comboBoxArticulo.getSelectedItem();
-        }
-
-        if (art != null && art.getId_art() != 0) {
-             int confirm = JOptionPane.showConfirmDialog(this,
-                     "¿Está seguro de que desea eliminar el artículo '" + art.getNombre() + "'?",
-                     "Confirmar Eliminación",
-                     JOptionPane.YES_NO_OPTION,
-                     JOptionPane.WARNING_MESSAGE);
-
-             if (confirm == JOptionPane.YES_OPTION) {
-                try {
-                    Principal.eliminarArticulo(art);
-                    JOptionPane.showMessageDialog(this, "Artículo eliminado correctamente.");
-                } catch (modifyError e) {
-                    JOptionPane.showMessageDialog(this, "Error al eliminar artículo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    e.printStackTrace();
-                }
-             }
-        } else {
-             JOptionPane.showMessageDialog(this, "Por favor, seleccione un artículo para eliminar.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
-        }
     }
 
     private void limpiar() {
@@ -378,7 +350,6 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
     private void añadir() {
         Articulo art = recopilarInformacion(); 
         if (art == null) return;
-
         try {
              art.setId_art(0); 
              Principal.añadirArticulo(art);
@@ -391,12 +362,10 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 
 
     private Articulo recopilarInformacion() {
-
-         if (!comprobarCampos()){ 
+    	Articulo art = new Articulo(); 
+    	if (!comprobarCampos()){ 
               return null; 
          }
-
-        Articulo art = new Articulo();
         try {
             art.setNombre(textNombre.getText().trim());
             art.setDescripcion(textDescripcion.getText().trim());
@@ -406,10 +375,8 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
             art.setSeccion((Seccion) comboBoxSeccion.getSelectedItem());
             return art;
         } catch (NumberFormatException e) {
-             System.err.println("Error de formato inesperado en recopilarInformacion.");
              return null;
         } catch (Exception e){
-             System.err.println("Error inesperado en recopilarInformacion: " + e.getMessage());
              return null;
         }
 
@@ -418,6 +385,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 
     private boolean comprobarCampos() {
         boolean verificador = true; 
+        int stock;
 
         if (textNombre.getText().trim().isEmpty() ||
             textDescripcion.getText().trim().isEmpty() ||
@@ -439,7 +407,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 
         if (verificador) { 
              try {
-                 int stock = Integer.parseInt(textStock.getText().trim());
+                 stock = Integer.parseInt(textStock.getText().trim());
                  if (stock < 0) {
                      verificador = false;
                      textStock.setForeground(COLOR_ERROR);

@@ -465,7 +465,6 @@ public class VistaTienda extends JDialog implements ActionListener {
 			return new ImageIcon(image);
 			// return new ImageIcon(imgURL); // Sin escalar
 		} else {
-			System.err.println("No se pudo encontrar el icono: " + path);
 			return null; // O un icono por defecto
 		}
 	}
