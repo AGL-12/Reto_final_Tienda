@@ -1,9 +1,11 @@
 package vista;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import java.awt.event.ActionListener;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 
 public class VentanaIntermedia extends JDialog implements ActionListener {
@@ -11,6 +13,7 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private JButton btnConfigArticulos;
 	private JButton btnConfigUsuario;
+	private JLabel lblTiendaLogo;
 
 	/**
 	 * Create the dialog.
@@ -34,11 +37,15 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		btnConfigUsuario.setBounds(38, 214, 140, 50);
 		getContentPane().add(btnConfigUsuario);
 
-		JLabel lblNewLabel_1 = new JLabel("we");
-		lblNewLabel_1.setBounds(268, 64, 350, 350);
-		getContentPane().add(lblNewLabel_1);
-		lblNewLabel_1.setIcon(null);
+		Image img = new ImageIcon(this.getClass().getResource("/imagenes/logoColor.jpg")).getImage();
+		// Escalar la imagen al tamaño deseado, por ejemplo 350x350
+		Image imgEscalada = img.getScaledInstance(350, 350, Image.SCALE_SMOOTH);
+		lblTiendaLogo = new JLabel();
+		lblTiendaLogo.setIcon(new ImageIcon(imgEscalada));
+		lblTiendaLogo.setBounds(268, 64, 350, 350);
+		getContentPane().add(lblTiendaLogo);
 		btnConfigUsuario.addActionListener(this);
+
 	}
 
 	public void abrirOpcion(JDialog abrirOpc) {

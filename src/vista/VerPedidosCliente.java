@@ -13,7 +13,6 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -311,21 +310,7 @@ public class VerPedidosCliente extends JDialog {
 		JLabel titleLabel = new JLabel(tituloPestana);
 		titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
 
-		// --- Botón de Cierre Mejorado ---
-		ImageIcon closeIcon = null;
-		try {
-			// ¡¡¡REEMPLAZA CON TU RUTA AL ICONO!!!
-			java.net.URL imgURL = getClass().getResource("iconos/closeTab.png");
-			if (imgURL != null) {
-				closeIcon = new ImageIcon(imgURL);
-			} else {
-				System.err.println("Icono de cierre no encontrado.");
-			}
-		} catch (Exception e) {
-			System.err.println("Error cargando icono: " + e.getMessage());
-		}
-
-		JButton closeButton = (closeIcon != null) ? new JButton(closeIcon) : new JButton("x");
+		JButton closeButton = new JButton("x");
 		// Estilos botón cierre... (igual que antes)
 		closeButton.setToolTipText("Cerrar esta pestaña");
 		closeButton.setMargin(new Insets(0, 0, 0, 0));
