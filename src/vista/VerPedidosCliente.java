@@ -192,8 +192,6 @@ public class VerPedidosCliente extends JDialog {
 
 		// --- Añadir Pestaña Pedidos ---
 		tabbedPane.addTab("Pedidos", panelPedidos);
-		JPanel panelInferior = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		panelInferior.setBorder(new EmptyBorder(5, 5, 5, 10));
 
 		// *** Mejora: Ajustar anchos de columna DESPUÉS de añadir datos y al scrollpane
 		// ***
