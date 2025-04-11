@@ -39,7 +39,8 @@ import java.awt.RenderingHints;
 import java.awt.BasicStroke;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO; // Importar ImageIO
-import java.io.InputStream; // Importar InputStream
+import java.io.InputStream;
+import java.awt.Toolkit; // Importar InputStream
 
 public class VistaLogIn extends JFrame implements ActionListener {
 
@@ -84,6 +85,7 @@ public class VistaLogIn extends JFrame implements ActionListener {
 	 * Create the frame.
 	 */
 	public VistaLogIn() {
+		setIconImage(Toolkit.getDefaultToolkit().getImage(VistaLogIn.class.getResource("/imagenes/logoColor.jpg")));
 		// Intenta usar el Look & Feel del sistema como fallback si FlatLaf no está
 		// configurado
 		try {
