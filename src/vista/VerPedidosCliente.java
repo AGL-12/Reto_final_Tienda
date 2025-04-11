@@ -23,6 +23,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -152,7 +153,7 @@ public class VerPedidosCliente extends JDialog {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				
+
 				if (e.getClickCount() == 2) { // Detecta doble clic
 					selectedRow = tablePedidos.getSelectedRow();
 					if (selectedRow != -1) {
@@ -191,6 +192,8 @@ public class VerPedidosCliente extends JDialog {
 
 		// --- Añadir Pestaña Pedidos ---
 		tabbedPane.addTab("Pedidos", panelPedidos);
+		JPanel panelInferior = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		panelInferior.setBorder(new EmptyBorder(5, 5, 5, 10));
 
 		// *** Mejora: Ajustar anchos de columna DESPUÉS de añadir datos y al scrollpane
 		// ***
