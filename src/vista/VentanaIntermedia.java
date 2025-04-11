@@ -38,7 +38,6 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		getContentPane().add(btnConfigUsuario);
 
 		Image img = new ImageIcon(this.getClass().getResource("/imagenes/logoColor.jpg")).getImage();
-		// Escalar la imagen al tamaño deseado, por ejemplo 350x350
 		Image imgEscalada = img.getScaledInstance(350, 350, Image.SCALE_SMOOTH);
 		lblTiendaLogo = new JLabel();
 		lblTiendaLogo.setIcon(new ImageIcon(imgEscalada));
