@@ -11,6 +11,7 @@ import excepciones.modifyError;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder; // Para agrupar radio buttons
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,6 +33,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	private ButtonGroup paymentMethodGroup; // Grupo para radio buttons
 	private JButton btnRegistrarse, btnModificar, btnDrop, btnMostrarPedidos;
 	private JLabel lblTitulo;
+	private JCheckBox checkVerPass;
 
 	// --- Datos ---
 	private Cliente localClien; // El cliente actual (null si es registro)
@@ -42,8 +44,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	private static final Font FONT_TEXTO = new Font("Segoe UI", Font.PLAIN, 12);
 	private static final Font FONT_BOTON = new Font("Segoe UI", Font.BOLD, 14);
 	private static final int PADDING_GENERAL = 15; // Espaciado exterior
-	private static final String GAP_LABEL_COMPONENT = "rel"; // Espacio entre etiqueta y campo
-	private static final String GAP_ROW = "unrel"; // Espacio entre filas
+	private JButton btnLimpiarSelect;
 
 	/**
 	 * Constructor para la ventana de datos de Usuario (Registro o Modificación).
@@ -53,8 +54,6 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	 */
 	public VistaUsuario(Cliente clien, Window ventPadre) { // Acepta Window (JFrame o JDialog)
 		super(ventPadre, clien == null ? "Registro de Usuario" : "Mis Datos", ModalityType.APPLICATION_MODAL); // Título
-																												// dinámico
-																												// y
 																												// modal
 		this.localClien = clien;
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -93,57 +92,52 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		// "[]": Define las propiedades de las columnas de espacio entre label y
 		// componente.
 		// "[grow]": Define la columna de componentes (que crezcan horizontalmente).
-		JPanel formPanel = new JPanel(new MigLayout("fillx, insets 0", // Layout constraints: fill horizontalmente, sin
-																		// insets propios
-				"[align label]" + GAP_LABEL_COMPONENT + "[grow, fill]", // Column constraints: label, gap, component
-																		// (grow+fill)
-				"" // Row constraints: default gaps defined by unrel below
-		));
+		JPanel formPanel = new JPanel(new MigLayout("fillx, insets 0", "[label]rel[grow,fill]", "[][][][][][][][]"));
 		mainPanel.add(formPanel, BorderLayout.CENTER);
 
 		// --- Campos del Formulario ---
 		// Usuario
 		JLabel lblUsuario = new JLabel("Usuario:");
 		lblUsuario.setFont(FONT_LABEL);
-		formPanel.add(lblUsuario);
+		formPanel.add(lblUsuario, "cell 0 0");
 		textUser = new JTextField();
 		textUser.setFont(FONT_TEXTO);
-		formPanel.add(textUser, "wrap " + GAP_ROW); // wrap: ir a nueva línea, unrel: espacio vertical
+		formPanel.add(textUser, "cell 1 0"); // wrap: ir a nueva línea, unrel: espacio vertical
 
 		// Contraseña
 		JLabel lblPassword = new JLabel("Contraseña:");
 		lblPassword.setFont(FONT_LABEL);
-		formPanel.add(lblPassword);
+		formPanel.add(lblPassword, "cell 0 1");
 		passwordFieldContra = new JPasswordField();
 		passwordFieldContra.setFont(FONT_TEXTO);
-		formPanel.add(passwordFieldContra, "wrap " + GAP_ROW);
+		formPanel.add(passwordFieldContra, "flowx,cell 1 1,growx");
 
 		// DNI/NIE
 		JLabel lblDni = new JLabel("DNI/NIE:");
 		lblDni.setFont(FONT_LABEL);
-		formPanel.add(lblDni);
+		formPanel.add(lblDni, "cell 0 2");
 		textDni = new JTextField();
 		textDni.setFont(FONT_TEXTO);
-		formPanel.add(textDni, "wrap " + GAP_ROW);
+		formPanel.add(textDni, "cell 1 2");
 
 		// Email
 		JLabel lblEmail = new JLabel("Email:");
 		lblEmail.setFont(FONT_LABEL);
-		formPanel.add(lblEmail);
+		formPanel.add(lblEmail, "cell 0 3");
 		textEmail = new JTextField();
 		textEmail.setFont(FONT_TEXTO);
-		formPanel.add(textEmail, "wrap " + GAP_ROW);
+		formPanel.add(textEmail, "cell 1 3");
 
 		// Dirección
 		JLabel lblDireccion = new JLabel("Dirección:");
 		lblDireccion.setFont(FONT_LABEL);
-		formPanel.add(lblDireccion);
+		formPanel.add(lblDireccion, "cell 0 4");
 		textDireccion = new JTextField();
 		textDireccion.setFont(FONT_TEXTO);
-		formPanel.add(textDireccion, "wrap " + GAP_ROW);
+		formPanel.add(textDireccion, "cell 1 4");
 
 		// --- Sección Método de Pago (Panel anidado) ---
-		JPanel paymentPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_GENERAL / 2, 0)); // FlowLayout para
+		JPanel paymentPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, PADDING_GENERAL, 0)); // FlowLayout para
 																									// los radio buttons
 		// Añadir un borde con título para agrupar visualmente
 		paymentPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), // Tipo de borde
@@ -155,33 +149,59 @@ public class VistaUsuario extends JDialog implements ActionListener {
 
 		rdbtnVisa = new JRadioButton("Visa");
 		rdbtnVisa.setFont(FONT_TEXTO);
+		rdbtnVisa.addActionListener(this);
+
 		rdbtnMastercard = new JRadioButton("Mastercard");
 		rdbtnMastercard.setFont(FONT_TEXTO);
+		rdbtnMastercard.addActionListener(this);
+
 		rdbtnPaypal = new JRadioButton("PayPal");
 		rdbtnPaypal.setFont(FONT_TEXTO);
+		rdbtnPaypal.addActionListener(this);
 
 		paymentMethodGroup = new ButtonGroup(); // Asegura que solo uno esté seleccionado
 		paymentMethodGroup.add(rdbtnVisa);
 		paymentMethodGroup.add(rdbtnMastercard);
 		paymentMethodGroup.add(rdbtnPaypal);
 
+		btnLimpiarSelect = new JButton();
+		btnLimpiarSelect.setIcon(cargarIcono("/iconos/cleanMetodo.png"));
+		btnLimpiarSelect.setOpaque(true); // Esto permite que se pinte el fondo
+		btnLimpiarSelect.setContentAreaFilled(true); // Asegura que el área de contenido se pinte
+		btnLimpiarSelect.setBorderPainted(false); // Opcional, si no quieres borde
+		btnLimpiarSelect.setBackground(Color.GRAY); // Fondo gris
+		btnLimpiarSelect.addActionListener(this);
+
 		paymentPanel.add(rdbtnVisa);
 		paymentPanel.add(rdbtnMastercard);
 		paymentPanel.add(rdbtnPaypal);
+		paymentPanel.add(btnLimpiarSelect);
 
 		// Añadir el panel de pago al formulario principal, ocupando todo el ancho
 		// (span)
-		formPanel.add(paymentPanel, "span 2, growx, wrap " + GAP_ROW); // span 2: ocupa 2 columnas, growx: crece
-																		// horizontalmente
+		formPanel.add(paymentPanel, "cell 0 5 2 1,growx"); // span 2: ocupa 2 columnas, growx: crece
+
+		// horizontalmente
 
 		// Número de Cuenta/Tarjeta
 		JLabel lblNumeroCuenta = new JLabel("Nº Tarjeta/Cuenta:");
 		lblNumeroCuenta.setFont(FONT_LABEL);
-		formPanel.add(lblNumeroCuenta);
+		formPanel.add(lblNumeroCuenta, "cell 0 6");
 		textNumeroCuenta = new JTextField();
+		textNumeroCuenta.setEnabled(false);
 		textNumeroCuenta.setFont(FONT_TEXTO);
-		formPanel.add(textNumeroCuenta, "wrap " + GAP_ROW);
+		formPanel.add(textNumeroCuenta, "cell 1 6");
 
+		checkVerPass = new JCheckBox();
+		// Estilo visual
+		checkVerPass.setIcon(cargarIcono("/iconos/verpassoff.png"));
+		checkVerPass.setSelectedIcon(cargarIcono("/iconos/verpass.png"));
+		checkVerPass.setOpaque(false);
+		checkVerPass.setContentAreaFilled(false);
+		checkVerPass.setBorderPainted(false);
+		checkVerPass.setFocusPainted(false);
+		formPanel.add(checkVerPass, "cell 1 1");
+		checkVerPass.addActionListener(this);
 		// --- Panel de Botones (SOUTH) ---
 		// Usamos MigLayout también para controlar el flujo y posible alineación
 		JPanel buttonPanel = new JPanel(new MigLayout("fillx, insets 0", // Ocupa ancho, sin márgenes propios
@@ -220,7 +240,6 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		btnMostrarPedidos.setIcon(cargarIcono("/iconos/orders.png")); // Placeholder
 		btnMostrarPedidos.addActionListener(this);
 		buttonPanel.add(btnMostrarPedidos, "cell 1 0, align right"); // Añadir al segundo grupo (derecha)
-
 	}
 
 	/**
@@ -233,8 +252,6 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			btnMostrarPedidos.setVisible(false);
 			btnDrop.setVisible(false);
 			btnRegistrarse.setVisible(true);
-			// Opcional: Poner un método de pago por defecto
-			rdbtnVisa.setSelected(true);
 		} else { // Modo Modificación
 			btnRegistrarse.setVisible(false);
 			btnModificar.setVisible(true);
@@ -243,12 +260,10 @@ public class VistaUsuario extends JDialog implements ActionListener {
 
 			// Cargar datos del cliente en los campos
 			textUser.setText(localClien.getUsuario());
-			// Por seguridad, no solemos precargar la contraseña existente en un campo
-			// editable.
-			// Dejarlo vacío para que el usuario la introduzca si quiere cambiarla.
-			// Si quieres mostrarla (no recomendado):
-			// passwordFieldContra.setText(localClien.getContra());
+			textUser.setEnabled(false);
+			passwordFieldContra.setText(localClien.getContra());
 			textDni.setText(localClien.getDni());
+			textDni.setEnabled(false);
 			textEmail.setText(localClien.getCorreo());
 			textDireccion.setText(localClien.getDireccion());
 			textNumeroCuenta.setText(localClien.getNum_cuenta());
@@ -266,8 +281,8 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			}
 
 			// Opcional: Hacer campos no modificables (ej. DNI, email si son clave)
-			// textUser.setEditable(false); // Ejemplo: no permitir cambiar nombre de
-			// usuario
+			textUser.setEditable(false);
+			textDni.setEditable(false);
 		}
 	}
 
@@ -282,6 +297,22 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			mostrarPedidos();
 		} else if (source == btnDrop) {
 			baja();
+		} else if (source == btnLimpiarSelect) {
+			paymentMethodGroup.clearSelection();
+			textNumeroCuenta.setText("");
+			textNumeroCuenta.setEnabled(false);
+		} else if (source == rdbtnVisa || source == rdbtnMastercard || source == rdbtnPaypal) {
+			textNumeroCuenta.setEnabled(true);
+		} else if (source == checkVerPass) {
+			verpass();
+		}
+	}
+
+	private void verpass() {
+		if (checkVerPass.isSelected()) {
+			passwordFieldContra.setEchoChar((char) 0); // Muestra texto
+		} else {
+			passwordFieldContra.setEchoChar('\u2022'); // Oculta con puntitos
 		}
 	}
 
@@ -307,7 +338,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 
 		try {
 			Principal.altaCliente(nuevoCliente);
-			JOptionPane.showMessageDialog(null, "Cliente creado exitosamente.");
+			JOptionPane.showMessageDialog(this, "Cliente creado exitosamente.");
 		} catch (AltaError e) {
 			e.visualizarMen();
 		}
@@ -318,9 +349,6 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	 * cliente actual.
 	 */
 	private void modificar() {
-		if (localClien == null)
-			return; // No debería ocurrir si el botón está bien configurado
-
 		// Validación básica
 		if (!validarCampos(true))
 			return; // Permitir contraseña vacía en modificación
@@ -488,19 +516,9 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			errores += "- Introduce un email válido (como ejemplo: nombre@gmail.com).\n";
 		}
 
-		// Validación de Dirección
-		if (textDireccion.getText().trim().isEmpty()) {
-			errores += "- La dirección no puede estar vacía.\n";
-		}
-
-		// Validación de Método de Pago
-		if (obtenerMetodoPagoSeleccionado() == null) {
-			errores += "- Debes seleccionar un método de pago.\n";
-		}
-
 		// Validación de Número de Cuenta
-		if (textNumeroCuenta.getText().trim().isEmpty()) {
-			errores += "- El número de tarjeta/cuenta no puede estar vacío.\n";
+		if (textNumeroCuenta.getText().length() != 16) {
+			errores += "- El número de tarjeta/cuenta tiene 16 digitos.\n";
 		}
 
 		// Mostrar errores si los hay
@@ -512,4 +530,5 @@ public class VistaUsuario extends JDialog implements ActionListener {
 
 		return true;
 	}
+
 }

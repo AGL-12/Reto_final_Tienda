@@ -1,7 +1,6 @@
 package controlador;
 
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -58,5 +57,5 @@ public interface Dao {
 
 	public int obtenerUltimoIdArt();
 
-	float totalGastado(Cliente clien);
+	public float totalGastado(Cliente clien);
 }
