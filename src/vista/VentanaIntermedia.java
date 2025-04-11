@@ -51,9 +51,6 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		if (e.getSource().equals(btnConfigArticulos)) {
 			AdminConfigArticulos vistaCfgArt = new AdminConfigArticulos(this);
 			abrirOpcion(vistaCfgArt);
-		} else if (e.getSource().equals(btnConfigPedidos)) {
-			AdminConfigPedidos vistaCfgPed = new AdminConfigPedidos(this);
-			abrirOpcion(vistaCfgPed);
 		} else if (e.getSource().equals(btnConfigUsuario)) {
 			AdminConfigUsuario vistaCfgUsu = new AdminConfigUsuario(this);
 			abrirOpcion(vistaCfgUsu);
