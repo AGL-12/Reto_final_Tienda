@@ -9,6 +9,22 @@ public class Articulo {
 	private float oferta;
 	private Seccion seccion;
 
+	public Articulo() {
+
+	}
+
+	public Articulo(int id_art, String nombre, String descripcion, int stock, float precio, float oferta,
+			Seccion seccion) {
+		super();
+		this.id_art = id_art;
+		this.nombre = nombre;
+		this.descripcion = descripcion;
+		this.stock = stock;
+		this.precio = precio;
+		this.oferta = oferta;
+		this.seccion = seccion;
+	}
+
 	public int getId_art() {
 		return id_art;
 	}
@@ -67,8 +83,7 @@ public class Articulo {
 
 	@Override
 	public String toString() {
-		return "Articulo [id_art=" + id_art + ", nombre=" + nombre + ", descripcion=" + descripcion + ", stock=" + stock
-				+ ", precio=" + precio + ", oferta=" + oferta + ", seccion=" + seccion + "]";
+		return id_art + "-" + nombre;
 	}
 
 }

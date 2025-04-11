@@ -8,6 +8,18 @@ public class Pedido {
 	private float total;
 	private LocalDateTime fecha_compra;
 
+	public Pedido() {
+
+	}
+
+	public Pedido(int id_ped, int id_usu, float total, LocalDateTime fecha_compra) {
+		super();
+		this.id_ped = id_ped;
+		this.id_usu = id_usu;
+		this.total = total;
+		this.fecha_compra = fecha_compra;
+	}
+
 	public int getId_ped() {
 		return id_ped;
 	}
