@@ -213,12 +213,13 @@ public class VistaTienda extends JDialog implements ActionListener {
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				// 'column' aquí es el índice del MODELO
 				Component c = super.prepareRenderer(renderer, row, column);
-				// Colores alternos
+				if (c instanceof JComponent) {
+					((JComponent) c).setOpaque(false);
+				}
 				if (!isRowSelected(row)) {
-					Color alternateColor = UIManager.getColor("Table.alternateRowColor");
-					if (alternateColor == null)
-						alternateColor = new Color(0, 0, 0, 10);
-					c.setBackground(row % 2 != 0 ? alternateColor : getBackground());
+					c.setForeground(Color.BLACK);
+				} else {
+					c.setForeground(Color.blue);
 				}
 				// Padding en celdas
 				if (c instanceof JComponent) {
@@ -241,12 +242,10 @@ public class VistaTienda extends JDialog implements ActionListener {
 		tableArticulo.setGridColor(UIManager.getColor("Table.gridColor"));
 		tableArticulo.setShowGrid(false);
 		tableArticulo.setShowHorizontalLines(true);
+		tableArticulo.setShowVerticalLines(false);
 		tableArticulo.setIntercellSpacing(new Dimension(0, 1));
-		tableArticulo.setAutoCreateRowSorter(true); // Permite ordenar
+		tableArticulo.setAutoCreateRowSorter(true);
 		tableArticulo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		tableArticulo.setCellSelectionEnabled(true);
-		tableArticulo.setRowSelectionAllowed(true);
-		tableArticulo.setFillsViewportHeight(true);
 
 		// --- Cabecera Tabla ---
 		JTableHeader header = tableArticulo.getTableHeader();
@@ -523,6 +522,10 @@ public class VistaTienda extends JDialog implements ActionListener {
 	}
 
 	private void abrirCarrito() {
+		if (localClien.getMetodo_pago() == null && localClien.getNum_cuenta() == null) {
+			JOptionPane.showMessageDialog(this, "No tiene los credenciales necesarios para realizar una compra",
+					"No se puede realizar una compra", JOptionPane.WARNING_MESSAGE);
+		}
 		if (tableArticulo.isEditing()) {
 			if (!tableArticulo.getCellEditor().stopCellEditing()) {
 				return;

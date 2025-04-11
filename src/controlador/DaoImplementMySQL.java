@@ -229,7 +229,8 @@ public class DaoImplementMySQL implements Dao {
 				String dni = rs.getString("dni");
 				String correo = rs.getString("correo");
 				String direccion = rs.getString("direccion");
-				Metodo metodoPago = Metodo.valueOf(rs.getString("metodo_pago"));
+				String metodoPagoStr = rs.getString("metodo_pago");
+				Metodo metodoPago = (metodoPagoStr != null) ? Metodo.valueOf(metodoPagoStr) : null;
 				String num_cuenta = rs.getString("num_cuenta");
 				boolean esAdmin = rs.getBoolean("esAdmin");
 				Map<Integer, Compra> listaCompra = cargarMapaCom(id);
@@ -293,7 +294,11 @@ public class DaoImplementMySQL implements Dao {
 			stmt.setString(4, clien.getDni());
 			stmt.setString(5, clien.getCorreo());
 			stmt.setString(6, clien.getDireccion());
-			stmt.setString(7, clien.getMetodo_pago().name());
+			if (clien.getMetodo_pago() == null) {
+				stmt.setNull(7, java.sql.Types.VARCHAR);
+			} else {
+				stmt.setString(7, clien.getMetodo_pago().name());
+			}
 			stmt.setString(8, clien.getNum_cuenta());
 
 			stmt.executeUpdate();
@@ -318,7 +323,11 @@ public class DaoImplementMySQL implements Dao {
 			stmt.setString(3, clien.getDni());
 			stmt.setString(4, clien.getCorreo());
 			stmt.setString(5, clien.getDireccion());
-			stmt.setString(6, clien.getMetodo_pago().name());
+			if (clien.getMetodo_pago() == null) {
+				stmt.setNull(7, java.sql.Types.VARCHAR);
+			} else {
+				stmt.setString(7, clien.getMetodo_pago().name());
+			}
 			stmt.setString(7, clien.getNum_cuenta());
 			stmt.setInt(8, clien.getId_usu()); // Falta agregar el ID para el WHERE
 

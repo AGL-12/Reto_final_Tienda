@@ -10,7 +10,6 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	private JButton btnConfigArticulos;
-	private JButton btnConfigPedidos;
 	private JButton btnConfigUsuario;
 
 	/**
@@ -31,15 +30,10 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		getContentPane().add(btnConfigArticulos);
 		btnConfigArticulos.addActionListener(this);
 
-		btnConfigPedidos = new JButton("Config Pedidos");
-		btnConfigPedidos.setBounds(38, 82, 140, 50);
-		getContentPane().add(btnConfigPedidos);
-		btnConfigPedidos.addActionListener(this);
-
 		btnConfigUsuario = new JButton("Config usuario");
 		btnConfigUsuario.setBounds(38, 214, 140, 50);
 		getContentPane().add(btnConfigUsuario);
-		
+
 		JLabel lblNewLabel_1 = new JLabel("we");
 		lblNewLabel_1.setBounds(268, 64, 350, 350);
 		getContentPane().add(lblNewLabel_1);
@@ -56,27 +50,10 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		if (e.getSource().equals(btnConfigArticulos)) {
 			AdminConfigArticulos vistaCfgArt = new AdminConfigArticulos(this);
 			abrirOpcion(vistaCfgArt);
-		} else if (e.getSource().equals(btnConfigPedidos)) {
-			AdminConfigPedidos vistaCfgPed = new AdminConfigPedidos(this);
-			abrirOpcion(vistaCfgPed);
 		} else if (e.getSource().equals(btnConfigUsuario)) {
 			AdminConfigUsuario vistaCfgUsu = new AdminConfigUsuario(this);
 			abrirOpcion(vistaCfgUsu);
 		}
 	}
-	
-    // --- Método main para probar la ventana ---
-    public static void main(String[] args) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    VistaLogIn frame = new VistaLogIn();
-                    frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
 
 }
