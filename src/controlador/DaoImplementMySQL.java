@@ -455,13 +455,14 @@ public class DaoImplementMySQL implements Dao {
 
 				stmt.executeUpdate();
 			}
-			for (Compra comp : listaCompra) {
-				updateStockArticulo(comp);
-			}
+			
 		} catch (SQLException e) {
 			throw new SQLException("Error al insertar los artículos en la compra", e);
 		} finally {
 			closeConnection();
+			for (Compra comp : listaCompra) {
+				updateStockArticulo(comp);
+			}
 		}
 	}
 
@@ -544,6 +545,8 @@ public class DaoImplementMySQL implements Dao {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}finally {
+			closeConnection();
 		}
 
 		return busca;
@@ -668,8 +671,8 @@ public class DaoImplementMySQL implements Dao {
 	}
 
 	private void updateStockArticulo(Compra com) {
-		openConnection();
 		Articulo cambio = buscarArticulo(com.getId_art());
+		openConnection();
 		cambio.setStock(cambio.getStock() - com.getCantidad());
 		try {
 			stmt = con.prepareStatement(update_stockArticulo);

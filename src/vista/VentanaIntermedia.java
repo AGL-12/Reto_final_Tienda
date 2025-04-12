@@ -10,7 +10,6 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	private JButton btnConfigArticulos;
-	private JButton btnConfigPedidos;
 	private JButton btnConfigUsuario;
 
 	/**
@@ -31,11 +30,6 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		getContentPane().add(btnConfigArticulos);
 		btnConfigArticulos.addActionListener(this);
 
-		btnConfigPedidos = new JButton("Config Pedidos");
-		btnConfigPedidos.setBounds(247, 52, 140, 50);
-		getContentPane().add(btnConfigPedidos);
-		btnConfigPedidos.addActionListener(this);
-
 		btnConfigUsuario = new JButton("Config usuario");
 		btnConfigUsuario.setBounds(38, 150, 140, 50);
 		getContentPane().add(btnConfigUsuario);
@@ -51,9 +45,6 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		if (e.getSource().equals(btnConfigArticulos)) {
 			AdminConfigArticulos vistaCfgArt = new AdminConfigArticulos(this);
 			abrirOpcion(vistaCfgArt);
-		} else if (e.getSource().equals(btnConfigPedidos)) {
-			AdminConfigPedidos vistaCfgPed = new AdminConfigPedidos(this);
-			abrirOpcion(vistaCfgPed);
 		} else if (e.getSource().equals(btnConfigUsuario)) {
 			AdminConfigUsuario vistaCfgUsu = new AdminConfigUsuario(this);
 			abrirOpcion(vistaCfgUsu);
