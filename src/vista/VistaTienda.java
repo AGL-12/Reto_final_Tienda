@@ -6,7 +6,9 @@ import modelo.Compra;
 import modelo.Pedido;
 import controlador.Principal; // Asumiendo métodos de acceso a datos
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
@@ -19,7 +21,10 @@ import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage; // Importado para el icono placeholder
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +48,8 @@ public class VistaTienda extends JDialog implements ActionListener {
 	private JLabel lblTitulo, lblLogo;
 	private DefaultTableModel model;
 	private JTextField quantityEditorField;
+    private BufferedImage backgroundImage;
+
 
 	// --- Datos ---
 	private Cliente localClien;
@@ -71,9 +78,30 @@ public class VistaTienda extends JDialog implements ActionListener {
 		super(owner, "DYE TOOLS - Tienda", true);
 		this.localClien = clien;
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		
+	    try {
+            // *** CAMBIA "ruta/a/tu/imagen.jpg" a la ruta real de tu imagen ***
+            backgroundImage = ImageIO.read(getClass().getResource("/imagenes/fondoMadera.jpg"));
+        } catch (IOException e) {
+            System.err.println("Error al cargar la imagen de fondo: " + e.getMessage());
+            // Puedes establecer un color de fondo alternativo si la imagen no carga
+            getContentPane().setBackground(new Color(240, 240, 240));
+        }
+
+        // *** Usar un JPanel con pintura personalizada como ContentPane ***
+        setContentPane(new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (backgroundImage != null) {
+                    // Dibujar la imagen de fondo para que cubra todo el panel
+                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                }
+            }
+        });
 
 		// --- Layout Principal y Padding ---
-		setLayout(new BorderLayout(PADDING_GENERAL, PADDING_GENERAL));
+		getContentPane().setLayout(new BorderLayout(PADDING_GENERAL, PADDING_GENERAL));
 		((JPanel) getContentPane()).setBorder(
 				BorderFactory.createEmptyBorder(PADDING_GENERAL, PADDING_GENERAL, PADDING_GENERAL, PADDING_GENERAL));
 
@@ -96,6 +124,8 @@ public class VistaTienda extends JDialog implements ActionListener {
 	private void initComponents() {
 		// --- Panel Cabecera (NORTH) ---
 		JPanel panelCabecera = new JPanel(new FlowLayout(FlowLayout.CENTER, PADDING_INTERNO * 2, 0)); // Más espacio
+		panelCabecera.setBackground(Color.WHITE);
+		panelCabecera.setOpaque(false);
 																										// entre logo y
 																										// título
 		panelCabecera.setBorder(BorderFactory.createEmptyBorder(PADDING_INTERNO, 0, PADDING_GENERAL, 0)); // Espacio
@@ -111,17 +141,19 @@ public class VistaTienda extends JDialog implements ActionListener {
 		lblTitulo.setFont(FONT_TITULO);
 		panelCabecera.add(lblTitulo);
 
-		add(panelCabecera, BorderLayout.NORTH);
+		getContentPane().add(panelCabecera, BorderLayout.NORTH);
 
 		// --- Panel Botones (SOUTH) ---
 		JPanel panelBotones = new JPanel();
 		panelBotones.setLayout(new BoxLayout(panelBotones, BoxLayout.X_AXIS));
 		panelBotones.setBorder(BorderFactory.createEmptyBorder(PADDING_GENERAL, 0, 0, 0)); // Espacio arriba
-
+		panelBotones.setOpaque(false);
 		// Crear botones
 		btnUsuario = crearBoton("Mi Cuenta", "/iconos/user.png");
 		btnAdmin = crearBoton("Admin Panel", "/iconos/admin.png");
 		btnCompra = crearBoton("Ver Carrito", "/iconos/cart.png");
+		
+		
 
 		// *** CAMBIO: Estilo Botón Carrito usando Propiedad FlatLaf ***
 		// Indicar que es el botón de acción principal, el tema (FlatLaf) se encargará
@@ -144,23 +176,74 @@ public class VistaTienda extends JDialog implements ActionListener {
 		panelBotones.add(Box.createHorizontalGlue()); // Empujar a la derecha
 		panelBotones.add(btnCompra);
 
-		add(panelBotones, BorderLayout.SOUTH);
+		getContentPane().add(panelBotones, BorderLayout.SOUTH);
 	}
 
 	/**
 	 * Crea y configura un JButton estándar.
 	 */
 	private JButton crearBoton(String texto, String iconoPath) {
-		JButton btn = new JButton(texto);
-		btn.setFont(FONT_BOTON);
-		btn.setIcon(cargarIcono(iconoPath, 16, 16));
-		btn.addActionListener(this);
-		btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btn.setFocusPainted(false);
-		btn.setMargin(new Insets(PADDING_INTERNO, PADDING_INTERNO * 2, PADDING_INTERNO, PADDING_INTERNO * 2));
-		return btn;
-	}
+	    JButton btn = new JButton(texto);
+	    btn.setFont(FONT_BOTON);
+	   // btn.setIcon(cargarIcono(iconoPath, 16, 16));
+	    ImageIcon originalIcon = cargarIcono(iconoPath, 32, 32);
+        // Crear un ImageIcon con fondo transparente
+        ImageIcon transparentIcon = makeTransparent(originalIcon, new Color(255, 255, 255)); // Asume blanco como fondo original
+        btn.setIcon(transparentIcon);
 
+	    
+	    // Configuración para asegurar que los colores se muestren
+	    btn.setOpaque(true);
+	    btn.setContentAreaFilled(true); // Necesario para FlatLaf
+	    btn.setBackground(new Color(255, 140, 0)); // COLOR_BOTON_PRIMARIO de VistaLogIn
+	    btn.setForeground(Color.WHITE); // COLOR_TEXTO_BOTON_PRIMARIO
+	    btn.setBorderPainted(false); // Sin borde por defecto, como btnLogIn
+	    // Alternativa: Usa un borde como btnSignIn
+	    // btn.setBorder(new LineBorder(new Color(52, 152, 219), 1));
+	    
+	    btn.setFocusPainted(false);
+	    btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	    btn.setMargin(new Insets(PADDING_INTERNO, PADDING_INTERNO * 2, PADDING_INTERNO, PADDING_INTERNO * 2));
+	    btn.addActionListener(this);
+	    
+	    // Añadir efecto hover, como en VistaLogIn
+	    btn.addMouseListener(new MouseAdapter() {
+	        @Override
+	        public void mouseEntered(MouseEvent e) {
+	            btn.setBackground(Color.blue); // COLOR_BOTON_PRIMARIO_HOVER
+	        }
+	        
+	        @Override
+	        public void mouseExited(MouseEvent e) {
+	            btn.setBackground(new Color(255, 140, 0)); // COLOR_BOTON_PRIMARIO
+	        }
+	    });
+	    
+	    return btn;
+	}
+	
+	
+	   // --- Método para hacer un color transparente en un ImageIcon ---
+    private ImageIcon makeTransparent(ImageIcon imageIcon, final Color color) {
+        Image image = imageIcon.getImage();
+        BufferedImage bufferedImage = new BufferedImage(
+                image.getWidth(null),
+                image.getHeight(null),
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = bufferedImage.createGraphics();
+        g2.drawImage(image, 0, 0, null);
+        g2.dispose();
+
+        for (int i = 0; i < bufferedImage.getWidth(); i++) {
+            for (int j = 0; j < bufferedImage.getHeight(); j++) {
+                if (bufferedImage.getRGB(i, j) == color.getRGB()) {
+                    bufferedImage.setRGB(i, j, 0x00FFFFFF); // Hacer el píxel transparente
+                }
+            }
+        }
+
+        return new ImageIcon(bufferedImage);
+    }
 	/**
 	 * Configura la JTable (modelo, columnas, renderers, editor, listener).
 	 */
@@ -212,6 +295,8 @@ public class VistaTienda extends JDialog implements ActionListener {
 				Component c = super.prepareRenderer(renderer, row, column);
 				if (c instanceof JComponent) {
 					((JComponent) c).setOpaque(false);
+					c.setBackground(new Color(245, 245, 220, 180));
+			            
 				}
 				if (!isRowSelected(row)) {
 					c.setForeground(Color.BLACK);
@@ -232,6 +317,8 @@ public class VistaTienda extends JDialog implements ActionListener {
 				return c;
 			}
 		};
+		
+		
 
 		// --- Propiedades Tabla ---
 		tableArticulo.setFont(FONT_TABLA_CELDA);
@@ -250,7 +337,47 @@ public class VistaTienda extends JDialog implements ActionListener {
 		header.setReorderingAllowed(false); // No permitir reordenar columnas manualmente
 		// *** CAMBIO: No permitir redimensionar columnas manualmente ***
 		header.setResizingAllowed(false);
+		
+		// *** ESTILO CABECERA CON CLASE ANÓNIMA *** quitar esto para el header
+		// Definir colores y fuente para la cabecera (pueden ser constantes de VistaTienda)
+		final Color HEADER_BACKGROUND = new Color(210, 180, 140); // Tan (marrón claro)
+		final Color HEADER_FOREGROUND = new Color(101, 67, 33);  // Marrón oscuro para texto
+		final Color HEADER_BORDER_COLOR = new Color(139, 69, 19); // Marrón silla de montar
+		final Font HEADER_FONT = FONT_TABLA_HEADER; // Usar tu constante de fuente
+		final int HEADER_VPADDING = PADDING_TABLA_CELDA_V / 2;
+		final int HEADER_HPADDING = PADDING_TABLA_CELDA_H;
+		
+		// Aplicar un Renderer Personalizado usando una Clase Anónima
+		header.setDefaultRenderer(new TableCellRenderer() {
+		    // Obtener el renderer por defecto para usarlo como base (usualmente un JLabel)
+		    private final TableCellRenderer defaultRenderer = tableArticulo.getTableHeader().getDefaultRenderer();
 
+		    @Override
+		    public Component getTableCellRendererComponent(JTable table, Object value,
+		                                                   boolean isSelected, boolean hasFocus,
+		                                                   int row, int column) {
+		        // Usar el componente del renderer por defecto
+		        Component c = defaultRenderer.getTableCellRendererComponent(table, value,
+		                                                                  isSelected, hasFocus,
+		                                                                  row, column);
+		        if (c instanceof JLabel) {
+		            JLabel label = (JLabel) c;
+		            label.setFont(HEADER_FONT);
+		            label.setBackground(HEADER_BACKGROUND);
+		            label.setForeground(HEADER_FOREGROUND);
+		            label.setOpaque(true); // ¡Importante para que se vea el fondo!
+
+		            // Crear borde compuesto: línea inferior + padding
+		            Border paddingBorder = BorderFactory.createEmptyBorder(HEADER_VPADDING, HEADER_HPADDING, HEADER_VPADDING, HEADER_HPADDING);
+		            Border lineBorder = BorderFactory.createMatteBorder(0, 0, 2, 0, HEADER_BORDER_COLOR); // Línea solo abajo
+		            label.setBorder(BorderFactory.createCompoundBorder(lineBorder, paddingBorder)); // Línea exterior, padding interior
+
+		            label.setHorizontalAlignment(SwingConstants.CENTER); // Centrar texto
+		        }
+		        return c;
+		    }
+		});
+		
 		// --- Configuración Columnas (OCULTAR ID_ART de la VISTA) ---
 		TableColumnModel columnModel = tableArticulo.getColumnModel();
 		// Obtener la columna que corresponde al índice 0 del MODELO (ID_ART)
@@ -384,9 +511,23 @@ public class VistaTienda extends JDialog implements ActionListener {
 		});
 
 		// --- ScrollPane ---
-		JScrollPane scrollPane = new JScrollPane(tableArticulo);
+		/*JScrollPane scrollPane = new JScrollPane(tableArticulo);
 		scrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
-		add(scrollPane, BorderLayout.CENTER);
+		getContentPane().add(scrollPane, BorderLayout.CENTER);*/
+		
+		tableArticulo.setOpaque(false);
+	    JScrollPane scrollPane = new JScrollPane(tableArticulo);
+	    scrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
+	    scrollPane.setOpaque(false);
+	   // scrollPane.getViewport().setOpaque(true);
+	    getContentPane().add(scrollPane, BorderLayout.CENTER);
+	    scrollPane.setBorder(BorderFactory.createLineBorder(new Color(101, 67, 33), 2)); // Marrón oscuro sólido (color madera)
+	    scrollPane.getViewport().setOpaque(true); // Asegúrate de que el viewport sea opaco
+	   // scrollPane.getViewport().setBackground(new Color(245, 222, 179, 200)); // Beige claro semitransparente (similar a madera clara)
+	    scrollPane.getViewport().setBackground(new Color(245, 222, 179)); // Beige claro opaco (similar a madera clara)
+	    tableArticulo.setOpaque(false); // La tabla en sí no necesita ser opaca si el viewport lo es
+	    
+	    
 	}
 
 	/**
