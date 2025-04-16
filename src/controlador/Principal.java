@@ -37,8 +37,8 @@ public class Principal {
 			// Elige el tema de FlatLaf que prefieras:
 			UIManager.setLookAndFeel(new FlatLightLaf());
 			// UIManager.setLookAndFeel( new com.formdev.flatlaf.FlatDarkLaf() );
-			// UIManager.setLookAndFeel( new com.formdev.flatlaf.FlatIntelliJLaf() );
-			// UIManager.setLookAndFeel( new com.formdev.flatlaf.FlatDarculaLaf() );
+			//UIManager.setLookAndFeel( new com.formdev.flatlaf.FlatIntelliJLaf() );
+			//UIManager.setLookAndFeel( new com.formdev.flatlaf.FlatDarculaLaf() );
 
 			// Opcional: Puedes poner propiedades globales de UIManager aquí
 			// para afectar a toda la aplicación, DESPUÉS de setLookAndFeel
@@ -46,7 +46,7 @@ public class Principal {
 			// UIManager.put( "Button.arc", 10 ); // Botones redondeados
 			// UIManager.put( "Component.arc", 8 ); // Componentes (campos de texto, etc.)
 			// redondeados
-			// UIManager.put( "ProgressBar.arc", 8 );
+			// UIManager.put( "ProgressBar.arc"admin, 8 );
 			// UIManager.put( "TextComponent.arc", 8 );
 			// UIManager.put( "Table.showHorizontalLines", true );
 			// UIManager.put( "Table.showVerticalLines", false );
@@ -165,5 +165,10 @@ public class Principal {
 
 	public static int obtenerCantidadArticuloEnPedido(int idPedido, int id_art) {
 		return dao.obtenerCantidadArticuloEnPedido(idPedido, id_art);
+	}
+	
+	public static float totalGastado(Cliente clien) {
+		return dao.totalGastado(clien);
+
 	}
 }

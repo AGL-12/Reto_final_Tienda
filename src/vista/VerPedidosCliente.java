@@ -4,39 +4,50 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension; // Importado
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics; // Necesario para pintar botón redondeado (opcional)
+import java.awt.Graphics2D; // Necesario para pintar botón redondeado (opcional)
 import java.awt.Insets;
+import java.awt.RenderingHints; // Necesario para pintar botón redondeado (opcional)
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.List;
+import java.net.URL; // Necesario para getResource
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;         // Importado
-import javax.swing.table.TableColumnModel;   // Importado
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
-import controlador.Principal; // Asumiendo que existe y funciona
-import modelo.Articulo; // Asumiendo que existe y funciona
-import modelo.Cliente; // Asumiendo que existe y funciona
-import modelo.Pedido; // Asumiendo que existe y funciona
+import controlador.Principal;
+import modelo.Articulo;
+import modelo.Cliente;
+import modelo.Pedido;
 
-// Importar FlatLaf (o el LaF que uses) para el ejemplo main
-import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.FlatLightLaf; // Para el main de ejemplo
 
 public class VerPedidosCliente extends JDialog {
 
@@ -44,157 +55,178 @@ public class VerPedidosCliente extends JDialog {
     private JTable tablePedidos;
     private DefaultTableModel modelPedidos;
     private JTabbedPane tabbedPane;
+    private BufferedImage backgroundImage;
 
-    // Renderers para alineación
-    private DefaultTableCellRenderer rightRenderer;
-    private DefaultTableCellRenderer centerRenderer; // Nuevo para centrar
+    // --- Constantes de Estilo (Igual que antes) ---
+    private static final Font FONT_TABLA_HEADER = new Font("Segoe UI", Font.BOLD, 12);
+    private static final Font FONT_TABLA_CELDA = new Font("Segoe UI", Font.PLAIN, 12);
+    private static final int PADDING_TABLA_CELDA_V = 5;
+    private static final int PADDING_TABLA_CELDA_H = 10;
+    private static final Color COLOR_FONDO_VIEWPORT = new Color(245, 222, 179);
+    private static final Color COLOR_BORDE_SCROLLPANE = new Color(101, 67, 33);
+    private static final Color COLOR_CELDA_FONDO = new Color(245, 245, 220, 180);
+    private static final Color COLOR_SELECCION_FUENTE = Color.blue;
+
+    // --- Constantes para la Cabecera (Igual que antes) ---
+    private static final Color HEADER_BACKGROUND = new Color(210, 180, 140);
+    private static final Color HEADER_FOREGROUND = new Color(101, 67, 33);
+    private static final Color HEADER_BORDER_COLOR = new Color(139, 69, 19);
+    private static final Font HEADER_FONT = FONT_TABLA_HEADER;
+    private static final int HEADER_VPADDING = PADDING_TABLA_CELDA_V / 2;
+    private static final int HEADER_HPADDING = PADDING_TABLA_CELDA_H;
+
+    // --- Nuevas Constantes/Variables para Pestañas ---
+    private static final Font FONT_PESTANA_TITULO = new Font("Segoe UI", Font.PLAIN, 12); // Fuente para el título de la pestaña
+    private static final Color COLOR_BOTON_CERRAR_HOVER = new Color(255, 99, 71, 200); // Rojo tomate semi-transparente para hover
+    private static final Color COLOR_BOTON_CERRAR_NORMAL = new Color(160, 160, 160); // Gris para la 'x'
 
     /**
      * Create the dialog.
      */
     public VerPedidosCliente(JDialog padre, Cliente clien) {
-        // --- Título y Modalidad ---
-        // Usa super() para establecer título y modalidad correctamente.
-        // Usa getUsuario() como en el main de ejemplo, o getNombre() si prefieres.
         super(padre, "Pedidos de " + (clien != null ? clien.getUsuario() : "Cliente Desconocido"), true);
-        // setModal(true); // Esta línea ya no es necesaria, se hace en super()
-
-        // --- Renderers ---
-        rightRenderer = new DefaultTableCellRenderer();
-        rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
-        centerRenderer = new DefaultTableCellRenderer(); // Nuevo
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER); // Nuevo
-
-        // --- Padding general y Layout ---
         ((JPanel) getContentPane()).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        // --- Tamaño preferido inicial ---
-        setPreferredSize(new Dimension(650, 450)); // Sugerir un tamaño inicial
+        setLayout(new BorderLayout());
+        setPreferredSize(new Dimension(700, 500)); // Un poco más grande por defecto
+        
+        try {
+            // *** CAMBIA "ruta/a/tu/imagen.jpg" a la ruta real de tu imagen ***
+            backgroundImage = ImageIO.read(getClass().getResource("/imagenes/fondoMadera.jpg"));
+        } catch (IOException e) {
+            System.err.println("Error al cargar la imagen de fondo: " + e.getMessage());
+            // Puedes establecer un color de fondo alternativo si la imagen no carga
+            getContentPane().setBackground(new Color(240, 240, 240));
+        }
+
+        // *** Usar un JPanel con pintura personalizada como ContentPane ***
+        setContentPane(new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (backgroundImage != null) {
+                    // Dibujar la imagen de fondo para que cubra todo el panel
+                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                }
+            }
+        });
 
         // --- TabbedPane ---
+        // Podríamos configurar aquí propiedades si no usamos LaF, pero es mejor usar UIManager
         tabbedPane = new JTabbedPane();
+        // tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT); // Útil si hay muchas pestañas
+
         add(tabbedPane, BorderLayout.CENTER);
 
         // --- Panel y Tabla de Pedidos ---
         JPanel panelPedidos = new JPanel(new BorderLayout());
         panelPedidos.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        panelPedidos.setOpaque(false);
 
-        // --- Modelo Tabla Pedidos ---
+        // --- Modelo Tabla Pedidos --- (Sin cambios)
         modelPedidos = new DefaultTableModel() {
-             // Evitar que las celdas sean editables (alternativa a setDefaultEditor)
-            @Override
-            public boolean isCellEditable(int row, int column) {
-               return false;
+            private static final long serialVersionUID = 1L;
+             @Override public boolean isCellEditable(int r, int c){ return false; }
+             @Override
+             public Class<?> getColumnClass(int i) { /* ... sin cambios ... */
+                switch (i) {
+                    case 0: return Integer.class;
+                    case 1: return String.class;
+                    case 2: return Object.class; // O Date.class si es Date
+                    default: return Object.class;
+                }
             }
         };
         modelPedidos.addColumn("Id Pedido");
         modelPedidos.addColumn("Precio Total (€)");
         modelPedidos.addColumn("Fecha de Compra");
 
-        // --- Carga Datos Pedidos ---
-        if (clien != null && Principal.obtenerPedidosCliente(clien.getId_usu()) != null) {
-            List<Pedido> pedidos = Principal.obtenerPedidosCliente(clien.getId_usu());
-            for (Pedido ped : pedidos) {
-                String precioTotalFormateado = String.format("%.2f", ped.getTotal());
-                modelPedidos.addRow(new Object[]{ped.getId_ped(), precioTotalFormateado, ped.getFecha_compra()});
-            }
-        } else {
-            System.err.println("Cliente o lista de pedidos nula en VerPedidosCliente");
-            modelPedidos.addRow(new Object[]{"", "No hay pedidos disponibles", ""});
-        }
+        // --- Carga Datos Pedidos --- (Sin cambios)
+        if (clien != null) { /* ... sin cambios ... */
+             List<Pedido> pedidos = Principal.obtenerPedidosCliente(clien.getId_usu());
+             if (pedidos != null && !pedidos.isEmpty()) {
+                 for (Pedido ped : pedidos) {
+                     String precioTotalFormateado = String.format(java.util.Locale.US, "%.2f", ped.getTotal());
+                     modelPedidos.addRow(new Object[]{ped.getId_ped(), precioTotalFormateado, ped.getFecha_compra()});
+                 }
+             } else { modelPedidos.addRow(new Object[]{null, "No hay pedidos", null}); }
+        } else { modelPedidos.addRow(new Object[]{null, "Cliente no válido", null}); }
 
-        // --- Creación Tabla Pedidos con Mejoras ---
-        tablePedidos = new JTable(modelPedidos) {
+
+        // --- Creación Tabla Pedidos con ESTILO VISTACARRITO --- (Sin cambios)
+        tablePedidos = new JTable(modelPedidos) { /* ... prepareRenderer sin cambios ... */
+             private static final long serialVersionUID = 1L;
             @Override
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
                 Component c = super.prepareRenderer(renderer, row, column);
-                if (!isRowSelected(row)) {
-                    Color alternateColor = UIManager.getColor("Table.alternateRowColor");
-                    Color defaultColor = UIManager.getColor("Table.background");
-                    if (alternateColor == null) alternateColor = new Color(240, 245, 250); // Fallback suave
-                    if (defaultColor == null) defaultColor = Color.WHITE;
-                    c.setBackground(row % 2 == 0 ? defaultColor : alternateColor);
-                }
-                // Añadir un pequeño padding vertical a las celdas si se desea
-                if (renderer instanceof JLabel) {
-                     ((JLabel)renderer).setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5)); // top, left, bottom, right
-                }
-
-                return c;
+                if (c instanceof JComponent) { ((JComponent) c).setOpaque(false); }
+                c.setBackground(COLOR_CELDA_FONDO);
+                if (!isRowSelected(row)) { c.setForeground(Color.BLACK); }
+                else { c.setForeground(COLOR_SELECCION_FUENTE); }
+                if (c instanceof JLabel) {
+                   JLabel label = (JLabel) c;
+                   label.setBorder(BorderFactory.createEmptyBorder(PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H, PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H));
+                   if (column == 1) { label.setHorizontalAlignment(SwingConstants.RIGHT); }
+                   else if (column == 0 || column == 2) { label.setHorizontalAlignment(SwingConstants.CENTER); }
+                   else { label.setHorizontalAlignment(SwingConstants.LEFT); }
+                } return c;
             }
         };
-        // tablePedidos.setDefaultEditor(Object.class, null); // Ya no es necesario por isCellEditable
-        tablePedidos.setFillsViewportHeight(true);
-        tablePedidos.setRowHeight(tablePedidos.getRowHeight() + 4); // Aumentar ligeramente altura de fila para padding
-
-        // --- Estilo Cabecera ---
-        tablePedidos.getTableHeader().setFont(tablePedidos.getTableHeader().getFont().deriveFont(Font.BOLD));
-
-        // --- Alineación Columnas Pedidos ---
-        tablePedidos.getColumnModel().getColumn(0).setMinWidth(80); // Id Pedido un poco más ancho
-        // *** Cambio: Usar centerRenderer para Precio Total ***
-        tablePedidos.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
-        tablePedidos.getColumnModel().getColumn(2).setMinWidth(120); // Fecha compra
-
-        // --- Estilo Rejilla y ScrollPane ---
-        tablePedidos.setShowGrid(false);
-        tablePedidos.setIntercellSpacing(new Dimension(0, 0)); // Sin espacio entre celdas
-
+        // --- Aplicar Estilos Generales de Tabla --- (Sin cambios)
+        tablePedidos.setFont(FONT_TABLA_CELDA);
+        tablePedidos.setRowHeight(tablePedidos.getRowHeight() + 10);
+        tablePedidos.setShowGrid(false); tablePedidos.setShowHorizontalLines(true); tablePedidos.setShowVerticalLines(false);
+        tablePedidos.setIntercellSpacing(new Dimension(0, 1));
+        tablePedidos.setAutoCreateRowSorter(true); tablePedidos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tablePedidos.setOpaque(false); tablePedidos.setFillsViewportHeight(true);
+        // --- Estilo Cabecera --- (Sin cambios)
+        applyCustomHeaderRenderer(tablePedidos);
+        // --- ScrollPane --- (Sin cambios)
         JScrollPane scrollPane = new JScrollPane(tablePedidos);
-        // *** Mejora: Usar borde estándar del LaF para el scroll pane ***
-        scrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
-
+        scrollPane.setOpaque(true); scrollPane.getViewport().setOpaque(true);
+        scrollPane.getViewport().setBackground(COLOR_FONDO_VIEWPORT);
+        scrollPane.setBorder(BorderFactory.createLineBorder(COLOR_BORDE_SCROLLPANE, 2));
         panelPedidos.add(scrollPane, BorderLayout.CENTER);
-
-        // --- Listener Doble Click ---
-         tablePedidos.addMouseListener(new MouseAdapter() {
-            @Override
+        // --- Listener Doble Click --- (Sin cambios)
+        tablePedidos.addMouseListener(new MouseAdapter() { /* ... sin cambios ... */
+             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) { // Detecta doble clic
+                if (e.getClickCount() == 2) {
                     int selectedRow = tablePedidos.getSelectedRow();
                     if (selectedRow != -1) {
-                        Object idObj = modelPedidos.getValueAt(selectedRow, 0);
+                        int modelRow = tablePedidos.convertRowIndexToModel(selectedRow);
+                        Object idObj = modelPedidos.getValueAt(modelRow, 0);
                          if (idObj instanceof Integer) {
                              int idPedido = (Integer) idObj;
                              boolean pestanaExiste = false;
                              String tituloBuscado = "Pedido " + idPedido;
                              for (int i = 0; i < tabbedPane.getTabCount(); i++) {
-                                 Component tabComp = tabbedPane.getTabComponentAt(i);
-                                 String tituloActual = tabbedPane.getTitleAt(i);
+                                 Component tabComp = tabbedPane.getTabComponentAt(i); String tituloActual = "";
                                  if (tabComp instanceof JPanel) {
                                      for(Component child : ((JPanel)tabComp).getComponents()) {
-                                         if (child instanceof JLabel) {
-                                             tituloActual = ((JLabel)child).getText();
-                                             break;
-                                         }
+                                         if (child instanceof JLabel) { tituloActual = ((JLabel)child).getText(); break; }
                                      }
                                  }
+                                 if (tituloActual.isEmpty()) { tituloActual = tabbedPane.getTitleAt(i); }
                                  if (tituloBuscado.equals(tituloActual)) {
-                                     pestanaExiste = true;
-                                     tabbedPane.setSelectedIndex(i);
-                                     break;
+                                     pestanaExiste = true; tabbedPane.setSelectedIndex(i); break;
                                  }
                              }
-                             if (!pestanaExiste) {
-                                 agregarPestañaArticulos(idPedido);
-                             }
-                         } else {
-                              System.err.println("ID del pedido no es un entero en la fila seleccionada: " + idObj);
-                         }
+                             if (!pestanaExiste) { agregarPestañaArticulos(idPedido); }
+                         } else { System.err.println("ID no es Integer: " + idObj); }
                     }
                 }
             }
         });
 
         // --- Añadir Pestaña Pedidos ---
-        tabbedPane.addTab("Pedidos", panelPedidos);
+        tabbedPane.addTab("Mis Pedidos", panelPedidos); // Título Pestaña Inicial
 
-        // *** Mejora: Ajustar anchos de columna DESPUÉS de añadir datos y al scrollpane ***
+        // --- Ajustar anchos --- (Sin cambios)
         adjustColumnWidths(tablePedidos);
 
-
         // --- Configuración Final Diálogo ---
-        pack(); // Ajusta tamaño basado en preferredSize y contenido
-        setLocationRelativeTo(padre); // Centrar
+        pack();
+        setLocationRelativeTo(padre);
     }
 
     /**
@@ -204,213 +236,183 @@ public class VerPedidosCliente extends JDialog {
     private void agregarPestañaArticulos(int idPedido) {
         JPanel panelArticulos = new JPanel(new BorderLayout());
         panelArticulos.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        panelArticulos.setOpaque(false);
 
-        // --- Modelo Tabla Detalles ---
-        DefaultTableModel modelDetalle = new DefaultTableModel(){
-            @Override
-            public boolean isCellEditable(int row, int column) {
-               return false;
+        // --- Modelo Tabla Detalles --- (Sin cambios)
+        DefaultTableModel modelDetalle = new DefaultTableModel(){ /* ... sin cambios ... */
+            private static final long serialVersionUID = 1L;
+            @Override public boolean isCellEditable(int r, int c){ return false; }
+            @Override public Class<?> getColumnClass(int i) {
+                 switch (i) {
+                    case 0: return String.class; case 1: return Integer.class;
+                    case 2: return String.class; case 3: return String.class;
+                    case 4: return String.class; default: return Object.class;
+                }
             }
         };
-        modelDetalle.addColumn("Artículo");
-        modelDetalle.addColumn("Cant."); // Abreviado
-        modelDetalle.addColumn("P. Unit. (€)"); // Abreviado
-        modelDetalle.addColumn("Dto. (%)"); // Abreviado
-        modelDetalle.addColumn("P. Total (€)"); // Abreviado
+        modelDetalle.addColumn("Artículo"); modelDetalle.addColumn("Cant.");
+        modelDetalle.addColumn("P. Unit. (€)"); modelDetalle.addColumn("Dto. (%)");
+        modelDetalle.addColumn("P. Total (€)");
 
-        // --- Carga Datos Artículos ---
+        // --- Carga Datos Artículos --- (Sin cambios)
         List<Articulo> articulos = Principal.obtenerArticulosPorPedido(idPedido);
-        if (articulos != null) {
+        if (articulos != null && !articulos.isEmpty()) { /* ... sin cambios ... */
              for (Articulo art : articulos) {
                 int cantidad = Principal.obtenerCantidadArticuloEnPedido(idPedido, art.getId_art());
-                float precioOriginal = art.getPrecio();
-                float descuento = art.getOferta();
+                float precioOriginal = art.getPrecio(); float descuento = art.getOferta();
                 float precioConDescuento = precioOriginal * (1 - (descuento / 100.0f));
                 float precioTotalArticulo = precioConDescuento * cantidad;
-
-                String precioUnitarioFormateado = String.format("%.2f", precioConDescuento);
-                String descuentoFormateado = String.format("%.0f", descuento);
-                String precioTotalFormateado = String.format("%.2f", precioTotalArticulo);
-
-                modelDetalle.addRow(new Object[]{
-                        art.getNombre(),
-                        cantidad,
-                        precioUnitarioFormateado,
-                        descuentoFormateado,
-                        precioTotalFormateado
-                });
+                String pUnitF = String.format(java.util.Locale.US, "%.2f", precioConDescuento);
+                String dtoF = String.format(java.util.Locale.US, "%.0f", descuento);
+                String pTotalF = String.format(java.util.Locale.US, "%.2f", precioTotalArticulo);
+                modelDetalle.addRow(new Object[]{ art.getNombre(), cantidad, pUnitF, dtoF, pTotalF });
             }
-        } else {
-             System.err.println("Lista de artículos nula para el pedido " + idPedido);
-        }
+        } else { modelDetalle.addRow(new Object[]{"No hay artículos", null, null, null, null}); }
 
-        // --- Creación Tabla Detalles con Mejoras ---
-        JTable tableDetalle = new JTable(modelDetalle) {
+        // --- Creación Tabla Detalles con ESTILO VISTACARRITO --- (Sin cambios)
+        JTable tableDetalle = new JTable(modelDetalle) { /* ... prepareRenderer sin cambios ... */
+             private static final long serialVersionUID = 1L;
              @Override
-            public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-                Component c = super.prepareRenderer(renderer, row, column);
-                if (!isRowSelected(row)) {
-                     Color alternateColor = UIManager.getColor("Table.alternateRowColor");
-                    Color defaultColor = UIManager.getColor("Table.background");
-                    if (alternateColor == null) alternateColor = new Color(240, 245, 250);
-                    if (defaultColor == null) defaultColor = Color.WHITE;
-                    c.setBackground(row % 2 == 0 ? defaultColor : alternateColor);
-                }
-                 // Padding
-                 if (renderer instanceof JLabel) {
-                     ((JLabel)renderer).setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
-                 }
-                return c;
-            }
+             public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
+                 Component c = super.prepareRenderer(renderer, row, col);
+                 if (c instanceof JComponent) { ((JComponent) c).setOpaque(false); }
+                 c.setBackground(COLOR_CELDA_FONDO);
+                 if (!isRowSelected(row)) { c.setForeground(Color.BLACK); }
+                 else { c.setForeground(COLOR_SELECCION_FUENTE); }
+                 if (c instanceof JLabel) {
+                    JLabel label = (JLabel) c;
+                    label.setBorder(BorderFactory.createEmptyBorder(PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H, PADDING_TABLA_CELDA_V, PADDING_TABLA_CELDA_H));
+                    if (col >= 1) { label.setHorizontalAlignment(SwingConstants.RIGHT); }
+                    else { label.setHorizontalAlignment(SwingConstants.LEFT); }
+                 } return c;
+             }
         };
-        // tableDetalle.setDefaultEditor(Object.class, null); // No necesario
-        tableDetalle.setFillsViewportHeight(true);
-        tableDetalle.setRowHeight(tableDetalle.getRowHeight() + 4); // Aumentar altura fila
-
-        // --- Estilo Cabecera ---
-        tableDetalle.getTableHeader().setFont(tableDetalle.getTableHeader().getFont().deriveFont(Font.BOLD));
-
-        // --- Alineación Columnas Detalles ---
-        // Columna 0 (Artículo) se queda a la izquierda por defecto.
-        tableDetalle.getColumnModel().getColumn(1).setCellRenderer(rightRenderer); // Cant.
-        tableDetalle.getColumnModel().getColumn(2).setCellRenderer(rightRenderer); // P. Unit.
-        tableDetalle.getColumnModel().getColumn(3).setCellRenderer(rightRenderer); // Dto.
-        tableDetalle.getColumnModel().getColumn(4).setCellRenderer(rightRenderer); // P. Total
-
-        // --- Estilo Rejilla y ScrollPane ---
-        tableDetalle.setShowGrid(false);
-        tableDetalle.setIntercellSpacing(new Dimension(0, 0));
-
+        // --- Aplicar Estilos Generales de Tabla --- (Sin cambios)
+        tableDetalle.setFont(FONT_TABLA_CELDA); tableDetalle.setRowHeight(tableDetalle.getRowHeight() + 10);
+        tableDetalle.setShowGrid(false); tableDetalle.setShowHorizontalLines(true); tableDetalle.setShowVerticalLines(false);
+        tableDetalle.setIntercellSpacing(new Dimension(0, 1)); tableDetalle.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tableDetalle.setOpaque(false); tableDetalle.setFillsViewportHeight(true);
+        // --- Estilo Cabecera --- (Sin cambios)
+        applyCustomHeaderRenderer(tableDetalle);
+        // --- ScrollPane --- (Sin cambios)
         JScrollPane scrollPaneDetalle = new JScrollPane(tableDetalle);
-        // *** Mejora: Usar borde estándar del LaF ***
-        scrollPaneDetalle.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
-
+        scrollPaneDetalle.setOpaque(true); scrollPaneDetalle.getViewport().setOpaque(true);
+        scrollPaneDetalle.getViewport().setBackground(COLOR_FONDO_VIEWPORT);
+        scrollPaneDetalle.setBorder(BorderFactory.createLineBorder(COLOR_BORDE_SCROLLPANE, 2));
         panelArticulos.add(scrollPaneDetalle, BorderLayout.CENTER);
 
         // --- Añadir Pestaña con Cabecera Personalizada ---
         String tituloPestana = "Pedido " + idPedido;
-        tabbedPane.addTab(tituloPestana, panelArticulos);
+        tabbedPane.addTab(null, panelArticulos); // Añadir sin título inicial, se pondrá en el componente
         int index = tabbedPane.indexOfComponent(panelArticulos);
 
-        JPanel tabComponent = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-        tabComponent.setOpaque(false);
+        // *** Crear Componente de Pestaña MEJORADO ***
+        JPanel tabComponent = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0)); // Espaciado horizontal 5px
+        tabComponent.setOpaque(false); // Muy importante para integrarse con el LaF
+
         JLabel titleLabel = new JLabel(tituloPestana);
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
+        titleLabel.setFont(FONT_PESTANA_TITULO); // Usar fuente definida
+        // El LaF debería manejar el color del texto (seleccionado/no seleccionado)
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5)); // Espacio entre título y botón
 
-        // --- Botón de Cierre Mejorado ---
-        ImageIcon closeIcon = null;
-        try {
-             // ¡¡¡REEMPLAZA CON TU RUTA AL ICONO!!!
-             java.net.URL imgURL = getClass().getResource("iconos/icono_cerrar_16.png");
-             if (imgURL != null) {
-                 closeIcon = new ImageIcon(imgURL);
-             } else { System.err.println("Icono de cierre no encontrado."); }
-        } catch (Exception e) { System.err.println("Error cargando icono: " + e.getMessage()); }
-
-        JButton closeButton = (closeIcon != null) ? new JButton(closeIcon) : new JButton("x");
-        // Estilos botón cierre... (igual que antes)
-        closeButton.setToolTipText("Cerrar esta pestaña");
-        closeButton.setMargin(new Insets(0, 0, 0, 0));
+        // *** Botón de Cierre MEJORADO ***
+        JButton closeButton = new JButton("X"); // Una 'X' simple pero en mayúscula
+        closeButton.setFont(new Font("Arial", Font.BOLD, 11)); // Un poco más pequeña y negrita
+        closeButton.setForeground(COLOR_BOTON_CERRAR_NORMAL); // Color gris por defecto
+        closeButton.setMargin(new Insets(1, 1, 1, 1)); // Margen interno mínimo para que no sea tan apretado
+        closeButton.setPreferredSize(new Dimension(18, 18)); // Ligeramente más grande
+        closeButton.setToolTipText("Cerrar Pestaña (Pedido " + idPedido + ")"); // Tooltip más específico
         closeButton.setVerticalAlignment(SwingConstants.CENTER);
-        closeButton.setContentAreaFilled(false);
-        closeButton.setBorderPainted(false);
-        closeButton.setFocusPainted(false);
+        closeButton.setContentAreaFilled(false); // Sin fondo por defecto
+        closeButton.setBorderPainted(false); // Sin borde por defecto
+        closeButton.setFocusPainted(false); // Sin el recuadro de foco
         closeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         closeButton.setOpaque(false);
-        Color hoverColor = UIManager.getColor("TabbedPane.hoverColor");
-        if (hoverColor == null) hoverColor = new Color(210, 210, 210);
-        Color finalHoverColor = hoverColor;
-        closeButton.addActionListener(e -> {
-            int tabIndex = tabbedPane.indexOfTabComponent(tabComponent);
-            if (tabIndex != -1) { tabbedPane.remove(tabIndex); }
-        });
+
+        // --- Efecto Hover Mejorado para el Botón ---
         closeButton.addMouseListener(new MouseAdapter() {
             @Override public void mouseEntered(MouseEvent e) {
-                closeButton.setContentAreaFilled(true); closeButton.setOpaque(true);
-                closeButton.setBackground(finalHoverColor);
+                closeButton.setContentAreaFilled(true); // Mostrar fondo al pasar por encima
+                closeButton.setOpaque(true);
+                closeButton.setBackground(COLOR_BOTON_CERRAR_HOVER); // Usar color hover definido
+                closeButton.setForeground(Color.WHITE); // Texto blanco sobre fondo rojo
             }
             @Override public void mouseExited(MouseEvent e) {
-                closeButton.setContentAreaFilled(false); closeButton.setOpaque(false);
+                closeButton.setContentAreaFilled(false); // Ocultar fondo al salir
+                closeButton.setOpaque(false);
+                closeButton.setForeground(COLOR_BOTON_CERRAR_NORMAL); // Restaurar color de texto gris
             }
         });
 
+        // --- Acción de Cierre (igual) ---
+        closeButton.addActionListener(e -> {
+            int tabIndex = tabbedPane.indexOfTabComponent(tabComponent);
+            if (tabIndex != -1) {
+                tabbedPane.remove(tabIndex);
+            }
+        });
+
+        // --- Añadir componentes al panel de la pestaña ---
         tabComponent.add(titleLabel);
         tabComponent.add(closeButton);
-        tabbedPane.setTabComponentAt(index, tabComponent);
 
-        // *** Mejora: Ajustar anchos de columna DESPUÉS de añadir datos y al scrollpane ***
+        // Establecer este panel como el componente de la pestaña
+        // Esto sobreescribe cualquier título puesto con addTab(titulo, componente)
+        tabbedPane.setTabComponentAt(index, tabComponent);
+        // Opcional: Poner un tooltip a la pestaña entera
+        tabbedPane.setToolTipTextAt(index, "Ver detalles del Pedido " + idPedido);
+
+        // --- Ajustar anchos --- (Sin cambios)
         adjustColumnWidths(tableDetalle);
 
-        // Seleccionar la nueva pestaña
+        // --- Seleccionar la nueva pestaña ---
         tabbedPane.setSelectedComponent(panelArticulos);
     }
 
 
-    /**
-     * Ajusta el ancho preferido de cada columna de la tabla para que se ajuste
-     * al contenido más ancho de la columna (celdas y cabecera).
-     * Llamar DESPUÉS de que la tabla tenga datos y esté en un JScrollPane.
-     * @param table La tabla a ajustar.
-     */
-    private void adjustColumnWidths(JTable table) {
-        TableColumnModel columnModel = table.getColumnModel();
-        // Padding extra añadido al ancho calculado
-        final int PADDING = 15;
-
-        for (int column = 0; column < table.getColumnCount(); column++) {
-            // Ancho de la cabecera
-            TableCellRenderer headerRenderer = table.getTableHeader().getDefaultRenderer();
-            Component headerComp = headerRenderer.getTableCellRendererComponent(table, columnModel.getColumn(column).getHeaderValue(), false, false, 0, column);
-            int headerWidth = headerComp.getPreferredSize().width;
-
-            // Ancho máximo de las celdas en esta columna
-            int maxWidth = headerWidth;
-            for (int row = 0; row < table.getRowCount(); row++) {
-                TableCellRenderer cellRenderer = table.getCellRenderer(row, column);
-                Component cellComp = table.prepareRenderer(cellRenderer, row, column);
-                int cellWidth = cellComp.getPreferredSize().width;
-                maxWidth = Math.max(maxWidth, cellWidth);
+    // --- MÉTODO HELPER para aplicar el Renderer de Cabecera --- (Sin cambios)
+    private void applyCustomHeaderRenderer(JTable table) { /* ... sin cambios ... */
+        JTableHeader header = table.getTableHeader();
+        header.setReorderingAllowed(false); header.setResizingAllowed(true);
+        header.setDefaultRenderer(new TableCellRenderer() {
+            private final TableCellRenderer defaultRenderer = table.getTableHeader().getDefaultRenderer();
+            @Override
+            public Component getTableCellRendererComponent(JTable t, Object v, boolean sel, boolean foc, int r, int c) {
+                Component comp = defaultRenderer.getTableCellRendererComponent(t, v, sel, foc, r, c);
+                if (comp instanceof JLabel) {
+                    JLabel label = (JLabel) comp; label.setFont(HEADER_FONT);
+                    label.setBackground(HEADER_BACKGROUND); label.setForeground(HEADER_FOREGROUND);
+                    label.setOpaque(true);
+                    Border pad = BorderFactory.createEmptyBorder(HEADER_VPADDING, HEADER_HPADDING, HEADER_VPADDING, HEADER_HPADDING);
+                    Border line = BorderFactory.createMatteBorder(0, 0, 2, 0, HEADER_BORDER_COLOR);
+                    label.setBorder(BorderFactory.createCompoundBorder(line, pad));
+                    label.setHorizontalAlignment(SwingConstants.CENTER);
+                } return comp;
             }
+        });
+        header.repaint();
+    }
 
-            // Establecer el ancho preferido de la columna
-            TableColumn tableColumn = columnModel.getColumn(column);
-            tableColumn.setPreferredWidth(maxWidth + PADDING);
-        }
-         // Opcional: Forzar un redibujo si es necesario (normalmente no lo es)
-         // table.getTableHeader().resizeAndRepaint();
-         // table.revalidate();
-         // table.repaint();
+    // --- adjustColumnWidths --- (Sin cambios)
+    private void adjustColumnWidths(JTable table) { /* ... sin cambios ... */
+         SwingUtilities.invokeLater(() -> {
+            TableColumnModel columnModel = table.getColumnModel();
+            final int PADDING = 15;
+            for (int column = 0; column < table.getColumnCount(); column++) {
+                TableColumn tableColumn = columnModel.getColumn(column); int maxWidth = 0;
+                TableCellRenderer headerRenderer = tableColumn.getHeaderRenderer();
+                if (headerRenderer == null) { headerRenderer = table.getTableHeader().getDefaultRenderer(); }
+                Component headerComp = headerRenderer.getTableCellRendererComponent(table, tableColumn.getHeaderValue(), false, false, 0, column);
+                maxWidth = headerComp.getPreferredSize().width;
+                for (int row = 0; row < table.getRowCount(); row++) {
+                    TableCellRenderer cellRenderer = table.getCellRenderer(row, column);
+                    Component cellComp = table.prepareRenderer(cellRenderer, row, column);
+                    maxWidth = Math.max(maxWidth, cellComp.getPreferredSize().width);
+                }
+                 tableColumn.setPreferredWidth(maxWidth + PADDING);
+            }
+        });
     }
 
 
-    // --- Método main de ejemplo para probar (igual que antes) ---
-   /* public static void main(String[] args) {
-         try {
-            UIManager.setLookAndFeel( new FlatLightLaf() );
-             UIManager.put( "TabbedPane.showTabSeparators", true );
-             // UIManager.put( "Table.alternateRowColor", new Color(240, 245, 250) ); // Ya se usa fallback en prepareRenderer
-             // UIManager.put("Table.showVerticalLines", false); // Otra forma de ocultar líneas verticales
-             // UIManager.put("Table.showHorizontalLines", true);
-         } catch( Exception ex ) {
-            System.err.println( "Failed to initialize LaF" );
-         }
-
-        Cliente clienteEjemplo = new Cliente();
-        clienteEjemplo.setId_usu(1);
-        clienteEjemplo.setUsuario("Cliente de Prueba Longevo"); // Nombre más largo para probar ancho
-
-        EventQueue.invokeLater(() -> {
-            try {
-                // Simular datos para la tabla (esto debería venir de Principal)
-                // Si no tienes Principal funcionando, necesitarás crear datos falsos aquí
-                // y modificar cómo se cargan los datos en el constructor y agregarPestañaArticulos
-
-                VerPedidosCliente dialog = new VerPedidosCliente(null, clienteEjemplo);
-                dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-                dialog.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }*/
 }

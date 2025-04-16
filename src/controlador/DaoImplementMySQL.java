@@ -47,7 +47,7 @@ public class DaoImplementMySQL implements Dao {
 	final String INSERTAR_CLIENTE = "INSERT INTO cliente(id_clien, usuario, contra, dni, correo, direccion, metodo_pago, num_cuenta) VALUES (?,?,?,?,?,?,?,?)";
 	final String ELIMINAR_CLIENTE = "DELETE from cliente where id_clien=?";
 	final String MODIFICAR_CLIENTE = "UPDATE cliente set usuario=?, contra=?, dni=?, correo=?, direccion=?, metodo_pago=?, num_cuenta=? WHERE id_clien=?;";
-
+	final String totalGastadoPedidos = "SELECT TOTALGASTADO(?) as resultado";
 	// Sentencias SQL
 
 	final String INTRODUCIR_PEDIDO = "INSERT INTO pedido (id_ped, id_clien, total, fecha_compra) VALUES (?, ?, ?, ?)";
@@ -814,5 +814,34 @@ public class DaoImplementMySQL implements Dao {
 	       // closeConnection(); 
 	    }
 	    return ultimoId + 1;
+	}
+	
+	@Override
+	public float totalGastado(Cliente clien) {
+		float resultado = 0;
+		ResultSet rs = null;
+		try {
+			openConnection();
+			stmt = con.prepareStatement(totalGastadoPedidos);
+			stmt.setInt(1, clien.getId_usu());
+			rs = stmt.executeQuery();
+			if (rs.next()) {
+				resultado = rs.getFloat("resultado");
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			closeConnection();
+
+		}
+		return resultado;
 	}
 }
