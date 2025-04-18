@@ -28,6 +28,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -39,100 +40,136 @@ import java.awt.RenderingHints;
 import java.awt.BasicStroke;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO; // Importar ImageIO
+
+import java.io.IOException;
 import java.io.InputStream;
-import java.awt.Toolkit; // Importar InputStream
+import java.awt.Toolkit; // Importar Toolkit
+import java.awt.image.FilteredImageSource; // Necesario para el filtro
+import java.awt.image.ImageFilter;      // Necesario para el filtro
+import java.awt.image.ImageProducer;    // Necesario para el filtro
+import java.awt.image.RGBImageFilter;   // Necesario para el filtro
 
 public class VistaLogIn extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
-	private JPanel panelLogin;
+	private JPanel contentPane; // El contenedor principal estándar
+	private JPanel panelLogin;  // El panel con los controles de login
 	private JTextField txtUser;
 	private JPasswordField txtContra;
 	private JLabel lblIconUser;
 	private JLabel lblIconPass;
-	private JLabel lblTitulo;
-	private JLabel lblOlvidoContrasena;
+	private JLabel lblLogo;      // Añadido para el logo
 	private JButton btnSignIn;
 	private JButton btnLogIn;
+	private BufferedImage backgroundImage; // Mantenemos la carga de la imagen
 
-	// --- Constantes de Estilo ---
-	// (Se mantienen igual que en la versión anterior)
-	private final Color COLOR_FONDO = UIManager.getColor("Panel.background") != null
-			? UIManager.getColor("Panel.background")
-			: new Color(240, 245, 248);
-	private final Color COLOR_PANEL = UIManager.getColor("TextField.background") != null
-			? UIManager.getColor("TextField.background")
-			: Color.WHITE;
-	private final Color COLOR_BOTON_PRIMARIO = new Color(52, 152, 219); // Azul
-	private final Color COLOR_BOTON_PRIMARIO_HOVER = new Color(41, 128, 185); // Azul más oscuro
-	private final Color COLOR_TEXTO_BOTON_PRIMARIO = Color.WHITE;
-	private final Color COLOR_BOTON_SECUNDARIO = COLOR_PANEL; // Fondo igual al panel
-	private final Color COLOR_BOTON_SECUNDARIO_HOVER = UIManager.getColor("Button.hoverBackground") != null
-			? UIManager.getColor("Button.hoverBackground")
-			: new Color(230, 240, 248);
-	private final Color COLOR_BORDE_TEXTO_SECUNDARIO = COLOR_BOTON_PRIMARIO; // Azul para borde/texto
-	private final Color COLOR_ENLACE = Color.GRAY;
-	private final Color COLOR_TITULO = UIManager.getColor("Label.foreground") != null
-			? UIManager.getColor("Label.foreground")
-			: new Color(50, 50, 50);
-	private final Font FUENTE_GENERAL = new Font("Segoe UI", Font.PLAIN, 14);
-	private final Font FUENTE_TITULO = new Font("Segoe UI", Font.BOLD, 20);
-	private final Font FUENTE_BOTON = new Font("Segoe UI", Font.BOLD, 14);
-	private final Font FUENTE_ENLACE = new Font("Segoe UI", Font.PLAIN, 12);
+	// --- NUEVA Paleta de Colores - Tonos Cálidos/Madera ---
+	private static final Color COLOR_FONDO_FALLBACK = new Color(210, 190, 170);
+	private static final Color COLOR_PANEL = new Color(210, 180, 140, 200); // Con algo de transparencia alfa
+	private static final Color COLOR_BOTON_PRIMARIO = new Color(139, 69, 19);
+	private static final Color COLOR_BOTON_PRIMARIO_HOVER = new Color(115, 55, 10);
+	private static final Color COLOR_TEXTO_BOTON_PRIMARIO = Color.WHITE;
+	private static final Color COLOR_BOTON_SECUNDARIO = COLOR_PANEL;
+	private static final Color COLOR_BOTON_SECUNDARIO_HOVER = new Color(230, 230, 215);
+	private static final Color COLOR_BORDE_TEXTO_SECUNDARIO = COLOR_BOTON_PRIMARIO;
+	private static final Color COLOR_TITULO = new Color(80, 40, 0);
+
+	// Fuentes
+	private static final Font FUENTE_GENERAL = new Font("Segoe UI", Font.PLAIN, 14);
+	private static final Font FUENTE_BOTON = new Font("Segoe UI", Font.BOLD, 14);
+
+	// Color a hacer transparente en los iconos (Blanco puro)
+    private static final Color COLOR_TRANSPARENTE_ICONO = Color.WHITE;
 
 	/**
 	 * Create the frame.
 	 */
 	public VistaLogIn() {
-		setIconImage(Toolkit.getDefaultToolkit().getImage(VistaLogIn.class.getResource("/imagenes/logoColor.jpg")));
-		// Intenta usar el Look & Feel del sistema como fallback si FlatLaf no está
-		// configurado
+		// Icono de la ventana
 		try {
-			// Si usas FlatLaf, debería estar configurado en Principal.java
-			// Este bloque es más un fallback al L&F nativo.
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-				| UnsupportedLookAndFeelException e) {
-			System.err.println("No se pudo establecer el LookAndFeel del sistema: " + e.getMessage());
+			InputStream imgStream = VistaLogIn.class.getResourceAsStream("/imagenes/logoColor.jpg");
+			if (imgStream != null) {
+				BufferedImage iconImage = ImageIO.read(imgStream);
+				if (iconImage != null) {
+					setIconImage(Toolkit.getDefaultToolkit().createImage(iconImage.getSource()));
+				} else {
+					System.err.println("ImageIO.read devolvió null para el icono de ventana.");
+				}
+				imgStream.close();
+			} else {
+				System.err.println("No se pudo cargar el icono de la ventana: /imagenes/logoColor.jpg");
+			}
+		} catch (IOException e) {
+			System.err.println("Error al leer el icono de la ventana: " + e.getMessage());
+		} catch (Exception e) {
+			System.err.println("Error inesperado al establecer el icono de la ventana: " + e.getMessage());
 		}
 
+
+		// Carga la imagen de fondo
+		try {
+			InputStream bgStream = getClass().getResourceAsStream("/imagenes/fondoMadera.jpg");
+			if (bgStream != null) {
+				backgroundImage = ImageIO.read(bgStream);
+				bgStream.close();
+			} else {
+				System.err.println("Recurso de imagen de fondo no encontrado: /imagenes/fondoMadera.jpg");
+			}
+		} catch (IOException e) {
+			System.err.println("Error al cargar la imagen de fondo: " + e.getMessage());
+			backgroundImage = null;
+		}
+
+		// Configuración básica del JFrame
 		setTitle("Iniciar Sesión");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
 
-		contentPane = new JPanel(new BorderLayout(20, 20));
-		contentPane.setBackground(COLOR_FONDO);
+		// ContentPane con fondo
+		contentPane = new JPanel(new BorderLayout(20, 20)) {
+            private static final long serialVersionUID = 1L;
+			@Override
+			protected void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				if (backgroundImage != null) {
+					g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+				} else {
+					g.setColor(getBackground());
+					g.fillRect(0, 0, getWidth(), getHeight());
+				}
+			}
+		};
 		contentPane.setBorder(new EmptyBorder(30, 30, 30, 30));
+		contentPane.setBackground(COLOR_FONDO_FALLBACK);
 		setContentPane(contentPane);
 
+
+		// --- Panel de Login ---
 		panelLogin = new JPanel();
 		panelLogin.setBackground(COLOR_PANEL);
-		panelLogin.setBorder(BorderFactory.createCompoundBorder(new LineBorder(Color.LIGHT_GRAY, 1), // Borde fino
-				new EmptyBorder(30, 40, 30, 40) // Padding interno
+		// panelLogin.setOpaque(false); // Descomenta si quieres que el panel sea totalmente transparente
+		panelLogin.setBorder(BorderFactory.createCompoundBorder(
+				new LineBorder(Color.LIGHT_GRAY, 1),
+				new EmptyBorder(30, 40, 30, 40)
 		));
 		contentPane.add(panelLogin, BorderLayout.CENTER);
 
-		lblTitulo = new JLabel("Bienvenido");
-		lblTitulo.setFont(FUENTE_TITULO);
-		lblTitulo.setForeground(COLOR_TITULO);
-		lblTitulo.setHorizontalAlignment(SwingConstants.CENTER);
 
-		// --- Inicialización de Iconos ---
-		// *** CAMBIO: Usar path absoluto desde classpath root ***
-		// Asegúrate que 'resources/iconos/usuario.png' exista y 'resources' sea una
-		// carpeta de fuentes/recursos.
-		lblIconUser = new JLabel(cargarImagen("/iconos/usuario.png", 20, 20));
-		lblIconUser.setPreferredSize(new Dimension(25, 25)); // Tamaño del contenedor del JLabel
-		lblIconUser.setHorizontalAlignment(SwingConstants.CENTER); // Centrar icono dentro del JLabel
+		// --- Componentes dentro de panelLogin ---
+		lblLogo = new JLabel(cargarImagen("/imagenes/logoColor.jpg", 180, 60, false)); // false = no intentar hacer transparente el logo
+		lblLogo.setHorizontalAlignment(SwingConstants.CENTER);
+
+		// Icono Usuario - intentar hacer blanco transparente
+		lblIconUser = new JLabel(cargarImagen("/iconos/usuario.png", 20, 20, true)); // true = intentar hacer transparente
+		lblIconUser.setPreferredSize(new Dimension(25, 25));
+		lblIconUser.setHorizontalAlignment(SwingConstants.CENTER);
 
 		txtUser = new JTextField();
 		txtUser.setFont(FUENTE_GENERAL);
 		txtUser.setColumns(15);
 
-		// *** CAMBIO: Usar path absoluto desde classpath root ***
-		// Asegúrate que 'resources/iconos/candado.png' exista.
-		lblIconPass = new JLabel(cargarImagen("/iconos/candado.png", 20, 20));
+		// Icono Contraseña - intentar hacer blanco transparente
+		lblIconPass = new JLabel(cargarImagen("/iconos/candado.png", 20, 20, true)); // true = intentar hacer transparente
 		lblIconPass.setPreferredSize(new Dimension(25, 25));
 		lblIconPass.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -140,73 +177,14 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		txtContra.setFont(FUENTE_GENERAL);
 		txtContra.setColumns(15);
 
-		// --- Botón Ingresar ---
 		btnLogIn = new JButton("Ingresar");
-		btnLogIn.setFont(FUENTE_BOTON);
-		btnLogIn.setBackground(COLOR_BOTON_PRIMARIO);
-		btnLogIn.setForeground(COLOR_TEXTO_BOTON_PRIMARIO);
-		btnLogIn.setFocusPainted(false);
-		btnLogIn.setBorderPainted(false);
-		btnLogIn.setOpaque(true); // Importante si no se usa un LaF que lo maneje
-		btnLogIn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		configurarBotonPrimario(btnLogIn);
 		btnLogIn.addActionListener(this);
-		btnLogIn.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				btnLogIn.setBackground(COLOR_BOTON_PRIMARIO_HOVER);
-			}
 
-			@Override
-			public void mouseExited(MouseEvent e) {
-				btnLogIn.setBackground(COLOR_BOTON_PRIMARIO);
-			}
-		});
-
-		// --- Botón Registrarte ---
 		btnSignIn = new JButton("Registrarte");
-		btnSignIn.setFont(FUENTE_BOTON);
-		btnSignIn.setBackground(COLOR_BOTON_SECUNDARIO);
-		btnSignIn.setForeground(COLOR_BORDE_TEXTO_SECUNDARIO);
-		btnSignIn.setBorder(new LineBorder(COLOR_BORDE_TEXTO_SECUNDARIO, 1));
-		btnSignIn.setOpaque(true);
-		btnSignIn.setFocusPainted(false);
-		btnSignIn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		configurarBotonSecundario(btnSignIn);
 		btnSignIn.addActionListener(this);
-		btnSignIn.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				btnSignIn.setBackground(COLOR_BOTON_SECUNDARIO_HOVER);
-			}
 
-			@Override
-			public void mouseExited(MouseEvent e) {
-				btnSignIn.setBackground(COLOR_BOTON_SECUNDARIO);
-			}
-		});
-
-		// --- Enlace Olvido Contraseña ---
-		lblOlvidoContrasena = new JLabel("<html><u>¿Olvidaste tu contraseña?</u></html>");
-		lblOlvidoContrasena.setFont(FUENTE_ENLACE);
-		lblOlvidoContrasena.setForeground(COLOR_ENLACE);
-		lblOlvidoContrasena.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		lblOlvidoContrasena.setHorizontalAlignment(SwingConstants.CENTER);
-		lblOlvidoContrasena.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				JOptionPane.showMessageDialog(VistaLogIn.this, "Función 'Olvidé contraseña' no implementada.",
-						"Información", JOptionPane.INFORMATION_MESSAGE);
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				lblOlvidoContrasena.setForeground(COLOR_BOTON_PRIMARIO);
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-				lblOlvidoContrasena.setForeground(COLOR_ENLACE);
-			}
-		});
 
 		// --- Layout del panelLogin usando GroupLayout ---
 		GroupLayout gl_panelLogin = new GroupLayout(panelLogin);
@@ -214,160 +192,274 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		gl_panelLogin.setAutoCreateContainerGaps(true);
 
 		gl_panelLogin.setHorizontalGroup(gl_panelLogin.createParallelGroup(Alignment.CENTER)
-				.addComponent(lblTitulo, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+				.addComponent(lblLogo, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 				.addGroup(gl_panelLogin.createSequentialGroup()
-						.addComponent(lblIconUser, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-								GroupLayout.PREFERRED_SIZE)
+						.addComponent(lblIconUser, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addPreferredGap(ComponentPlacement.RELATED)
 						.addComponent(txtUser, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE))
 				.addGroup(gl_panelLogin.createSequentialGroup()
-						.addComponent(lblIconPass, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-								GroupLayout.PREFERRED_SIZE)
+						.addComponent(lblIconPass, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addPreferredGap(ComponentPlacement.RELATED)
 						.addComponent(txtContra, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE))
 				.addComponent(btnLogIn, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 				.addComponent(btnSignIn, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-				.addComponent(lblOlvidoContrasena, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE,
-						Short.MAX_VALUE));
+		);
 
-		gl_panelLogin
-				.setVerticalGroup(gl_panelLogin.createSequentialGroup().addComponent(lblTitulo).addGap(25)
-						.addGroup(gl_panelLogin.createParallelGroup(Alignment.CENTER, false)
-								.addComponent(lblIconUser, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-										GroupLayout.PREFERRED_SIZE)
-								.addComponent(txtUser, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE))
-						.addGap(15)
-						.addGroup(gl_panelLogin.createParallelGroup(Alignment.CENTER, false)
-								.addComponent(lblIconPass, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-										GroupLayout.PREFERRED_SIZE)
-								.addComponent(txtContra, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE))
-						.addGap(30).addComponent(btnLogIn, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
-						.addGap(10).addComponent(btnSignIn, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
-						.addGap(20).addComponent(lblOlvidoContrasena).addContainerGap(20, Short.MAX_VALUE));
+		gl_panelLogin.setVerticalGroup(gl_panelLogin.createSequentialGroup()
+				.addComponent(lblLogo)
+				.addGap(25)
+				.addGroup(gl_panelLogin.createParallelGroup(Alignment.CENTER, false)
+						.addComponent(lblIconUser, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+						.addComponent(txtUser, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE))
+				.addGap(15)
+				.addGroup(gl_panelLogin.createParallelGroup(Alignment.CENTER, false)
+						.addComponent(lblIconPass, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+						.addComponent(txtContra, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE))
+				.addGap(30)
+				.addComponent(btnLogIn, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
+				.addGap(10)
+				.addComponent(btnSignIn, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
+		);
 
 		panelLogin.setLayout(gl_panelLogin);
 
-		pack(); // Ajusta tamaño a los componentes
-		setLocationRelativeTo(null); // Centra en pantalla DESPUÉS de pack()
+		// --- Finalización de la Configuración del Frame ---
+		pack();
+		setMinimumSize(new Dimension(450, 500));
+		setLocationRelativeTo(null);
 
+		// Look & Feel del sistema
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e) {
+			System.err.println("No se pudo establecer el LookAndFeel del sistema: " + e.getMessage());
+		}
 	}
+
+
+	// --- Métodos de ayuda para configurar botones ---
+	private void configurarBotonPrimario(JButton button) {
+        button.setFont(FUENTE_BOTON);
+        button.setBackground(COLOR_BOTON_PRIMARIO);
+        button.setForeground(COLOR_TEXTO_BOTON_PRIMARIO);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setOpaque(true);
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(COLOR_BOTON_PRIMARIO_HOVER);
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(COLOR_BOTON_PRIMARIO);
+            }
+        });
+    }
+
+    private void configurarBotonSecundario(JButton button) {
+        button.setFont(FUENTE_BOTON);
+        button.setBackground(COLOR_BOTON_SECUNDARIO);
+        button.setForeground(COLOR_BORDE_TEXTO_SECUNDARIO);
+        button.setBorder(new LineBorder(COLOR_BORDE_TEXTO_SECUNDARIO, 1));
+        button.setOpaque(false);
+        button.setContentAreaFilled(false);
+        button.setFocusPainted(false);
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        button.addMouseListener(new MouseAdapter() {
+             @Override
+            public void mouseEntered(MouseEvent e) {
+                 button.setContentAreaFilled(true);
+                 button.setOpaque(true);
+                 button.setBackground(COLOR_BOTON_SECUNDARIO_HOVER);
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                 button.setContentAreaFilled(false);
+                 button.setOpaque(false);
+            }
+        });
+    }
 
 	// --- Métodos de Lógica ---
-
 	protected void comprobar() {
-		Cliente clien = new Cliente();
-		clien.setUsuario(txtUser.getText() != null ? txtUser.getText() : "");
-		clien.setContra(txtContra.getPassword() != null ? new String(txtContra.getPassword()) : "");
+        Cliente clien = new Cliente();
+        String usuario = txtUser.getText() != null ? txtUser.getText() : "";
+        String contra = txtContra.getPassword() != null ? new String(txtContra.getPassword()) : "";
 
-		if (clien.getUsuario().isEmpty() || clien.getContra().isEmpty()) {
-			JOptionPane.showMessageDialog(this, "Usuario y contraseña no pueden estar vacíos.", "Error",
-					JOptionPane.WARNING_MESSAGE);
-			return;
-		}
+        clien.setUsuario(usuario);
+        clien.setContra(contra);
 
-		try {
-			Cliente clienteLogueado = Principal.login(clien);
-			System.out.println("Login exitoso para: " + clienteLogueado.getUsuario());
-			VistaTienda tienda = new VistaTienda(clienteLogueado, this);
-			tienda.setVisible(true);
-			this.dispose(); // Cierra la ventana de login
+        if (usuario.isEmpty() || contra.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Usuario y contraseña no pueden estar vacíos.", "Error de Entrada",
+                    JOptionPane.WARNING_MESSAGE);
+            limpiar();
+            return;
+        }
 
-		} catch (LoginError e) {
-			e.visualizarMen(); // Muestra el mensaje de error de LoginError
-			limpiar();
-		} catch (Exception ex) {
-			System.err.println("Error inesperado durante el login: " + ex.getMessage());
-			ex.printStackTrace();
-			JOptionPane.showMessageDialog(this, "Ocurrió un error inesperado. Inténtalo de nuevo.", "Error",
-					JOptionPane.ERROR_MESSAGE);
-			limpiar();
-		}
-	}
+        try {
+            Cliente clienteLogueado = Principal.login(clien);
+            System.out.println("Login exitoso para: " + clienteLogueado.getUsuario());
+            this.setVisible(false);
+            VistaTienda tienda = new VistaTienda(clienteLogueado, this);
+            tienda.setVisible(true);
+            this.dispose();
 
-	private void limpiar() {
-		// txtUser.setText(""); // Opcional: no limpiar usuario si falla contraseña
-		txtContra.setText("");
-		txtContra.requestFocusInWindow(); // Poner foco en contraseña si falla
-	}
+        } catch (LoginError e) {
+            e.visualizarMen();
+            limpiar();
+        } catch (Exception ex) {
+            System.err.println("Error inesperado durante el login: " + ex.getMessage());
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Ocurrió un error inesperado al intentar iniciar sesión.\nPor favor, inténtalo de nuevo o contacta al soporte.",
+                    "Error Crítico",
+                    JOptionPane.ERROR_MESSAGE);
+            limpiar();
+        }
+    }
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == btnSignIn) {
-			abrirVistaRegistro();
-		} else if (e.getSource() == btnLogIn) {
-			comprobar();
-		}
-	}
+    private void limpiar() {
+        txtUser.setText("");
+        txtContra.setText("");
+        txtUser.requestFocusInWindow();
+    }
 
-	private void abrirVistaRegistro() {
-		this.setVisible(false);
-		// Pasar 'this' para que la ventana de registro pueda volver a mostrar esta si
-		// cancela
-		VistaUsuario usuario = new VistaUsuario(null, this);
-		usuario.setVisible(true);
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == btnSignIn) {
+            abrirVistaRegistro();
+        } else if (e.getSource() == btnLogIn) {
+            comprobar();
+        }
+    }
 
-		this.setVisible(true);
-	}
+    private void abrirVistaRegistro() {
+        this.setVisible(false);
+        VistaUsuario usuario = new VistaUsuario(null, this);
+        usuario.setVisible(true);
+        // this.dispose(); // Opcional: cierra esta ventana al abrir la de registro
+    }
+
+
+	// --- Método Cargar Imagen y Placeholder (MODIFICADO) ---
 
 	/**
-	 * Método para cargar una imagen desde una ruta DENTRO DEL CLASSPATH y ajustarla
-	 * al tamaño adecuado. La ruta debe ser absoluta desde la raíz del classpath,
-	 * ej: "/iconos/imagen.png"
+	 * Carga una imagen desde el classpath, la escala y opcionalmente intenta
+	 * hacer transparente un color específico (blanco por defecto).
 	 *
-	 * @param ruta   La ruta del recurso dentro del classpath.
-	 * @param width  El ancho deseado para el icono.
-	 * @param height La altura deseada para el icono.
-	 * @return Un ImageIcon redimensionado o un placeholder si falla la carga.
+	 * @param ruta Ruta del recurso de la imagen dentro del classpath (ej: "/iconos/img.png").
+	 * @param width Ancho deseado para la imagen escalada.
+	 * @param height Alto deseado para la imagen escalada.
+	 * @param hacerTransparente Si es true, intenta convertir los píxeles blancos en transparentes.
+	 * @return Un ImageIcon escalado (y posiblemente con transparencia modificada) o un placeholder si falla.
 	 */
-	private ImageIcon cargarImagen(String ruta, int width, int height) {
-		// *** CAMBIO: Usar getResourceAsStream para buscar desde la raíz del classpath
-		// ***
+	private ImageIcon cargarImagen(String ruta, int width, int height, boolean hacerTransparente) {
 		InputStream imgStream = getClass().getResourceAsStream(ruta);
-
 		if (imgStream != null) {
 			try {
-				// Leer la imagen desde el InputStream
 				BufferedImage originalImage = ImageIO.read(imgStream);
-				// Cerrar el stream es buena práctica
-				imgStream.close();
+				if (originalImage != null) {
+					Image imgFinal = originalImage; // Empezamos con la original
 
-				// Escalar si es necesario
-				Image scaledImage = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-				return new ImageIcon(scaledImage);
+					// --- INICIO: Código para hacer blanco transparente (si se solicita) ---
+					if (hacerTransparente) {
+						ImageFilter filter = new RGBImageFilter() {
+							// Determinar el color marcador (blanco puro en este caso)
+							// El formato 0xFFRRGGBB representa el color opaco
+							public int markerRGB = COLOR_TRANSPARENTE_ICONO.getRGB() | 0xFF000000;
 
+							@Override
+							public final int filterRGB(int x, int y, int rgb) {
+								// Comparamos el píxel actual (rgb) con el color marcador.
+								// El `& 0xFFFFFFFF` asegura que comparamos sólo el color, ignorando info alfa si la hubiera.
+								if ((rgb | 0xFF000000) == markerRGB) {
+									// Si el color coincide con el marcador (blanco), lo hacemos transparente.
+									// Devolvemos 0, que representa un píxel completamente transparente (ARGB = 0x00000000).
+									return 0x00FFFFFF & rgb; // Mantiene el color pero con alfa 0
+                                    // return 0; // Alternativa más simple: totalmente transparente negro
+								} else {
+									// Si no coincide, dejamos el píxel como estaba.
+									return rgb;
+								}
+							}
+						};
+
+						// Aplicamos el filtro a la imagen original
+						ImageProducer ip = new FilteredImageSource(originalImage.getSource(), filter);
+						// Creamos la nueva imagen (que ahora puede tener transparencia)
+						imgFinal = Toolkit.getDefaultToolkit().createImage(ip);
+					}
+					// --- FIN: Código para hacer blanco transparente ---
+
+					// Escalar la imagen resultante (original o filtrada)
+					Image scaledImage = imgFinal.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+					return new ImageIcon(scaledImage);
+
+				} else {
+					System.err.println("Error: ImageIO.read devolvió null para la ruta: " + ruta);
+					return crearPlaceholderIcon(width, height);
+				}
 			} catch (java.io.IOException e) {
-				System.err.println("Error al leer la imagen desde la ruta: " + ruta + " - " + e.getMessage());
+				System.err.println("Error de IO al leer la imagen: " + ruta + " - " + e.getMessage());
+			} catch (Exception e) {
+				System.err.println("Error inesperado al cargar/procesar/escalar imagen: " + ruta + " - " + e.getMessage());
+                e.printStackTrace(); // Imprime más detalles del error
+			} finally {
+				try { imgStream.close(); } catch (IOException ioException) { /* Ignorar */ }
 			}
 		} else {
-			// Si getResourceAsStream devuelve null, el recurso no se encontró en el
-			// classpath
 			System.err.println("No se pudo encontrar el recurso de imagen en el classpath: " + ruta);
-			System.err.println("Asegúrate de que la carpeta 'resources' esté en el Build Path y la ruta '" + ruta
-					+ "' sea correcta.");
-
 		}
-
-		// --- Crear un icono placeholder simple en caso de error ---
-		BufferedImage placeholder = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g2d = placeholder.createGraphics();
-		try {
-			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			g2d.setColor(Color.LIGHT_GRAY);
-			g2d.fillRect(0, 0, width, height);
-			g2d.setColor(Color.DARK_GRAY);
-			g2d.drawRect(0, 0, width - 1, height - 1); // Borde
-			g2d.setColor(Color.RED);
-			g2d.setStroke(new BasicStroke(1)); // Línea más fina para icono pequeño
-			// Dibujar una '?' simple
-			g2d.setFont(new Font("SansSerif", Font.BOLD, Math.min(width, height) * 3 / 4));
-			g2d.drawString("?", width / 4, height * 3 / 4);
-			// g2d.drawLine(width / 4, height / 4, 3 * width / 4, 3 * height / 4); // X
-			// anterior
-			// g2d.drawLine(width / 4, 3 * height / 4, 3 * width / 4, height / 4);
-		} finally {
-			g2d.dispose();
-		}
-		return new ImageIcon(placeholder);
+		// Si algo falla, devolver placeholder
+		return crearPlaceholderIcon(width, height);
 	}
 
+	// Sobrecarga del método para compatibilidad (por defecto no hace transparente)
+	private ImageIcon cargarImagen(String ruta, int width, int height) {
+		return cargarImagen(ruta, width, height, false);
+	}
+
+	// --- Método crearPlaceholderIcon (sin cambios) ---
+	private ImageIcon crearPlaceholderIcon(int width, int height) {
+        BufferedImage placeholder = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = placeholder.createGraphics();
+        try {
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setColor(Color.LIGHT_GRAY);
+            g2d.fillRect(0, 0, width, height);
+            g2d.setColor(Color.DARK_GRAY);
+            g2d.drawRect(0, 0, width - 1, height - 1);
+            g2d.setColor(Color.RED);
+            g2d.setStroke(new BasicStroke(1));
+            int fontSize = Math.min(width, height) / 2;
+            g2d.setFont(new Font("SansSerif", Font.BOLD, Math.max(8, fontSize)));
+            java.awt.FontMetrics fm = g2d.getFontMetrics();
+            String txt = "?";
+            int stringWidth = fm.stringWidth(txt);
+            int ascent = fm.getAscent();
+            int descent = fm.getDescent();
+            g2d.drawString(txt, (width - stringWidth) / 2, (height - (ascent + descent)) / 2 + ascent);
+        } finally {
+            g2d.dispose();
+        }
+        return new ImageIcon(placeholder);
+    }
+
+	/* // --- Método main (opcional, para probar) ---
+	public static void main(String[] args) {
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				} catch (Exception e) {
+                    System.err.println("No se pudo establecer el LookAndFeel del sistema.");
+                }
+				new VistaLogIn().setVisible(true);
+			}
+		});
+	}
+    */
 }
