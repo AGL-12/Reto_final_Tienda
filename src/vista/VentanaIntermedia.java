@@ -171,7 +171,7 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
         // Estilo del botón
         btn.setBackground(COLOR_BOTON_ADMIN);
         btn.setForeground(COLOR_TEXTO_BOTON_ADMIN);
-        btn.setOpaque(true); // Necesario para que el fondo se vea
+        btn.setOpaque(true); // Necesario para que eladmi fondo se vea
         btn.setContentAreaFilled(true); // Para L&F modernos
         btn.setBorderPainted(false);
         btn.setFocusPainted(false);
