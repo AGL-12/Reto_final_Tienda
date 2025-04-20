@@ -58,7 +58,7 @@ public class AdminConfigUsuario extends JDialog implements ActionListener {
 		tableListaUsuarios = new JTable();
 
 		btnSeleccionarUsuario = new JButton("SELECT USER");
-		btnSeleccionarUsuario.setBounds(124, 209, 148, 33);
+		btnSeleccionarUsuario.setBounds(135, 235, 148, 33);
 		getContentPane().add(btnSeleccionarUsuario);
 		btnSeleccionarUsuario.addActionListener(this);
 
