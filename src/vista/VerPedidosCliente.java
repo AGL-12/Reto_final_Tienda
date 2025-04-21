@@ -57,7 +57,7 @@ public class VerPedidosCliente extends JDialog {
     private JTabbedPane tabbedPane;
     private BufferedImage backgroundImage;
 
-    // --- Constantes de Estilo (Igual que antes) ---
+    // Constantes que usaremos para el estilo
     private static final Font FONT_TABLA_HEADER = new Font("Segoe UI", Font.BOLD, 12);
     private static final Font FONT_TABLA_CELDA = new Font("Segoe UI", Font.PLAIN, 12);
     private static final int PADDING_TABLA_CELDA_V = 5;
@@ -67,7 +67,7 @@ public class VerPedidosCliente extends JDialog {
     private static final Color COLOR_CELDA_FONDO = new Color(245, 245, 220, 180);
     private static final Color COLOR_SELECCION_FUENTE = Color.blue;
 
-    // --- Constantes para la Cabecera (Igual que antes) ---
+    // Constantes que usaremos para la cabecera
     private static final Color HEADER_BACKGROUND = new Color(210, 180, 140);
     private static final Color HEADER_FOREGROUND = new Color(101, 67, 33);
     private static final Color HEADER_BORDER_COLOR = new Color(139, 69, 19);
@@ -75,7 +75,7 @@ public class VerPedidosCliente extends JDialog {
     private static final int HEADER_VPADDING = PADDING_TABLA_CELDA_V / 2;
     private static final int HEADER_HPADDING = PADDING_TABLA_CELDA_H;
 
-    // --- Nuevas Constantes/Variables para Pestañas ---
+    // Para las pestañas
     private static final Font FONT_PESTANA_TITULO = new Font("Segoe UI", Font.PLAIN, 12); // Fuente para el título de la pestaña
     private static final Color COLOR_BOTON_CERRAR_HOVER = new Color(255, 99, 71, 200); // Rojo tomate semi-transparente para hover
     private static final Color COLOR_BOTON_CERRAR_NORMAL = new Color(160, 160, 160); // Gris para la 'x'
@@ -87,51 +87,44 @@ public class VerPedidosCliente extends JDialog {
         super(padre, "Pedidos de " + (clien != null ? clien.getUsuario() : "Cliente Desconocido"), true);
         ((JPanel) getContentPane()).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         setLayout(new BorderLayout());
-        setPreferredSize(new Dimension(700, 500)); // Un poco más grande por defecto
+        setPreferredSize(new Dimension(700, 500)); 
         
         try {
-            // *** CAMBIA "ruta/a/tu/imagen.jpg" a la ruta real de tu imagen ***
             backgroundImage = ImageIO.read(getClass().getResource("/imagenes/fondoMadera.jpg"));
         } catch (IOException e) {
-            System.err.println("Error al cargar la imagen de fondo: " + e.getMessage());
-            // Puedes establecer un color de fondo alternativo si la imagen no carga
+            e.getMessage();
             getContentPane().setBackground(new Color(240, 240, 240));
         }
 
-        // *** Usar un JPanel con pintura personalizada como ContentPane ***
+        //Cambiamos el color al panel
         setContentPane(new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 if (backgroundImage != null) {
-                    // Dibujar la imagen de fondo para que cubra todo el panel
                     g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
                 }
             }
         });
 
-        // --- TabbedPane ---
-        // Podríamos configurar aquí propiedades si no usamos LaF, pero es mejor usar UIManager
         tabbedPane = new JTabbedPane();
-        // tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT); // Útil si hay muchas pestañas
-
         add(tabbedPane, BorderLayout.CENTER);
 
-        // --- Panel y Tabla de Pedidos ---
+        // Panel y la tabla de pedidos
         JPanel panelPedidos = new JPanel(new BorderLayout());
         panelPedidos.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         panelPedidos.setOpaque(false);
 
-        // --- Modelo Tabla Pedidos --- (Sin cambios)
+        // Modelo de la tabla de los pedidos
         modelPedidos = new DefaultTableModel() {
             private static final long serialVersionUID = 1L;
              @Override public boolean isCellEditable(int r, int c){ return false; }
              @Override
-             public Class<?> getColumnClass(int i) { /* ... sin cambios ... */
+             public Class<?> getColumnClass(int i) {
                 switch (i) {
                     case 0: return Integer.class;
                     case 1: return String.class;
-                    case 2: return Object.class; // O Date.class si es Date
+                    case 2: return Object.class; 
                     default: return Object.class;
                 }
             }
@@ -140,8 +133,8 @@ public class VerPedidosCliente extends JDialog {
         modelPedidos.addColumn("Precio Total (€)");
         modelPedidos.addColumn("Fecha de Compra");
 
-        // --- Carga Datos Pedidos --- (Sin cambios)
-        if (clien != null) { /* ... sin cambios ... */
+        // Carga datos de los pedidos
+        if (clien != null) { 
              List<Pedido> pedidos = Principal.obtenerPedidosCliente(clien.getId_usu());
              if (pedidos != null && !pedidos.isEmpty()) {
                  for (Pedido ped : pedidos) {
@@ -152,8 +145,8 @@ public class VerPedidosCliente extends JDialog {
         } else { modelPedidos.addRow(new Object[]{null, "Cliente no válido", null}); }
 
 
-        // --- Creación Tabla Pedidos con ESTILO VISTACARRITO --- (Sin cambios)
-        tablePedidos = new JTable(modelPedidos) { /* ... prepareRenderer sin cambios ... */
+        // Crear la tabla
+        tablePedidos = new JTable(modelPedidos) {
              private static final long serialVersionUID = 1L;
             @Override
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
@@ -171,14 +164,14 @@ public class VerPedidosCliente extends JDialog {
                 } return c;
             }
         };
-        // --- Aplicar Estilos Generales de Tabla --- (Sin cambios)
+        //Aplicar estilos generales
         tablePedidos.setFont(FONT_TABLA_CELDA);
         tablePedidos.setRowHeight(tablePedidos.getRowHeight() + 10);
         tablePedidos.setShowGrid(false); tablePedidos.setShowHorizontalLines(true); tablePedidos.setShowVerticalLines(false);
         tablePedidos.setIntercellSpacing(new Dimension(0, 1));
         tablePedidos.setAutoCreateRowSorter(true); tablePedidos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tablePedidos.setOpaque(false); tablePedidos.setFillsViewportHeight(true);
-        // --- Estilo Cabecera --- (Sin cambios)
+        // Estilo de cabecera
         applyCustomHeaderRenderer(tablePedidos);
         // --- ScrollPane --- (Sin cambios)
         JScrollPane scrollPane = new JScrollPane(tablePedidos);
@@ -186,8 +179,7 @@ public class VerPedidosCliente extends JDialog {
         scrollPane.getViewport().setBackground(COLOR_FONDO_VIEWPORT);
         scrollPane.setBorder(BorderFactory.createLineBorder(COLOR_BORDE_SCROLLPANE, 2));
         panelPedidos.add(scrollPane, BorderLayout.CENTER);
-        // --- Listener Doble Click --- (Sin cambios)
-        tablePedidos.addMouseListener(new MouseAdapter() { /* ... sin cambios ... */
+        tablePedidos.addMouseListener(new MouseAdapter() {
              @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
@@ -218,13 +210,9 @@ public class VerPedidosCliente extends JDialog {
             }
         });
 
-        // --- Añadir Pestaña Pedidos ---
-        tabbedPane.addTab("Mis Pedidos", panelPedidos); // Título Pestaña Inicial
-
-        // --- Ajustar anchos --- (Sin cambios)
+        // Para la pestaña de los pedidos
+        tabbedPane.addTab("Mis Pedidos", panelPedidos); 
         adjustColumnWidths(tablePedidos);
-
-        // --- Configuración Final Diálogo ---
         pack();
         setLocationRelativeTo(padre);
     }
@@ -238,7 +226,7 @@ public class VerPedidosCliente extends JDialog {
         panelArticulos.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         panelArticulos.setOpaque(false);
 
-        // --- Modelo Tabla Detalles --- (Sin cambios)
+        // Modelo de la tabla
         DefaultTableModel modelDetalle = new DefaultTableModel(){ /* ... sin cambios ... */
             private static final long serialVersionUID = 1L;
             @Override public boolean isCellEditable(int r, int c){ return false; }
@@ -254,7 +242,7 @@ public class VerPedidosCliente extends JDialog {
         modelDetalle.addColumn("P. Unit. (€)"); modelDetalle.addColumn("Dto. (%)");
         modelDetalle.addColumn("P. Total (€)");
 
-        // --- Carga Datos Artículos --- (Sin cambios)
+        // Carga datos artilos
         List<Articulo> articulos = Principal.obtenerArticulosPorPedido(idPedido);
         if (articulos != null && !articulos.isEmpty()) { /* ... sin cambios ... */
              for (Articulo art : articulos) {
@@ -269,8 +257,8 @@ public class VerPedidosCliente extends JDialog {
             }
         } else { modelDetalle.addRow(new Object[]{"No hay artículos", null, null, null, null}); }
 
-        // --- Creación Tabla Detalles con ESTILO VISTACARRITO --- (Sin cambios)
-        JTable tableDetalle = new JTable(modelDetalle) { /* ... prepareRenderer sin cambios ... */
+        // Tabla para los detalles
+        JTable tableDetalle = new JTable(modelDetalle) { 
              private static final long serialVersionUID = 1L;
              @Override
              public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
@@ -287,64 +275,62 @@ public class VerPedidosCliente extends JDialog {
                  } return c;
              }
         };
-        // --- Aplicar Estilos Generales de Tabla --- (Sin cambios)
+        // --- Aplicar Estilos Generales de Tabla
         tableDetalle.setFont(FONT_TABLA_CELDA); tableDetalle.setRowHeight(tableDetalle.getRowHeight() + 10);
         tableDetalle.setShowGrid(false); tableDetalle.setShowHorizontalLines(true); tableDetalle.setShowVerticalLines(false);
         tableDetalle.setIntercellSpacing(new Dimension(0, 1)); tableDetalle.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tableDetalle.setOpaque(false); tableDetalle.setFillsViewportHeight(true);
-        // --- Estilo Cabecera --- (Sin cambios)
+        // --- Estilo Cabecera
         applyCustomHeaderRenderer(tableDetalle);
-        // --- ScrollPane --- (Sin cambios)
         JScrollPane scrollPaneDetalle = new JScrollPane(tableDetalle);
         scrollPaneDetalle.setOpaque(true); scrollPaneDetalle.getViewport().setOpaque(true);
         scrollPaneDetalle.getViewport().setBackground(COLOR_FONDO_VIEWPORT);
         scrollPaneDetalle.setBorder(BorderFactory.createLineBorder(COLOR_BORDE_SCROLLPANE, 2));
         panelArticulos.add(scrollPaneDetalle, BorderLayout.CENTER);
 
-        // --- Añadir Pestaña con Cabecera Personalizada ---
+        //Añadir la pestaña con la cabecera que hemos definido antes
         String tituloPestana = "Pedido " + idPedido;
-        tabbedPane.addTab(null, panelArticulos); // Añadir sin título inicial, se pondrá en el componente
+        tabbedPane.addTab(null, panelArticulos);
         int index = tabbedPane.indexOfComponent(panelArticulos);
 
         // *** Crear Componente de Pestaña MEJORADO ***
-        JPanel tabComponent = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0)); // Espaciado horizontal 5px
-        tabComponent.setOpaque(false); // Muy importante para integrarse con el LaF
+        JPanel tabComponent = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        tabComponent.setOpaque(false); 
 
         JLabel titleLabel = new JLabel(tituloPestana);
-        titleLabel.setFont(FONT_PESTANA_TITULO); // Usar fuente definida
-        // El LaF debería manejar el color del texto (seleccionado/no seleccionado)
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5)); // Espacio entre título y botón
+        titleLabel.setFont(FONT_PESTANA_TITULO);
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5)); 
 
-        // *** Botón de Cierre MEJORADO ***
-        JButton closeButton = new JButton("X"); // Una 'X' simple pero en mayúscula
-        closeButton.setFont(new Font("Arial", Font.BOLD, 11)); // Un poco más pequeña y negrita
-        closeButton.setForeground(COLOR_BOTON_CERRAR_NORMAL); // Color gris por defecto
-        closeButton.setMargin(new Insets(1, 1, 1, 1)); // Margen interno mínimo para que no sea tan apretado
-        closeButton.setPreferredSize(new Dimension(18, 18)); // Ligeramente más grande
-        closeButton.setToolTipText("Cerrar Pestaña (Pedido " + idPedido + ")"); // Tooltip más específico
+        // Boton de cierre con mejoras
+        JButton closeButton = new JButton("X"); 
+        closeButton.setFont(new Font("Arial", Font.BOLD, 11)); 
+        closeButton.setForeground(COLOR_BOTON_CERRAR_NORMAL);
+        closeButton.setMargin(new Insets(1, 1, 1, 1)); 
+        closeButton.setPreferredSize(new Dimension(18, 18));
+        closeButton.setToolTipText("Cerrar Pestaña (Pedido " + idPedido + ")"); 
         closeButton.setVerticalAlignment(SwingConstants.CENTER);
-        closeButton.setContentAreaFilled(false); // Sin fondo por defecto
-        closeButton.setBorderPainted(false); // Sin borde por defecto
-        closeButton.setFocusPainted(false); // Sin el recuadro de foco
+        closeButton.setContentAreaFilled(false);
+        closeButton.setBorderPainted(false); 
+        closeButton.setFocusPainted(false); 
         closeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         closeButton.setOpaque(false);
 
-        // --- Efecto Hover Mejorado para el Botón ---
+        //Para el efecto Hover
         closeButton.addMouseListener(new MouseAdapter() {
             @Override public void mouseEntered(MouseEvent e) {
-                closeButton.setContentAreaFilled(true); // Mostrar fondo al pasar por encima
+                closeButton.setContentAreaFilled(true); 
                 closeButton.setOpaque(true);
-                closeButton.setBackground(COLOR_BOTON_CERRAR_HOVER); // Usar color hover definido
-                closeButton.setForeground(Color.WHITE); // Texto blanco sobre fondo rojo
+                closeButton.setBackground(COLOR_BOTON_CERRAR_HOVER);
+                closeButton.setForeground(Color.WHITE); 
             }
             @Override public void mouseExited(MouseEvent e) {
-                closeButton.setContentAreaFilled(false); // Ocultar fondo al salir
+                closeButton.setContentAreaFilled(false); 
                 closeButton.setOpaque(false);
-                closeButton.setForeground(COLOR_BOTON_CERRAR_NORMAL); // Restaurar color de texto gris
+                closeButton.setForeground(COLOR_BOTON_CERRAR_NORMAL); 
             }
         });
 
-        // --- Acción de Cierre (igual) ---
+        // Para provocar el cierre
         closeButton.addActionListener(e -> {
             int tabIndex = tabbedPane.indexOfTabComponent(tabComponent);
             if (tabIndex != -1) {
@@ -352,26 +338,17 @@ public class VerPedidosCliente extends JDialog {
             }
         });
 
-        // --- Añadir componentes al panel de la pestaña ---
         tabComponent.add(titleLabel);
         tabComponent.add(closeButton);
-
-        // Establecer este panel como el componente de la pestaña
-        // Esto sobreescribe cualquier título puesto con addTab(titulo, componente)
         tabbedPane.setTabComponentAt(index, tabComponent);
-        // Opcional: Poner un tooltip a la pestaña entera
         tabbedPane.setToolTipTextAt(index, "Ver detalles del Pedido " + idPedido);
-
-        // --- Ajustar anchos --- (Sin cambios)
         adjustColumnWidths(tableDetalle);
-
-        // --- Seleccionar la nueva pestaña ---
         tabbedPane.setSelectedComponent(panelArticulos);
     }
 
 
-    // --- MÉTODO HELPER para aplicar el Renderer de Cabecera --- (Sin cambios)
-    private void applyCustomHeaderRenderer(JTable table) { /* ... sin cambios ... */
+    // Metodo helper
+    private void applyCustomHeaderRenderer(JTable table) { 
         JTableHeader header = table.getTableHeader();
         header.setReorderingAllowed(false); header.setResizingAllowed(true);
         header.setDefaultRenderer(new TableCellRenderer() {
@@ -393,8 +370,8 @@ public class VerPedidosCliente extends JDialog {
         header.repaint();
     }
 
-    // --- adjustColumnWidths --- (Sin cambios)
-    private void adjustColumnWidths(JTable table) { /* ... sin cambios ... */
+    //Ajustar el ancho de las columnas
+    private void adjustColumnWidths(JTable table) { 
          SwingUtilities.invokeLater(() -> {
             TableColumnModel columnModel = table.getColumnModel();
             final int PADDING = 15;

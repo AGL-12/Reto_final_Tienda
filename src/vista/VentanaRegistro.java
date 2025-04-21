@@ -25,18 +25,6 @@ public class VentanaRegistro extends JDialog {
 	private JPasswordField passwordField;
 	private JTextField textCuentaBancaria;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		try {
-			VentanaRegistro dialog = new VentanaRegistro();
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 
 	/**
 	 * Create the dialog.

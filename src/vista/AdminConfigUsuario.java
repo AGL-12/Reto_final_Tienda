@@ -80,7 +80,7 @@ public class AdminConfigUsuario extends JDialog implements ActionListener {
 			}
 		};
 
-		// Definir las columnas de la tabla
+		// Definimos las columnas que habra en la tabla
 		model.addColumn("Seleccionar");
 		model.addColumn("id_clien");
 		model.addColumn("usuario");
@@ -103,26 +103,23 @@ public class AdminConfigUsuario extends JDialog implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-
-		// Verificar si el botón "SELECT USER" fue presionado
+		Cliente usuarioSeleccionado = null;
+		boolean usuarioEncontrado = false;
 		if (e.getSource().equals(btnSeleccionarUsuario)) {
-			// Iterar sobre todas las filas para encontrar cuál tiene el checkbox marcado
+
 			for (int row = 0; row < model.getRowCount(); row++) {
-				boolean isSelected = (boolean) model.getValueAt(row, 0); // Obtenemos el valor del checkbox
+				boolean isSelected = (boolean) model.getValueAt(row, 0);
 
-				if (isSelected) {
-					// Si el checkbox está marcado, obtener los datos de esa fila
+				if (isSelected && !usuarioEncontrado) {
 					int idCliente = (int) model.getValueAt(row, 1);
-					localClien = listaClienteTod.get(idCliente);
-
-					if (localClien != null) {
-						VistaUsuario vista = new VistaUsuario(localClien, this);
-						vista.setVisible(true);
-					}
-					//TODO
-					break;
+					usuarioSeleccionado = listaClienteTod.get(idCliente);
+					usuarioEncontrado = true;
 				}
+			}
 
+			if (usuarioSeleccionado != null) {
+				VistaUsuario vista = new VistaUsuario(usuarioSeleccionado, this);
+				vista.setVisible(true);
 			}
 		}
 	}

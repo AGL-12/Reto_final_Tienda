@@ -34,36 +34,31 @@ public class AdminListaCliente extends JDialog implements ActionListener {
 
 			@Override
 			public boolean isCellEditable(int row, int column) {
-				return column == 0; // Solo la primera columna (checkbox) es editable
+				return column == 0; // Hacemos que solo la columna del checkbox sea editable
 			}
 
 			@Override
 			public Class<?> getColumnClass(int columnIndex) {
-				return columnIndex == 0 ? Boolean.class : String.class; // CheckBox en la primera columna
+				return columnIndex == 0 ? Boolean.class : String.class; // Codigo para checkbox
 			}
 		};
-		// Definir las columnas de la tabla
+		// Ponemos las columnas que tendra la tabla
 		model.addColumn("Seleccionar");
 		model.addColumn("id_clien");
 		model.addColumn("usuario");
-//		model.addColumn("contra");
 		model.addColumn("dni");
 		model.addColumn("correo");
 		model.addColumn("direccion");
-//		model.addColumn("metodo_pago");
-//		model.addColumn("num_cuenta");
-//		model.addColumn("esAdmin");
 		model.addColumn("Total de compras");
 		// Llamamos al DAO para obtener los vehículos del propietario
 		Map<Integer, Cliente> listaClienteTod = Principal.listarCliente();
 
-		// Agregar los datos de los vehículos al modelo de la tabla
+		// Agregar los datos de los vehículos a la tabla
 		for (Cliente cliens : listaClienteTod.values()) {
 			model.addRow(new Object[] { false, cliens.getId_usu(), cliens.getUsuario(), cliens.getDni(),
 					cliens.getCorreo(), cliens.getDireccion(), cliens.getListaCompra().size() });
 
 		}
-		// Establecer el modelo de la tabla con los datos
 		tableClientes = new JTable(model);
 		tableClientes.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
@@ -85,7 +80,7 @@ public class AdminListaCliente extends JDialog implements ActionListener {
 		}
 	}
 
-	// Método para mostrar las filas seleccionadas
+	// El metodo que mostrara las filas seleccionadas
 	private void mostrarFilasSeleccionadas() {
 		Set<Integer> filasSeleccionadas = new HashSet<>();
 
@@ -96,6 +91,5 @@ public class AdminListaCliente extends JDialog implements ActionListener {
 			}
 		}
 
-		
 	}
 }
