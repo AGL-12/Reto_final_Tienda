@@ -1,7 +1,6 @@
 package vista;
 
 import javax.swing.JDialog;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
@@ -10,13 +9,11 @@ import modelo.Cliente;
 
 import javax.swing.JTable;
 import javax.swing.JButton;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Map;
-import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
@@ -27,8 +24,6 @@ public class AdminConfigUsuario extends JDialog implements ActionListener {
 	private DefaultTableModel model;
 	private JTable tableListaUsuarios;
 	JButton btnSeleccionarUsuario;
-	private Cliente localClien;
-	private Map<Integer, Cliente> listaClientes;
 	private Map<Integer, Cliente> listaClienteTod;
 
 	/**
@@ -48,8 +43,10 @@ public class AdminConfigUsuario extends JDialog implements ActionListener {
 			}
 
 		});
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 450, 315);
 		getContentPane().setLayout(null);
+		setResizable(false);
+		setLocationRelativeTo(ventanaIntermedia);
 
 		JLabel lblTitulo = new JLabel("SELECT USER");
 		lblTitulo.setBounds(134, 10, 115, 25);

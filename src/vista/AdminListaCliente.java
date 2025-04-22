@@ -28,6 +28,7 @@ public class AdminListaCliente extends JDialog implements ActionListener {
 		setBounds(100, 100, 450, 350);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		getContentPane().setLayout(null);
+		setLocationRelativeTo(ventanaIntermedia);
 
 		model = new DefaultTableModel() {
 			private static final long serialVersionUID = 1L;

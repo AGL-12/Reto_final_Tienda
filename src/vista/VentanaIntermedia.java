@@ -2,7 +2,6 @@ package vista;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -232,7 +231,9 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 	 */
 	public void abrirOpcion(JDialog abrirOpc) {
 		if (abrirOpc != null) {
+			this.setVisible(false);
 			abrirOpc.setVisible(true);
+			this.setVisible(true);
 		}
 	}
 
@@ -246,10 +247,7 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		} else if (source == btnConfigUsuario) {
 			ventanaAAbrir = new AdminConfigUsuario(this);
 		}
-
-		if (ventanaAAbrir != null) {
-			abrirOpcion(ventanaAAbrir);
-		}
+		abrirOpcion(ventanaAAbrir);
 	}
 
 	// Metodo para hacer el icono transparente
@@ -312,30 +310,6 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		ImageProducer ip = new FilteredImageSource(image.getSource(), filter);
 		Image transparentImage = Toolkit.getDefaultToolkit().createImage(ip);
 		return new ImageIcon(transparentImage);
-	}
-
-	private static class AdminConfigArticulos extends JDialog {
-		private static final long serialVersionUID = 1L;
-
-		public AdminConfigArticulos(Dialog owner) {
-			super(owner, "Configurar Artículos", true);
-			setSize(400, 300);
-			setLocationRelativeTo(owner);
-			add(new JLabel("Ventana de Configuración de Artículos (Placeholder)"));
-			setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		}
-	}
-
-	private static class AdminConfigUsuario extends JDialog {
-		private static final long serialVersionUID = 1L;
-
-		public AdminConfigUsuario(Dialog owner) {
-			super(owner, "Configurar Usuarios", true);
-			setSize(400, 300);
-			setLocationRelativeTo(owner);
-			add(new JLabel("Ventana de Configuración de Usuarios (Placeholder)"));
-			setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		}
 	}
 
 }

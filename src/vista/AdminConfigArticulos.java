@@ -50,6 +50,7 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		super(VentanaIntermedia, "Bienvenido", true);
 		this.setModal(true);
 		setBounds(100, 100, 450, 350);
+		setLocationRelativeTo(VentanaIntermedia);
 		getContentPane().setLayout(null);
 
 		lblNombre = new JLabel("Name");

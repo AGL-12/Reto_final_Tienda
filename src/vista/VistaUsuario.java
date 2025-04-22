@@ -34,6 +34,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	private JButton btnRegistrarse, btnModificar, btnDrop, btnMostrarPedidos;
 	private JLabel lblTitulo;
 	private JCheckBox checkVerPass;
+	private Window padre;
 
 	// --- Datos ---
 	private Cliente localClien; // El cliente actual (null si es registro)
@@ -53,10 +54,11 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	 * @param ventPadre La ventana padre (JFrame o JDialog).
 	 */
 	public VistaUsuario(Cliente clien, Window ventPadre) { // Acepta Window (JFrame o JDialog)
-		super(ventPadre, clien == null ? "Registro de Usuario" : "Mis Datos", ModalityType.APPLICATION_MODAL); // Título
-																												// modal
+		super(ventPadre, clien == null ? "Sing up" : "My Account", ModalityType.APPLICATION_MODAL); // Título
 		this.localClien = clien;
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setResizable(false);
+		padre = ventPadre;
 
 		initComponents(); // Inicializa y organiza los componentes
 		configureView(); // Carga datos si es modificación, ajusta botones
@@ -75,7 +77,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		setContentPane(mainPanel); // Establece este como el panel principal del JDialog
 
 		// --- Título (NORTH) ---
-		lblTitulo = new JLabel(localClien == null ? "NUEVO USUARIO" : "DATOS DEL USUARIO", JLabel.CENTER);
+		lblTitulo = new JLabel(localClien == null ? "NEW USER" : "USER INFO", JLabel.CENTER);
 		lblTitulo.setFont(FONT_TITULO);
 		// lblTitulo.setIcon(cargarIcono("/iconos/usuario_titulo.png")); // Icono
 		// opcional para el título
@@ -97,7 +99,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 
 		// --- Campos del Formulario ---
 		// Usuario
-		JLabel lblUsuario = new JLabel("Usuario:");
+		JLabel lblUsuario = new JLabel("User:");
 		lblUsuario.setFont(FONT_LABEL);
 		formPanel.add(lblUsuario, "cell 0 0");
 		textUser = new JTextField();
@@ -105,7 +107,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		formPanel.add(textUser, "cell 1 0"); // wrap: ir a nueva línea, unrel: espacio vertical
 
 		// Contraseña
-		JLabel lblPassword = new JLabel("Contraseña:");
+		JLabel lblPassword = new JLabel("Password:");
 		lblPassword.setFont(FONT_LABEL);
 		formPanel.add(lblPassword, "cell 0 1");
 		passwordFieldContra = new JPasswordField();
@@ -129,7 +131,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		formPanel.add(textEmail, "cell 1 3");
 
 		// Dirección
-		JLabel lblDireccion = new JLabel("Dirección:");
+		JLabel lblDireccion = new JLabel("Direction:");
 		lblDireccion.setFont(FONT_LABEL);
 		formPanel.add(lblDireccion, "cell 0 4");
 		textDireccion = new JTextField();
@@ -184,7 +186,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		// horizontalmente
 
 		// Número de Cuenta/Tarjeta
-		JLabel lblNumeroCuenta = new JLabel("Nº Tarjeta/Cuenta:");
+		JLabel lblNumeroCuenta = new JLabel("Card/Account Number");
 		lblNumeroCuenta.setFont(FONT_LABEL);
 		formPanel.add(lblNumeroCuenta, "cell 0 6");
 		textNumeroCuenta = new JTextField();
@@ -217,13 +219,13 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		btnRegistrarse.addActionListener(this);
 		actionButtonPanel.add(btnRegistrarse);
 
-		btnModificar = new JButton("Guardar Cambios");
+		btnModificar = new JButton("Save Changes");
 		btnModificar.setFont(FONT_BOTON);
 		btnModificar.setIcon(cargarIcono("/iconos/save.png")); // Placeholder
 		btnModificar.addActionListener(this);
 		actionButtonPanel.add(btnModificar);
 
-		btnDrop = new JButton("Dar de Baja");
+		btnDrop = new JButton("Delete Account");
 		btnDrop.setFont(FONT_BOTON);
 		btnDrop.setIcon(cargarIcono("/iconos/delete.png")); // Placeholder
 		// Estilo "peligroso" (si usas FlatLaf, puedes añadir propiedades)
@@ -235,7 +237,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		buttonPanel.add(actionButtonPanel, "cell 0 0"); // Añadir al primer grupo de columnas (izquierda)
 
 		// Botón Mostrar Pedidos - A la derecha
-		btnMostrarPedidos = new JButton("Mis Pedidos");
+		btnMostrarPedidos = new JButton("My Orders");
 		btnMostrarPedidos.setFont(FONT_BOTON);
 		btnMostrarPedidos.setIcon(cargarIcono("/iconos/orders.png")); // Placeholder
 		btnMostrarPedidos.addActionListener(this);
@@ -339,6 +341,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		try {
 			Principal.altaCliente(nuevoCliente);
 			JOptionPane.showMessageDialog(this, "Cliente creado exitosamente.");
+			this.dispose();
 		} catch (AltaError e) {
 			e.visualizarMen();
 		}
@@ -397,9 +400,6 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	 * actual.
 	 */
 	private void baja() {
-		if (localClien == null)
-			return;
-
 		int respuesta = JOptionPane.showConfirmDialog(this,
 				"¿Estás seguro de que quieres eliminar tu cuenta?\n¡Esta acción no se puede deshacer!",
 				"Confirmar Baja de Usuario", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE); // Mensaje de
@@ -414,7 +414,10 @@ public class VistaUsuario extends JDialog implements ActionListener {
 				// - Cerrar esta ventana: dispose();
 				// - ¿Quizás cerrar sesión y volver al login? (Necesitaría comunicación con la
 				// ventana principal)
-				dispose(); // Cierra la ventana actual
+				localClien = null;
+				padre.dispose();
+				this.dispose();
+				// Cierra la ventana actual
 			} catch (DropError e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(this, "Error al eliminar el usuario:\n" + e.getMessage(), "Error de Baja",
@@ -483,42 +486,44 @@ public class VistaUsuario extends JDialog implements ActionListener {
 
 		// Validación de Usuario
 		if (textUser.getText().trim().isEmpty()) {
-			errores += "- El nombre de usuario no puede estar vacío.\n";
+			errores += "- Username cannot be empty.\\n";
 		}
 
 		// Validación de Contraseña
 		String password = String.valueOf(passwordFieldContra.getPassword());
 		if (!modificarModo && password.isEmpty()) {
-			errores += "- La contraseña no puede estar vacía.\n";
+			errores += "- Password cannot be empty.\n";
 		} else if (password.length() < 6) {
-			errores += "- La contraseña debe tener al menos 6 caracteres.\n";
+		    errores += "- Password must be at least 6 characters long.\n";
 		} else if (!password.matches(".*[a-zA-Z].*") || !password.matches(".*[0-9].*")) {
-			errores += "- La contraseña debe contener al menos una letra y un número.\n";
+		    errores += "- Password must contain at least one letter and one number.\n";
 		}
 
 		// Validación de DNI/NIE
 		String dni = textDni.getText().trim();
 		if (dni.isEmpty()) {
-			errores += "- El DNI/NIE no puede estar vacío.\n";
+			errores += "- DNI/NIE cannot be empty.\n";
 		} else {
-			// Validación de formato de DNI
-			Pattern dniPattern = Pattern.compile("^\\d{8}[A-Za-z]$");
-			Matcher matcher = dniPattern.matcher(dni.replaceAll("-", ""));
-			if (!matcher.matches()) {
-				errores += "- El DNI/NIE no es válido. Debe tener 8 dígitos seguidos de una letra.\n";
+		    // DNI format validation
+		    Pattern dniPattern = Pattern.compile("^\\d{8}[A-Za-z]$");
+		    Matcher matcher = dniPattern.matcher(dni.replaceAll("-", ""));
+		    if (!matcher.matches()) {
+		        errores += "- Invalid DNI/NIE. It must be 8 digits followed by a letter.\n";
 			}
 		}
 
-		// Validación de Email
+		// Email validation
 		String email = textEmail.getText().trim();
 		if (email.isEmpty() || !email.contains("@")
-				|| !email.matches("^[\\w._%+-]+@[A-Za-z0-9.-]+\\.(com|es|org|net|edu|gov|info|io)$")) {
-			errores += "- Introduce un email válido (como ejemplo: nombre@gmail.com).\n";
+		        || !email.matches("^[\\w._%+-]+@[A-Za-z0-9.-]+\\.(com|es|org|net|edu|gov|info|io)$")) {
+		    errores += "- Please enter a valid email (e.g., name@gmail.com).\n";
 		}
 
-		// Validación de Número de Cuenta
-		if (textNumeroCuenta.getText().length() != 16) {
-			errores += "- El número de tarjeta/cuenta tiene 16 digitos.\n";
+		// Validación de Número de Cuenta solo si es Visa o Mastercard
+		if (rdbtnVisa.isSelected() || rdbtnMastercard.isSelected() || rdbtnPaypal.isSelected()) {
+		    if (textNumeroCuenta.getText().length() != 16) {
+		        errores += "- The card/account number must be 16 digits.\n";
+		    }
 		}
 
 		// Mostrar errores si los hay

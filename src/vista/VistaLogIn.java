@@ -72,7 +72,6 @@ public class VistaLogIn extends JFrame implements ActionListener {
 	private static final Color COLOR_BOTON_SECUNDARIO = COLOR_PANEL;
 	private static final Color COLOR_BOTON_SECUNDARIO_HOVER = new Color(230, 230, 215);
 	private static final Color COLOR_BORDE_TEXTO_SECUNDARIO = COLOR_BOTON_PRIMARIO;
-	private static final Color COLOR_TITULO = new Color(80, 40, 0);
 
 	private static final Font FUENTE_GENERAL = new Font("Segoe UI", Font.PLAIN, 14);
 	private static final Font FUENTE_BOTON = new Font("Segoe UI", Font.BOLD, 14);
@@ -110,9 +109,10 @@ public class VistaLogIn extends JFrame implements ActionListener {
 			e.getMessage();
 			backgroundImage = null;
 		}
-		setTitle("Iniciar Sesión");
+		setTitle("Welcome to DYE TOOLS");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
+		
 
 		// ContentPane con el fondo asignado
 		contentPane = new JPanel(new BorderLayout(20, 20)) {
@@ -162,11 +162,11 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		txtContra.setFont(FUENTE_GENERAL);
 		txtContra.setColumns(15);
 
-		btnLogIn = new JButton("Ingresar");
+		btnLogIn = new JButton("Log In");
 		configurarBotonPrimario(btnLogIn);
 		btnLogIn.addActionListener(this);
 
-		btnSignIn = new JButton("Registrarte");
+		btnSignIn = new JButton("SIgn up");
 		configurarBotonSecundario(btnSignIn);
 		btnSignIn.addActionListener(this);
 
@@ -281,8 +281,6 @@ public class VistaLogIn extends JFrame implements ActionListener {
 
 		try {
 			Cliente clienteLogueado = Principal.login(clien);
-			System.out.println("Login exitoso para: " + clienteLogueado.getUsuario());
-			this.setVisible(false);
 			VistaTienda tienda = new VistaTienda(clienteLogueado, this);
 			tienda.setVisible(true);
 			this.dispose();
@@ -319,6 +317,7 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		this.setVisible(false);
 		VistaUsuario usuario = new VistaUsuario(null, this);
 		usuario.setVisible(true);
+		this.setVisible(true);
 
 	}
 
@@ -385,10 +384,6 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		}
 
 		return crearPlaceholderIcon(width, height);
-	}
-
-	private ImageIcon cargarImagen(String ruta, int width, int height) {
-		return cargarImagen(ruta, width, height, false);
 	}
 
 	// Crear el placeHolder

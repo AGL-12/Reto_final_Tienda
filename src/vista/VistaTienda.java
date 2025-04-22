@@ -27,7 +27,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class VistaTienda extends JDialog implements ActionListener {
 
@@ -50,8 +49,8 @@ public class VistaTienda extends JDialog implements ActionListener {
 	private static final int PADDING_TABLA_CELDA_V = 5;
 	private static final int PADDING_TABLA_CELDA_H = 10;
 
-	public VistaTienda(Cliente clien, Frame owner) {
-		super(owner, "DYE TOOLS - Tienda", true);
+	public VistaTienda(Cliente clien, JFrame owner) {
+		super(owner, "DYE TOOLS - Store", true);
 		this.localClien = clien;
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		try {
@@ -61,6 +60,8 @@ public class VistaTienda extends JDialog implements ActionListener {
 			getContentPane().setBackground(new Color(240, 240, 240));
 		}
 		setContentPane(new JPanel() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected void paintComponent(Graphics g) {
 				super.paintComponent(g);
@@ -77,7 +78,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 		cargarDatosTabla();
 		ajustarAnchosColumnaTabla();
 		pack();
-		setMinimumSize(new Dimension(750, 550));
+		setMinimumSize(new Dimension(900, 550));
 		setLocationRelativeTo(owner);
 	}
 
@@ -98,7 +99,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 		lblLogo = new JLabel(cargarIcono("/iconos/tienda_logo.png", 64, 64));
 		panelSuperior.add(lblLogo);
 
-		lblTitulo = new JLabel("DYE TOOLS - Catálogo");
+		lblTitulo = new JLabel("DYE TOOLS - Catalog");
 		lblTitulo.setFont(FONT_TITULO);
 		panelSuperior.add(lblTitulo);
 
@@ -106,7 +107,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 		panelSuperior.add(lblMartilloAnime);
 
 		// --- Etiqueta de Instrucciones ---
-		JLabel lblCantidadInstruccion = new JLabel("Introduce las cantidades del artículo deseado para inicializar el pedido");
+		JLabel lblCantidadInstruccion = new JLabel("Enter the desired item quantities to start your order");
 		lblCantidadInstruccion.setFont(new Font("Tahoma", Font.BOLD, 14));
         // Centrar la etiqueta horizontalmente dentro del BoxLayout
 		lblCantidadInstruccion.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -128,9 +129,9 @@ public class VistaTienda extends JDialog implements ActionListener {
 		panelBotones.setLayout(new BoxLayout(panelBotones, BoxLayout.X_AXIS));
 		panelBotones.setBorder(BorderFactory.createEmptyBorder(PADDING_GENERAL, 0, 0, 0));
 		panelBotones.setOpaque(false);
-		btnUsuario = crearBoton("Mi Cuenta", "/iconos/user.png");
+		btnUsuario = crearBoton("My Account", "/iconos/user.png");
 		btnAdmin = crearBoton("Admin Panel", "/iconos/admin.png");
-		btnCompra = crearBoton("Ver Carrito", "/iconos/cart.png");
+		btnCompra = crearBoton("View Cart", "/iconos/cart.png");
 		btnCompra.putClientProperty("JButton.buttonType", "primary");
 		btnAdmin.setVisible(localClien != null && localClien.isEsAdmin());
 		panelBotones.add(btnUsuario);
