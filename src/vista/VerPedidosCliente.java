@@ -85,7 +85,7 @@ public class VerPedidosCliente extends JDialog {
 		super(padre, "Pedidos de " + (clien != null ? clien.getUsuario() : "Cliente Desconocido"), true);
 		((JPanel) getContentPane()).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		getContentPane().setLayout(new BorderLayout());
-		setPreferredSize(new Dimension(700, 500));
+		setPreferredSize(new Dimension(850, 600));
 
 		try {
 			backgroundImage = ImageIO.read(getClass().getResource("/imagenes/fondoMadera.jpg"));
