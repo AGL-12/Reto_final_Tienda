@@ -96,10 +96,17 @@ public class AdminConfigUsuario extends JDialog implements ActionListener {
 		getContentPane().add(scrollPane);
 
 	}
-
+	
+	/**
+	 * Maneja los eventos de acción disparados por los componentes en este diálogo.
+	 * Específicamente, escucha los clics en el botón "SELECT USER".
+	 * Cuando se hace clic en el botón, identifica el usuario seleccionado en la tabla
+	 * y abre un dialog VistaUsuario para ese usuario.
+	 *
+	 * @param e El ActionEvent que ocurrió.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
 		Cliente usuarioSeleccionado = null;
 		boolean usuarioEncontrado = false;
 		if (e.getSource().equals(btnSeleccionarUsuario)) {
@@ -120,7 +127,11 @@ public class AdminConfigUsuario extends JDialog implements ActionListener {
 			}
 		}
 	}
-
+	/**
+	 * Actualiza los datos que se muestran en la tabla de usuarios.
+	 * Limpia los datos actuales de la tabla, obtiene la lista más reciente de clientes
+	 * de la base de datos y rellena el modelo de la tabla con la información actualizada.
+	 */
 	private void refrescarTabla() {
 
 		model.setRowCount(0);
