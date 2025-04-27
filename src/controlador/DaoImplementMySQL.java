@@ -312,7 +312,7 @@ public class DaoImplementMySQL implements Dao {
 		}
 	}
 
-	@Override
+	/*@Override
 	public void modificarCliente(Cliente clien) throws modifyError {
 		openConnection();
 
@@ -339,6 +339,42 @@ public class DaoImplementMySQL implements Dao {
 		} finally {
 			closeConnection();
 		}
+	}*/
+	
+	@Override
+	public void modificarCliente(Cliente clien) throws modifyError {
+	    openConnection();
+
+	    try {
+	        stmt = con.prepareStatement(MODIFICAR_CLIENTE);
+
+	        stmt.setString(1, clien.getUsuario());        
+	        stmt.setString(2, clien.getContra());        
+	        stmt.setString(3, clien.getDni());            
+	        stmt.setString(4, clien.getCorreo());        
+	        stmt.setString(5, clien.getDireccion());      
+
+	    
+	        if (clien.getMetodo_pago() == null) {
+	            stmt.setNull(6, java.sql.Types.VARCHAR);
+	        } else {
+	            stmt.setString(6, clien.getMetodo_pago().name());
+	        }
+
+	       
+	        stmt.setString(7, clien.getNum_cuenta());
+
+	        
+	        stmt.setInt(8, clien.getId_usu());
+
+	        stmt.executeUpdate();
+
+	    } catch (SQLException e) {
+	        e.printStackTrace(); 
+	        throw new modifyError("Error al modificar el perfil del cliente en la base de datos.");
+	    } finally {
+	        closeConnection();
+	    }
 	}
 
 	@Override
