@@ -36,10 +36,12 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
+import controlador.Dao;
 import controlador.Principal;
 import modelo.Articulo;
 import modelo.Cliente;
 import modelo.Pedido;
+import javax.swing.JTextField;
 
 public class VerPedidosCliente extends JDialog {
 
@@ -48,6 +50,7 @@ public class VerPedidosCliente extends JDialog {
 	private DefaultTableModel modelPedidos;
 	private JTabbedPane tabbedPane;
 	private BufferedImage backgroundImage;
+	private float totalGastado;
 
 	// Constantes que usaremos para el estilo
 	private static final Font FONT_TABLA_HEADER = new Font("Segoe UI", Font.BOLD, 12);
@@ -73,6 +76,7 @@ public class VerPedidosCliente extends JDialog {
 	private static final Color COLOR_BOTON_CERRAR_HOVER = new Color(255, 99, 71, 200); // Rojo tomate semi-transparente
 																						// para hover
 	private static final Color COLOR_BOTON_CERRAR_NORMAL = new Color(160, 160, 160); // Gris para la 'x'
+	private JTextField txtTotalGastado;
 
 	/**
 	 * Create the dialog.
@@ -254,8 +258,23 @@ public class VerPedidosCliente extends JDialog {
 		// Para la pestaña de los pedidos
 		tabbedPane.addTab("Mis Pedidos", panelPedidos);
 		adjustColumnWidths(tablePedidos);
+		
+		txtTotalGastado = new JTextField();
+		panelPedidos.add(txtTotalGastado, BorderLayout.SOUTH);
+		txtTotalGastado.setColumns(10);
 		pack();
 		setLocationRelativeTo(padre);
+		totalGastado=actualizarTotalGastado(clien);
+		txtTotalGastado.setText("Total Gastado: "+totalGastado);
+	}
+	/**
+	 *Consigue el total gastado por el cliente al consultar el pedido 
+	 */
+
+	private float actualizarTotalGastado(Cliente clien) {
+		float resultado=Principal.totalGastado(clien);
+		resultado = Math.round(resultado * 100f) / 100f;
+		return resultado;
 	}
 
 	/**
