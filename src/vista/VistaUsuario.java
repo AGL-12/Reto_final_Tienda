@@ -19,7 +19,6 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 import net.miginfocom.swing.MigLayout;
 
 public class VistaUsuario extends JDialog implements ActionListener {
@@ -36,10 +35,9 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	private JCheckBox checkVerPass;
 	private Window padre;
 
-
 	private Cliente localClien;
 
-	// --- Constantes de Estilo  ---
+	// --- Constantes de Estilo ---
 	private static final Font FONT_TITULO = new Font("Segoe UI", Font.BOLD, 18);
 	private static final Font FONT_LABEL = new Font("Segoe UI", Font.BOLD, 12);
 	private static final Font FONT_TEXTO = new Font("Segoe UI", Font.PLAIN, 12);
@@ -60,11 +58,11 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		setResizable(false);
 		padre = ventPadre;
 
-		initComponents(); 
-		configureView(); 
-		pack(); 
-		setMinimumSize(getSize()); 
-		setLocationRelativeTo(ventPadre); 
+		initComponents();
+		configureView();
+		pack();
+		setMinimumSize(getSize());
+		setLocationRelativeTo(ventPadre);
 	}
 
 	/**
@@ -91,7 +89,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		formPanel.add(lblUsuario, "cell 0 0");
 		textUser = new JTextField();
 		textUser.setFont(FONT_TEXTO);
-		formPanel.add(textUser, "cell 1 0"); 
+		formPanel.add(textUser, "cell 1 0");
 
 		// Contraseña
 		JLabel lblPassword = new JLabel("Password:");
@@ -126,14 +124,10 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		formPanel.add(textDireccion, "cell 1 4");
 
 		// --- Sección Método de Pago (Panel anidado) ---
-		JPanel paymentPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, PADDING_GENERAL, 0)); 
+		JPanel paymentPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, PADDING_GENERAL, 0));
 		// Añadir un borde con título para agrupar visualmente
-		paymentPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), 
-				"Método de Pago",
-				TitledBorder.LEFT, 
-				TitledBorder.TOP, 
-				FONT_LABEL 
-		));
+		paymentPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Método de Pago",
+				TitledBorder.LEFT, TitledBorder.TOP, FONT_LABEL));
 
 		rdbtnVisa = new JRadioButton("Visa");
 		rdbtnVisa.setFont(FONT_TEXTO);
@@ -147,17 +141,17 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		rdbtnPaypal.setFont(FONT_TEXTO);
 		rdbtnPaypal.addActionListener(this);
 
-		paymentMethodGroup = new ButtonGroup(); // Asegura que solo uno esté seleccionado
+		paymentMethodGroup = new ButtonGroup();
 		paymentMethodGroup.add(rdbtnVisa);
 		paymentMethodGroup.add(rdbtnMastercard);
 		paymentMethodGroup.add(rdbtnPaypal);
 
 		btnLimpiarSelect = new JButton();
 		btnLimpiarSelect.setIcon(cargarIcono("/iconos/cleanMetodo.png"));
-		btnLimpiarSelect.setOpaque(true); // Esto permite que se pinte el fondo
-		btnLimpiarSelect.setContentAreaFilled(true); // Asegura que el área de contenido se pinte
-		btnLimpiarSelect.setBorderPainted(false); // Opcional, si no quieres borde
-		btnLimpiarSelect.setBackground(Color.GRAY); // Fondo gris
+		btnLimpiarSelect.setOpaque(true);
+		btnLimpiarSelect.setContentAreaFilled(true);
+		btnLimpiarSelect.setBorderPainted(false);
+		btnLimpiarSelect.setBackground(Color.GRAY);
 		btnLimpiarSelect.addActionListener(this);
 
 		paymentPanel.add(rdbtnVisa);
@@ -166,8 +160,8 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		paymentPanel.add(btnLimpiarSelect);
 
 		// Añadir el panel de pago al formulario principal, ocupando todo el ancho
-		// (span)
-		formPanel.add(paymentPanel, "cell 0 5 2 1,growx"); // span 2: ocupa 2 columnas, growx: crece
+
+		formPanel.add(paymentPanel, "cell 0 5 2 1,growx");
 
 		// horizontalmente
 
@@ -197,37 +191,37 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		));
 		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-		// Botones de Acción (Modificar/Registrar/Baja) - Agrupados a la izquierda
+		// Botones de Acción (Modificar/Registrar/Baja)
 		JPanel actionButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_GENERAL / 2, 0));
 		btnRegistrarse = new JButton("Registrar");
 		btnRegistrarse.setFont(FONT_BOTON);
-		btnRegistrarse.setIcon(cargarIcono("/iconos/register.png")); // Placeholder
+		btnRegistrarse.setIcon(cargarIcono("/iconos/register.png"));
 		btnRegistrarse.addActionListener(this);
 		actionButtonPanel.add(btnRegistrarse);
 
 		btnModificar = new JButton("Save Changes");
 		btnModificar.setFont(FONT_BOTON);
-		btnModificar.setIcon(cargarIcono("/iconos/save.png")); // Placeholder
+		btnModificar.setIcon(cargarIcono("/iconos/save.png"));
 		btnModificar.addActionListener(this);
 		actionButtonPanel.add(btnModificar);
 
 		btnDrop = new JButton("Delete Account");
 		btnDrop.setFont(FONT_BOTON);
-		btnDrop.setIcon(cargarIcono("/iconos/delete.png")); // Placeholder
+		btnDrop.setIcon(cargarIcono("/iconos/delete.png"));
 		// Estilo "peligroso" (si usas FlatLaf, puedes añadir propiedades)
 		// btnDrop.putClientProperty("JButton.buttonType", "danger"); // Ejemplo FlatLaf
-		btnDrop.setForeground(Color.RED); // Color básico si no usas FlatLaf
+		btnDrop.setForeground(Color.RED);
 		btnDrop.addActionListener(this);
 		actionButtonPanel.add(btnDrop);
 
-		buttonPanel.add(actionButtonPanel, "cell 0 0"); // Añadir al primer grupo de columnas (izquierda)
+		buttonPanel.add(actionButtonPanel, "cell 0 0");
 
 		// Botón Mostrar Pedidos - A la derecha
 		btnMostrarPedidos = new JButton("My Orders");
 		btnMostrarPedidos.setFont(FONT_BOTON);
-		btnMostrarPedidos.setIcon(cargarIcono("/iconos/orders.png")); // Placeholder
+		btnMostrarPedidos.setIcon(cargarIcono("/iconos/orders.png"));
 		btnMostrarPedidos.addActionListener(this);
-		buttonPanel.add(btnMostrarPedidos, "cell 1 0, align right"); // Añadir al segundo grupo (derecha)
+		buttonPanel.add(btnMostrarPedidos, "cell 1 0, align right");
 	}
 
 	/**
@@ -240,13 +234,12 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			btnMostrarPedidos.setVisible(false);
 			btnDrop.setVisible(false);
 			btnRegistrarse.setVisible(true);
-		} else { // Modo Modificación
+		} else {
 			btnRegistrarse.setVisible(false);
 			btnModificar.setVisible(true);
 			btnMostrarPedidos.setVisible(true);
 			btnDrop.setVisible(true);
 
-			// Cargar datos del cliente en los campos
 			textUser.setText(localClien.getUsuario());
 			textUser.setEnabled(false);
 			passwordFieldContra.setText(localClien.getContra());
@@ -265,7 +258,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			} else if (metodo == Metodo.paypal) {
 				rdbtnPaypal.setSelected(true);
 			} else {
-				paymentMethodGroup.clearSelection(); // Ninguno si no coincide o es null
+				paymentMethodGroup.clearSelection();
 			}
 
 			// Opcional: Hacer campos no modificables (ej. DNI, email si son clave)
@@ -340,7 +333,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	private void modificar() {
 		// Validación básica
 		if (!validarCampos(true))
-			return; // Permitir contraseña vacía en modificación
+			return;
 
 		// Actualizar el objeto Cliente local con los datos del formulario
 		localClien.setUsuario(textUser.getText().trim());
@@ -479,9 +472,9 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		if (!modificarModo && password.isEmpty()) {
 			errores += "- Password cannot be empty.\n";
 		} else if (password.length() < 6) {
-		    errores += "- Password must be at least 6 characters long.\n";
+			errores += "- Password must be at least 6 characters long.\n";
 		} else if (!password.matches(".*[a-zA-Z].*") || !password.matches(".*[0-9].*")) {
-		    errores += "- Password must contain at least one letter and one number.\n";
+			errores += "- Password must contain at least one letter and one number.\n";
 		}
 
 		// Validación de DNI/NIE
@@ -489,26 +482,26 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		if (dni.isEmpty()) {
 			errores += "- DNI/NIE cannot be empty.\n";
 		} else {
-		    // DNI format validation
-		    Pattern dniPattern = Pattern.compile("^\\d{8}[A-Za-z]$");
-		    Matcher matcher = dniPattern.matcher(dni.replaceAll("-", ""));
-		    if (!matcher.matches()) {
-		        errores += "- Invalid DNI/NIE. It must be 8 digits followed by a letter.\n";
+			// DNI format validation
+			Pattern dniPattern = Pattern.compile("^\\d{8}[A-Za-z]$");
+			Matcher matcher = dniPattern.matcher(dni.replaceAll("-", ""));
+			if (!matcher.matches()) {
+				errores += "- Invalid DNI/NIE. It must be 8 digits followed by a letter.\n";
 			}
 		}
 
 		// Email validation
 		String email = textEmail.getText().trim();
 		if (email.isEmpty() || !email.contains("@")
-		        || !email.matches("^[\\w._%+-]+@[A-Za-z0-9.-]+\\.(com|es|org|net|edu|gov|info|io)$")) {
-		    errores += "- Please enter a valid email (e.g., name@gmail.com).\n";
+				|| !email.matches("^[\\w._%+-]+@[A-Za-z0-9.-]+\\.(com|es|org|net|edu|gov|info|io)$")) {
+			errores += "- Please enter a valid email (e.g., name@gmail.com).\n";
 		}
 
 		// Validación de Número de Cuenta solo si es Visa o Mastercard
 		if (rdbtnVisa.isSelected() || rdbtnMastercard.isSelected() || rdbtnPaypal.isSelected()) {
-		    if (textNumeroCuenta.getText().length() != 16) {
-		        errores += "- The card/account number must be 16 digits.\n";
-		    }
+			if (textNumeroCuenta.getText().length() != 16) {
+				errores += "- The card/account number must be 16 digits.\n";
+			}
 		}
 
 		// Mostrar errores si los hay
