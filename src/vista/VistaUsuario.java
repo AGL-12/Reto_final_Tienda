@@ -36,10 +36,10 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	private JCheckBox checkVerPass;
 	private Window padre;
 
-	// --- Datos ---
-	private Cliente localClien; // El cliente actual (null si es registro)
 
-	// --- Constantes de Estilo (Ajusta según tus preferencias) ---
+	private Cliente localClien;
+
+	// --- Constantes de Estilo  ---
 	private static final Font FONT_TITULO = new Font("Segoe UI", Font.BOLD, 18);
 	private static final Font FONT_LABEL = new Font("Segoe UI", Font.BOLD, 12);
 	private static final Font FONT_TEXTO = new Font("Segoe UI", Font.PLAIN, 12);
@@ -53,18 +53,18 @@ public class VistaUsuario extends JDialog implements ActionListener {
 	 * @param clien     El cliente a modificar, o null si es un nuevo registro.
 	 * @param ventPadre La ventana padre (JFrame o JDialog).
 	 */
-	public VistaUsuario(Cliente clien, Window ventPadre) { // Acepta Window (JFrame o JDialog)
-		super(ventPadre, clien == null ? "Sing up" : "My Account", ModalityType.APPLICATION_MODAL); // Título
+	public VistaUsuario(Cliente clien, Window ventPadre) {
+		super(ventPadre, clien == null ? "Sing up" : "My Account", ModalityType.APPLICATION_MODAL);
 		this.localClien = clien;
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setResizable(false);
 		padre = ventPadre;
 
-		initComponents(); // Inicializa y organiza los componentes
-		configureView(); // Carga datos si es modificación, ajusta botones
-		pack(); // Ajusta tamaño al contenido
-		setMinimumSize(getSize()); // Evita que sea más pequeña
-		setLocationRelativeTo(ventPadre); // Centra respecto al padre
+		initComponents(); 
+		configureView(); 
+		pack(); 
+		setMinimumSize(getSize()); 
+		setLocationRelativeTo(ventPadre); 
 	}
 
 	/**
@@ -79,21 +79,8 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		// --- Título (NORTH) ---
 		lblTitulo = new JLabel(localClien == null ? "NEW USER" : "USER INFO", JLabel.CENTER);
 		lblTitulo.setFont(FONT_TITULO);
-		// lblTitulo.setIcon(cargarIcono("/iconos/usuario_titulo.png")); // Icono
-		// opcional para el título
 		mainPanel.add(lblTitulo, BorderLayout.NORTH);
 
-		// --- Panel de Formulario (CENTER) con MigLayout ---
-		// "fillx": Hace que el panel ocupe el ancho disponible.
-		// "wrap 2": Indica que después de 2 componentes (label + field), salte a la
-		// siguiente fila.
-		// "[]": Define las propiedades de las filas (sin restricciones especiales
-		// aquí).
-		// "[align label]": Define la columna de etiquetas (alineadas a la derecha por
-		// defecto).
-		// "[]": Define las propiedades de las columnas de espacio entre label y
-		// componente.
-		// "[grow]": Define la columna de componentes (que crezcan horizontalmente).
 		JPanel formPanel = new JPanel(new MigLayout("fillx, insets 0", "[label]rel[grow,fill]", "[][][][][][][][]"));
 		mainPanel.add(formPanel, BorderLayout.CENTER);
 
@@ -104,7 +91,7 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		formPanel.add(lblUsuario, "cell 0 0");
 		textUser = new JTextField();
 		textUser.setFont(FONT_TEXTO);
-		formPanel.add(textUser, "cell 1 0"); // wrap: ir a nueva línea, unrel: espacio vertical
+		formPanel.add(textUser, "cell 1 0"); 
 
 		// Contraseña
 		JLabel lblPassword = new JLabel("Password:");
@@ -139,14 +126,13 @@ public class VistaUsuario extends JDialog implements ActionListener {
 		formPanel.add(textDireccion, "cell 1 4");
 
 		// --- Sección Método de Pago (Panel anidado) ---
-		JPanel paymentPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, PADDING_GENERAL, 0)); // FlowLayout para
-																									// los radio buttons
+		JPanel paymentPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, PADDING_GENERAL, 0)); 
 		// Añadir un borde con título para agrupar visualmente
-		paymentPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), // Tipo de borde
-				"Método de Pago", // Título
-				TitledBorder.LEFT, // Alineación del título
-				TitledBorder.TOP, // Posición del título
-				FONT_LABEL // Fuente del título
+		paymentPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), 
+				"Método de Pago",
+				TitledBorder.LEFT, 
+				TitledBorder.TOP, 
+				FONT_LABEL 
 		));
 
 		rdbtnVisa = new JRadioButton("Visa");
