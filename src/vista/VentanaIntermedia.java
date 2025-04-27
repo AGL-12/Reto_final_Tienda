@@ -15,6 +15,7 @@ import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
 import java.io.IOException;
 import java.net.URL;
+ 
 
 public class VentanaIntermedia extends JDialog implements ActionListener {
 
@@ -59,11 +60,13 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 			try {
 				URL imgUrl = getClass().getResource(imagePath);
 				if (imgUrl == null) {
-					throw new IOException("Recurso no encontrado: " + imagePath);
+					System.err.println("Error: Recurso no encontrado: " + imagePath);
+					backgroundImage = null;
+				} else {
+					backgroundImage = ImageIO.read(imgUrl);
 				}
-				backgroundImage = ImageIO.read(imgUrl);
 			} catch (IOException | IllegalArgumentException e) {
-				e.getMessage();
+				System.err.println("Error cargando imagen de fondo: " + e.getMessage());
 				backgroundImage = null;
 			}
 			setOpaque(backgroundImage == null);
@@ -92,6 +95,10 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
 		contentPaneConFondo = new BackgroundPanel("/imagenes/fondoMadera.jpg");
+		if (contentPaneConFondo.backgroundImage == null) {
+			contentPaneConFondo.setBackground(COLOR_FALLBACK_FONDO);
+			contentPaneConFondo.setOpaque(true);
+		}
 		contentPaneConFondo.setLayout(new BorderLayout(PADDING_GENERAL_ADMIN, PADDING_GENERAL_ADMIN));
 		contentPaneConFondo.setBorder(new EmptyBorder(PADDING_GENERAL_ADMIN, PADDING_GENERAL_ADMIN,
 				PADDING_GENERAL_ADMIN, PADDING_GENERAL_ADMIN));
@@ -111,9 +118,8 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 	 * organiza en el layout de la ventana. También carga imágenes y configura estilos.
 	 */
 	private void initComponents() {
-
 		panelTitulo = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		panelTitulo.setOpaque(false);
+		panelTitulo.setOpaque(false); // Hacer transparente para ver el fondo
 		lblTituloAdmin = new JLabel("Menú de Administrador");
 		lblTituloAdmin.setFont(FONT_TITULO_ADMIN);
 		lblTituloAdmin.setForeground(COLOR_TITULO_ADMIN);
@@ -121,11 +127,11 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		contentPaneConFondo.add(panelTitulo, BorderLayout.NORTH);
 
 		panelCentral = new JPanel(new BorderLayout(PADDING_INTERNO_ADMIN * 2, 0));
-		panelCentral.setOpaque(false);
+		panelCentral.setOpaque(false); // Hacer transparente para ver el fondo
 
 		panelBotones = new JPanel();
 		panelBotones.setLayout(new BoxLayout(panelBotones, BoxLayout.Y_AXIS));
-		panelBotones.setOpaque(false);
+		panelBotones.setOpaque(false); // Hacer transparente para ver el fondo
 		panelBotones.setBorder(new EmptyBorder(PADDING_INTERNO_ADMIN, PADDING_INTERNO_ADMIN, PADDING_INTERNO_ADMIN,
 				PADDING_INTERNO_ADMIN));
 
@@ -139,7 +145,7 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		panelCentral.add(panelBotones, BorderLayout.WEST);
 
 		panelLogo = new JPanel(new GridBagLayout());
-		panelLogo.setOpaque(false);
+		panelLogo.setOpaque(false); // Hacer transparente para ver el fondo
 
 		lblTiendaLogo = new JLabel();
 		lblTiendaLogo.setHorizontalAlignment(SwingConstants.CENTER);
@@ -149,12 +155,21 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 				throw new NullPointerException("Recurso no encontrado: /imagenes/tienda_brico_admin.jpg");
 			}
 			Image img = new ImageIcon(logoUrl).getImage();
-			Image imgEscalada = img.getScaledInstance(300, 300, Image.SCALE_SMOOTH);
+			int maxAncho = 250; 
+			int anchoOriginal = img.getWidth(null);
+			int altoOriginal = img.getHeight(null);
+            if (anchoOriginal <= 0 || altoOriginal <=0) { // Check for invalid image dimensions
+                throw new IllegalArgumentException("Dimensiones de imagen inválidas para el logo.");
+            }
+			int nuevoAncho = maxAncho;
+			int nuevoAlto = (int) (((double) altoOriginal / anchoOriginal) * nuevoAncho);
+
+			Image imgEscalada = img.getScaledInstance(nuevoAncho, nuevoAlto, Image.SCALE_SMOOTH);
 			lblTiendaLogo.setIcon(new ImageIcon(imgEscalada));
 		} catch (NullPointerException | IllegalArgumentException e) {
-			e.getMessage();
+			System.err.println("Error cargando logo: " + e.getMessage());
 			lblTiendaLogo.setText("Logo no disponible");
-			lblTiendaLogo.setPreferredSize(new Dimension(300, 300));
+			lblTiendaLogo.setPreferredSize(new Dimension(250, 250));
 			lblTiendaLogo.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 		}
 
@@ -170,18 +185,17 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		contentPaneConFondo.add(panelCentral, BorderLayout.CENTER);
 
 		panelInferior = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		panelInferior.setOpaque(false);
+		panelInferior.setOpaque(false); // Hacer transparente para ver el fondo
 
 		btnVolver = new JButton("Volver");
 		btnVolver.setFont(FONT_BOTON_ADMIN);
 		btnVolver.setBackground(COLOR_BOTON_ADMIN);
 		btnVolver.setForeground(COLOR_TEXTO_BOTON_ADMIN);
-		btnVolver.setOpaque(true);
+		btnVolver.setOpaque(true); 
 		btnVolver.setContentAreaFilled(true);
 		btnVolver.setBorderPainted(false);
 		btnVolver.setFocusPainted(false);
 		btnVolver.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		// Usamos un margen un poco más ajustado para el botón volver
 		btnVolver.setMargin(new Insets(PADDING_INTERNO_ADMIN / 2 + 2, PADDING_INTERNO_ADMIN + 5,
 				PADDING_INTERNO_ADMIN / 2 + 2, PADDING_INTERNO_ADMIN + 5));
 		btnVolver.addActionListener(this);
@@ -193,7 +207,6 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 			public void mouseEntered(MouseEvent e) {
 				btnVolver.setBackground(hoverBgVolver);
 			}
-
 			@Override
 			public void mouseExited(MouseEvent e) {
 				btnVolver.setBackground(originalBgVolver);
@@ -228,7 +241,8 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		btn.setMargin(new Insets(PADDING_INTERNO_ADMIN, PADDING_INTERNO_ADMIN * 2, PADDING_INTERNO_ADMIN,
 				PADDING_INTERNO_ADMIN * 2));
-		btn.setAlignmentX(Component.LEFT_ALIGNMENT);
+		btn.setAlignmentX(Component.LEFT_ALIGNMENT); 
+		btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, btn.getPreferredSize().height));
 
 		btn.addActionListener(this);
 
@@ -239,13 +253,11 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 			public void mouseEntered(MouseEvent e) {
 				btn.setBackground(hoverBg);
 			}
-
 			@Override
 			public void mouseExited(MouseEvent e) {
 				btn.setBackground(originalBg);
 			}
 		});
-
 		return btn;
 	}
 
@@ -258,13 +270,16 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 	 */
 	public void abrirOpcion(JDialog abrirOpc) {
 		if (abrirOpc != null) {
-			this.setVisible(false);
-			abrirOpc.setVisible(true);
-			// Solo volvemos a hacer visible si la ventana hija era modal
-			// y esta ventana no ha sido 'disposed'
-			if (abrirOpc.isModal() && this.isDisplayable()) {
-				this.setVisible(true);
+			this.setVisible(false); 
+			abrirOpc.setVisible(true); // Mostrar la ventana hija (modal)
+            // La ejecución se pausa aquí hasta que abrirOpc se cierre
+
+            // Cuando se cierra la ventana hija:
+			if (this.isDisplayable()) { // Comprobar si la ventana padre todavía existe
+				this.setVisible(true); // Volver a mostrar la ventana padre
 			}
+            // Considera liberar recursos de la ventana hija si ya no se necesita
+            abrirOpc.dispose(); 
 		}
 	}
 
@@ -281,6 +296,8 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		JDialog ventanaAAbrir = null;
 
 		if (source == btnConfigArticulos) {
+			// ¡¡IMPORTANTE!! Asegúrate de que 'new AdminConfigArticulos(this)'
+			// llama al constructor de tu clase EXTERNA AdminConfigArticulos.java
 			ventanaAAbrir = new AdminConfigArticulos(this);
 			abrirOpcion(ventanaAAbrir);
 		} else if (source == btnConfigUsuario) {
@@ -290,6 +307,7 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 			this.dispose();
 		}
 	}
+
 	/**
 	 * Carga un icono desde un recurso dado, lo escala al tamaño especificado
 	 * y opcionalmente lo hace transparente eliminando un color específico.
@@ -303,20 +321,40 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 	private ImageIcon cargarIcono(String path, int width, int height) {
 		URL imgURL = getClass().getResource(path);
 		if (imgURL != null) {
-			ImageIcon originalIcon = new ImageIcon(imgURL);
-			Image image = originalIcon.getImage();
+			try {
+				ImageIcon originalIcon = new ImageIcon(imgURL);
+				Image image = originalIcon.getImage();
 
-			if (originalIcon.getIconWidth() != width || originalIcon.getIconHeight() != height) {
-				image = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+				if (originalIcon.getIconWidth() != width || originalIcon.getIconHeight() != height) {
+					image = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+				}
+
+				if (COLOR_TRANSPARENTE_ICONO != null) {
+					ImageFilter filter = new RGBImageFilter() {
+						public int markerRGB = COLOR_TRANSPARENTE_ICONO.getRGB() | 0xFF000000;
+						@Override
+						public final int filterRGB(int x, int y, int rgb) {
+							if ((rgb | 0xFF000000) == markerRGB) {
+								return 0x00FFFFFF & rgb; 
+							} else {
+								return rgb;
+							}
+						}
+					};
+					ImageProducer ip = new FilteredImageSource(image.getSource(), filter);
+					image = Toolkit.getDefaultToolkit().createImage(ip);
+				}
+				return new ImageIcon(image);
+			} catch (Exception e) {
+				System.err.println("Error procesando icono: " + path + " - " + e.getMessage());
+				return crearIconoPlaceholder(width, height);
 			}
-			ImageIcon scaledIcon = new ImageIcon(image);
-			return makeTransparent(scaledIcon, COLOR_TRANSPARENTE_ICONO);
-
 		} else {
+			System.err.println("Error: Recurso de icono no encontrado: " + path);
 			return crearIconoPlaceholder(width, height);
 		}
 	}
-	
+
 	/**
 	 * Crea un icono de marcador de posición (placeholder) visualmente reconocible
 	 * para usar cuando un recurso de icono real no se puede cargar.
@@ -330,91 +368,22 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		BufferedImage placeholder = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = placeholder.createGraphics();
 		try {
-			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f)); 
 			g2d.setColor(Color.LIGHT_GRAY);
 			g2d.fillRect(0, 0, width, height);
+			g2d.setComposite(AlphaComposite.SrcOver);
 			g2d.setColor(Color.DARK_GRAY);
 			g2d.drawRect(0, 0, width - 1, height - 1);
 			g2d.setColor(Color.RED);
 			g2d.setStroke(new BasicStroke(2));
-			g2d.drawLine(1, 1, width - 2, height - 2);
-			g2d.drawLine(1, height - 2, width - 2, 1);
+			g2d.drawLine(2, 2, width - 3, height - 3);
+			g2d.drawLine(2, height - 3, width - 3, 2);
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); 
 		} finally {
 			g2d.dispose();
 		}
 		return new ImageIcon(placeholder);
 	}
 
-	/**
-	 * Crea una nueva versión de un ImageIcon donde un color específico se vuelve transparente.
-	 *
-	 * @param icon El ImageIcon original.
-	 * @param colorToRemove El color que se desea hacer transparente.
-	 * @return Un nuevo ImageIcon con el color especificado hecho transparente, o null si el icono de entrada es null.
-	 */
-	private ImageIcon makeTransparent(ImageIcon icon, final Color colorToRemove) {
-		if (icon == null)
-			return null;
 
-		Image image = icon.getImage();
-		ImageFilter filter = new RGBImageFilter() {
-			public int markerRGB = colorToRemove.getRGB() | 0xFF000000;
-
-			@Override
-			public final int filterRGB(int x, int y, int rgb) {
-				if ((rgb | 0xFF000000) == markerRGB) {
-					return 0x00FFFFFF & rgb;
-				} else {
-					return rgb;
-				}
-			}
-		};
-
-		ImageProducer ip = new FilteredImageSource(image.getSource(), filter);
-		Image transparentImage = Toolkit.getDefaultToolkit().createImage(ip);
-		return new ImageIcon(transparentImage);
-	}
-
-	/**
-	 * Clase placeholder simple para la ventana de configuración de artículos.
-	 * Esta implementación es básica y solo muestra un mensaje.
-	 * En una aplicación real, sería una ventana de gestión completa.
-	 */
-	static class AdminConfigArticulos extends JDialog {
-		private static final long serialVersionUID = 1L;
-
-		public AdminConfigArticulos(Dialog owner) {
-			super(owner, "Configurar Artículos", true);
-			setSize(400, 300);
-			setLocationRelativeTo(owner);
-			setLayout(new BorderLayout());
-			add(new JLabel("Ventana de Configuración de Artículos", SwingConstants.CENTER), BorderLayout.CENTER);
-			JButton closeButton = new JButton("Cerrar");
-			closeButton.addActionListener(e -> dispose());
-			JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-			buttonPanel.add(closeButton);
-			add(buttonPanel, BorderLayout.SOUTH);
-		}
-	}
-	/**
-	 * Clase placeholder simple para la ventana de configuración de usuarios.
-	 * Esta implementación es básica y solo muestra un mensaje.
-	 * En una aplicación real, sería una ventana de gestión completa.
-	 */
-	static class AdminConfigUsuario extends JDialog {
-		private static final long serialVersionUID = 1L;
-
-		public AdminConfigUsuario(Dialog owner) {
-			super(owner, "Configurar Usuarios", true);
-			setSize(400, 300);
-			setLocationRelativeTo(owner);
-			setLayout(new BorderLayout());
-			add(new JLabel("Ventana de Configuración de Usuarios", SwingConstants.CENTER), BorderLayout.CENTER);
-			JButton closeButton = new JButton("Cerrar");
-			closeButton.addActionListener(e -> dispose());
-			JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-			buttonPanel.add(closeButton);
-			add(buttonPanel, BorderLayout.SOUTH);
-		}
-	}
 }
