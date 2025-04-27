@@ -162,7 +162,6 @@ public class DaoImplementMySQL implements Dao {
 	 */
 	@Override
 	public void modificarArticulo(Articulo art) throws modifyError {
-		System.out.println(art.toString());
 		openConnection();
 		try {
 			stmt = con.prepareStatement(MODIFICAR_ARTICULO);
