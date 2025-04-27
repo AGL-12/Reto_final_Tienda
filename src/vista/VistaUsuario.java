@@ -15,11 +15,11 @@ import javax.swing.border.TitledBorder; // Para agrupar radio buttons
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URL; // Para cargar iconos
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// Import de MigLayout (Asegúrate de tener la librería en tu proyecto)
+
 import net.miginfocom.swing.MigLayout;
 
 public class VistaUsuario extends JDialog implements ActionListener {
@@ -474,9 +474,8 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			ImageIcon originalIcon = new ImageIcon(imgURL);
 			Image image = originalIcon.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
 			return new ImageIcon(image);
-			// return new ImageIcon(imgURL); // Sin escalar
+			// return new ImageIcon(imgURL);
 		} else {
-			System.err.println("Advertencia: No se pudo encontrar el icono: " + path);
 			return null; // Devuelve null para que el botón no muestre un icono roto
 		}
 	}

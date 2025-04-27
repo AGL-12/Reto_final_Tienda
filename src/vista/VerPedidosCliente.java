@@ -146,7 +146,7 @@ public class VerPedidosCliente extends JDialog {
 					String precioTotalFormateado = String.format(java.util.Locale.US, "%.2f", ped.getTotal());
 					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 					String fechaFormateada = ped.getFecha_compra().format(formatter);
-					modelPedidos.addRow(new Object[] { ped.getId_ped(), precioTotalFormateado+"€", fechaFormateada });
+					modelPedidos.addRow(new Object[] { ped.getId_ped(), precioTotalFormateado + "€", fechaFormateada });
 				}
 			} else {
 				modelPedidos.addRow(new Object[] { null, "No hay pedidos", null });
@@ -241,8 +241,6 @@ public class VerPedidosCliente extends JDialog {
 							if (!pestanaExiste) {
 								agregarPestañaArticulos(idPedido);
 							}
-						} else {
-							System.err.println("ID no es Integer: " + idObj);
 						}
 					}
 				}

@@ -56,7 +56,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 		try {
 			backgroundImage = ImageIO.read(getClass().getResource("/imagenes/fondoMadera.jpg"));
 		} catch (IOException e) {
-			System.err.println("Error al cargar la imagen de fondo: " + e.getMessage());
+			e.getMessage();
 			getContentPane().setBackground(new Color(240, 240, 240));
 		}
 		setContentPane(new JPanel() {
@@ -83,7 +83,6 @@ public class VistaTienda extends JDialog implements ActionListener {
 	}
 
 	private void initComponents() {
-		// --- Panel de Cabecera Principal (Ahora con BoxLayout vertical) ---
 		JPanel panelCabecera = new JPanel();
 		// Establecer BoxLayout para apilar elementos verticalmente
 		panelCabecera.setLayout(new BoxLayout(panelCabecera, BoxLayout.Y_AXIS));
@@ -91,10 +90,8 @@ public class VistaTienda extends JDialog implements ActionListener {
 		panelCabecera.setOpaque(false); // Hacer el panel principal transparente
 		panelCabecera.setBorder(BorderFactory.createEmptyBorder(PADDING_INTERNO, 0, PADDING_GENERAL, 0));
 
-		// --- Panel Superior (para Logo, Título, Martillo) ---
 		JPanel panelSuperior = new JPanel(new FlowLayout(FlowLayout.CENTER, PADDING_INTERNO * 2, 0));
-		panelSuperior.setOpaque(false); // Hacer este subpanel transparente también
-
+		panelSuperior.setOpaque(false);
 		// Añadir elementos al panel superior
 		lblLogo = new JLabel(cargarIcono("/iconos/tienda_logo.png", 64, 64));
 		panelSuperior.add(lblLogo);
@@ -106,32 +103,28 @@ public class VistaTienda extends JDialog implements ActionListener {
 		lblMartilloAnime = new JLabel(cargarIcono("/imagenes/martilloanime.jpg", 100, 100));
 		panelSuperior.add(lblMartilloAnime);
 
-		// --- Etiqueta de Instrucciones ---
 		JLabel lblCantidadInstruccion = new JLabel("Enter the desired item quantities to start your order");
 		lblCantidadInstruccion.setFont(new Font("Tahoma", Font.BOLD, 14));
-        // Centrar la etiqueta horizontalmente dentro del BoxLayout
+		// Centrar la etiqueta horizontalmente dentro del BoxLayout
 		lblCantidadInstruccion.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-		// --- Añadir los componentes al Panel de Cabecera Principal ---
-        // Asegurar que el panel superior también se centre
-        panelSuperior.setAlignmentX(Component.CENTER_ALIGNMENT);
+		// Asegurar que el panel superior también se centre
+		panelSuperior.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		panelCabecera.add(panelSuperior); // Añadir el grupo superior primero
-        panelCabecera.add(Box.createVerticalStrut(PADDING_INTERNO)); // Añadir un pequeño espacio vertical
+		panelCabecera.add(Box.createVerticalStrut(PADDING_INTERNO)); // Añadir un pequeño espacio vertical
 		panelCabecera.add(lblCantidadInstruccion); // Añadir la etiqueta de instrucciones debajo
 
 		// Añadir la cabecera completa al layout principal (BorderLayout.NORTH)
 		getContentPane().add(panelCabecera, BorderLayout.NORTH);
 
-
-		// --- Panel de Botones Inferior (sin cambios) ---
 		JPanel panelBotones = new JPanel();
 		panelBotones.setLayout(new BoxLayout(panelBotones, BoxLayout.X_AXIS));
 		panelBotones.setBorder(BorderFactory.createEmptyBorder(PADDING_GENERAL, 0, 0, 0));
 		panelBotones.setOpaque(false);
 		btnUsuario = crearBoton("My Account", "/iconos/user.png");
 		btnAdmin = crearBoton("Admin Panel", "/iconos/admin.png");
-		btnCompra = crearBoton("View Cart", "/iconos/cart.png");
+		btnCompra = crearBoton("Checkout", "/iconos/cart.png");
 		btnCompra.putClientProperty("JButton.buttonType", "primary");
 		btnAdmin.setVisible(localClien != null && localClien.isEsAdmin());
 		panelBotones.add(btnUsuario);
@@ -175,9 +168,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 
 	private ImageIcon makeTransparent(ImageIcon imageIcon, final Color color) {
 		Image image = imageIcon.getImage();
-		BufferedImage bufferedImage = new BufferedImage(
-				image.getWidth(null),
-				image.getHeight(null),
+		BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null),
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2 = bufferedImage.createGraphics();
 		g2.drawImage(image, 0, 0, null);
@@ -272,12 +263,10 @@ public class VistaTienda extends JDialog implements ActionListener {
 			private final TableCellRenderer defaultRenderer = tableArticulo.getTableHeader().getDefaultRenderer();
 
 			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value,
-					boolean isSelected, boolean hasFocus,
-					int row, int column) {
-				Component c = defaultRenderer.getTableCellRendererComponent(table, value,
-						isSelected, hasFocus,
-						row, column);
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+					boolean hasFocus, int row, int column) {
+				Component c = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
+						column);
 				if (c instanceof JLabel) {
 					JLabel label = (JLabel) c;
 					label.setFont(HEADER_FONT);
@@ -298,15 +287,13 @@ public class VistaTienda extends JDialog implements ActionListener {
 			TableColumn columnToHide = tableArticulo.getColumn("ID_ART");
 			columnModel.removeColumn(columnToHide);
 		} catch (IllegalArgumentException e) {
-			System.err.println("No se pudo encontrar la columna 'ID_ART' para ocultarla.");
-			try {
-				if (columnModel.getColumnCount() > 0) {
-					System.err
-							.println("Aviso: Se intentó remover la primera columna visible como fallback para ID_ART.");
-				}
-			} catch (Exception ex) {
-				System.err.println("Fallo al remover columna por índice.");
-			}
+			e.getMessage();
+			/*
+			 * try { if (columnModel.getColumnCount() > 0) { System.err
+			 * .println("Aviso: Se intentó remover la primera columna visible como fallback para ID_ART."
+			 * ); } } catch (Exception ex) {
+			 * System.err.println("Fallo al remover columna por índice."); }
+			 */
 		}
 		int cantidadViewIndex = 5;
 		quantityEditorField = new JTextField();
@@ -395,8 +382,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 		scrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
 		scrollPane.setOpaque(false);
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
-		scrollPane.setBorder(BorderFactory.createLineBorder(new Color(
-				101, 67, 33), 2));
+		scrollPane.setBorder(BorderFactory.createLineBorder(new Color(101, 67, 33), 2));
 		scrollPane.getViewport().setOpaque(true);
 		scrollPane.getViewport().setBackground(new Color(245, 222, 179));
 		tableArticulo.setOpaque(false);
@@ -411,18 +397,10 @@ public class VistaTienda extends JDialog implements ActionListener {
 		if (articulos != null && !articulos.isEmpty()) {
 			for (Articulo art : articulos.values()) {
 				if (art.getStock() > 0) {
-					model.addRow(new Object[] { art.getId_art(),
-							art.getNombre(),
-							art.getDescripcion(),
-							art.getPrecio(),
-							art.getOferta(),
-							art.getStock(),
-							0
-					});
+					model.addRow(new Object[] { art.getId_art(), art.getNombre(), art.getDescripcion(), art.getPrecio(),
+							art.getOferta(), art.getStock(), 0 });
 				}
 			}
-		} else {
-			System.out.println("No se encontraron artículos.");
 		}
 	}
 
@@ -525,7 +503,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 				LocalDateTime.now());
 		List<Compra> comprasParaCarrito = recopilarCompras(pedidoActual.getId_ped());
 		if (comprasParaCarrito.isEmpty()) {
-			JOptionPane.showMessageDialog(this, "Añade artículos al carrito (cantidad > 0).", "Carrito Vacío",
+			JOptionPane.showMessageDialog(this, "Añade artículos (cantidad > 0).", "Pedido vacio",
 					JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
@@ -572,7 +550,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 						listaCompra.add(palCarro);
 					}
 				} catch (NumberFormatException e) {
-					System.err.println("Error formato al recopilar compra fila " + i + ": " + valorCantidad);
+					e.getMessage();
 				}
 			}
 		}
@@ -590,7 +568,6 @@ public class VistaTienda extends JDialog implements ActionListener {
 				return originalIcon;
 			}
 		} else {
-			System.err.println("Icono no encontrado: " + path);
 			BufferedImage placeholder = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 			Graphics2D g2d = placeholder.createGraphics();
 			try {

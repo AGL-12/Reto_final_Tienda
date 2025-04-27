@@ -22,6 +22,7 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 
 	private JButton btnConfigArticulos;
 	private JButton btnConfigUsuario;
+	private JButton btnVolver;
 	private JLabel lblTiendaLogo;
 	private JLabel lblTituloAdmin;
 	private BackgroundPanel contentPaneConFondo;
@@ -30,8 +31,8 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 	private JPanel panelCentral;
 	private JPanel panelBotones;
 	private JPanel panelLogo;
+	private JPanel panelInferior;
 
-	// Constantes que usaremos para el estilo
 	private static final Font FONT_TITULO_ADMIN = new Font("Segoe UI", Font.BOLD, 20);
 	private static final Font FONT_BOTON_ADMIN = new Font("Segoe UI", Font.BOLD, 14);
 	private static final Color COLOR_BOTON_ADMIN = new Color(0x5C6BC0);
@@ -40,15 +41,12 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 	private static final Color COLOR_TITULO_ADMIN = new Color(50, 50, 50);
 	private static final Color COLOR_FALLBACK_FONDO = new Color(235, 235, 235);
 
-	// Para el padding y espacio
 	private static final int PADDING_GENERAL_ADMIN = 20;
 	private static final int PADDING_INTERNO_ADMIN = 10;
 	private static final int GAP_BOTONES_ADMIN = 15;
 
-	// Variable para hacer transparente el icono
 	private static final Color COLOR_TRANSPARENTE_ICONO = Color.WHITE;
 
-	// Para insertar el fondo
 	private static class BackgroundPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 		private transient BufferedImage backgroundImage;
@@ -61,7 +59,7 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 				}
 				backgroundImage = ImageIO.read(imgUrl);
 			} catch (IOException | IllegalArgumentException e) {
-				System.err.println("Error al cargar la imagen de fondo '" + imagePath + "': " + e.getMessage());
+				e.getMessage();
 				backgroundImage = null;
 			}
 			setOpaque(backgroundImage == null);
@@ -79,9 +77,6 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		}
 	}
 
-	/**
-	 * Create the dialog.
-	 */
 	public VentanaIntermedia(JDialog padre) {
 		super(padre, "Menú Administrador", true);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -92,22 +87,16 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 				PADDING_GENERAL_ADMIN, PADDING_GENERAL_ADMIN));
 		setContentPane(contentPaneConFondo);
 
-		initComponents(); // Configura y añade componentes
+		initComponents();
 
-		setPreferredSize(new Dimension(600, 480)); // Tamaño base
-		pack(); // Ajusta al contenido preferido (ahora influenciado por el setPreferredSize de
-				// panelBotones)
-		setMinimumSize(new Dimension(550, 450)); // Mínimo después de pack
-		setLocationRelativeTo(padre); // Centrar
+		setPreferredSize(new Dimension(600, 480));
+		pack();
+		setMinimumSize(new Dimension(550, 450));
+		setLocationRelativeTo(padre);
 	}
 
-	/**
-	 * Inicializa y organiza los componentes usando Layout Managers. Se aplica la
-	 * corrección para WindowBuilder en panelBotones.
-	 */
 	private void initComponents() {
 
-		// Panel para el titulo
 		panelTitulo = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		panelTitulo.setOpaque(false);
 		lblTituloAdmin = new JLabel("Menú de Administrador");
@@ -116,42 +105,24 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		panelTitulo.add(lblTituloAdmin);
 		contentPaneConFondo.add(panelTitulo, BorderLayout.NORTH);
 
-		// Panel para el centro
 		panelCentral = new JPanel(new BorderLayout(PADDING_INTERNO_ADMIN * 2, 0));
 		panelCentral.setOpaque(false);
 
-		// panel para los botones
 		panelBotones = new JPanel();
 		panelBotones.setLayout(new BoxLayout(panelBotones, BoxLayout.Y_AXIS));
 		panelBotones.setOpaque(false);
-		// Padding para el panel de botones
 		panelBotones.setBorder(new EmptyBorder(PADDING_INTERNO_ADMIN, PADDING_INTERNO_ADMIN, PADDING_INTERNO_ADMIN,
 				PADDING_INTERNO_ADMIN));
 
-		// Creacion de botones y ruta del icono
 		btnConfigUsuario = crearAdminBoton("Gestionar Usuarios", "/iconos/admin.png");
 		btnConfigArticulos = crearAdminBoton("Gestionar Artículos", "/iconos/inventory.png");
 
-		// Añadir los botones
 		panelBotones.add(btnConfigUsuario);
 		panelBotones.add(Box.createRigidArea(new Dimension(0, GAP_BOTONES_ADMIN)));
 		panelBotones.add(btnConfigArticulos);
-		panelBotones.add(Box.createVerticalGlue()); // Empuja los botones hacia arriba
-
-		try {
-			// Copia las dimensiones del primer boton
-			Dimension buttonSize = btnConfigUsuario.getPreferredSize();
-			int prefWidth = buttonSize.width + (PADDING_INTERNO_ADMIN * 2);
-			int prefHeight = (buttonSize.height * 2) + GAP_BOTONES_ADMIN + (PADDING_INTERNO_ADMIN * 2);
-			panelBotones.setPreferredSize(new Dimension(prefWidth, prefHeight));
-		} catch (Exception e) {
-			panelBotones.setPreferredSize(new Dimension(250, 150)); // Un tamaño por defecto si falla la dimension
-																	// anterior
-		}
 
 		panelCentral.add(panelBotones, BorderLayout.WEST);
 
-		// Panel logo
 		panelLogo = new JPanel(new GridBagLayout());
 		panelLogo.setOpaque(false);
 
@@ -180,13 +151,44 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		gbcLogo.weighty = 1.0;
 		panelLogo.add(lblTiendaLogo, gbcLogo);
 
-		panelCentral.add(panelLogo, BorderLayout.CENTER); // Añadir panel de logo al centro
+		panelCentral.add(panelLogo, BorderLayout.CENTER);
 		contentPaneConFondo.add(panelCentral, BorderLayout.CENTER);
+
+		panelInferior = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		panelInferior.setOpaque(false);
+
+		btnVolver = new JButton("Volver");
+		btnVolver.setFont(FONT_BOTON_ADMIN);
+		btnVolver.setBackground(COLOR_BOTON_ADMIN);
+		btnVolver.setForeground(COLOR_TEXTO_BOTON_ADMIN);
+		btnVolver.setOpaque(true);
+		btnVolver.setContentAreaFilled(true);
+		btnVolver.setBorderPainted(false);
+		btnVolver.setFocusPainted(false);
+		btnVolver.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		// Usamos un margen un poco más ajustado para el botón volver
+		btnVolver.setMargin(new Insets(PADDING_INTERNO_ADMIN / 2 + 2, PADDING_INTERNO_ADMIN + 5,
+				PADDING_INTERNO_ADMIN / 2 + 2, PADDING_INTERNO_ADMIN + 5));
+		btnVolver.addActionListener(this);
+
+		final Color originalBgVolver = btnVolver.getBackground();
+		final Color hoverBgVolver = COLOR_BOTON_ADMIN_HOVER;
+		btnVolver.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				btnVolver.setBackground(hoverBgVolver);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				btnVolver.setBackground(originalBgVolver);
+			}
+		});
+
+		panelInferior.add(btnVolver);
+		contentPaneConFondo.add(panelInferior, BorderLayout.SOUTH);
 	}
 
-	/**
-	 * JButton para el menu administrador
-	 */
 	private JButton crearAdminBoton(String texto, String iconoPath) {
 		JButton btn = new JButton(texto);
 		btn.setFont(FONT_BOTON_ADMIN);
@@ -194,7 +196,6 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		btn.setHorizontalAlignment(SwingConstants.LEFT);
 		btn.setIconTextGap(PADDING_INTERNO_ADMIN);
 
-		// Estilo del boton
 		btn.setBackground(COLOR_BOTON_ADMIN);
 		btn.setForeground(COLOR_TEXTO_BOTON_ADMIN);
 		btn.setOpaque(true);
@@ -204,11 +205,10 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		btn.setMargin(new Insets(PADDING_INTERNO_ADMIN, PADDING_INTERNO_ADMIN * 2, PADDING_INTERNO_ADMIN,
 				PADDING_INTERNO_ADMIN * 2));
-		btn.setAlignmentX(Component.LEFT_ALIGNMENT); // **Restaurado** para BoxLayout
+		btn.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 		btn.addActionListener(this);
 
-		// Para provocar el efecto hover
 		final Color originalBg = btn.getBackground();
 		final Color hoverBg = COLOR_BOTON_ADMIN_HOVER;
 		btn.addMouseListener(new MouseAdapter() {
@@ -226,14 +226,15 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		return btn;
 	}
 
-	/**
-	 * Método auxiliar para abrir otro JDialog.
-	 */
 	public void abrirOpcion(JDialog abrirOpc) {
 		if (abrirOpc != null) {
 			this.setVisible(false);
 			abrirOpc.setVisible(true);
-			this.setVisible(true);
+			// Solo volvemos a hacer visible si la ventana hija era modal
+			// y esta ventana no ha sido 'disposed'
+			if (abrirOpc.isModal() && this.isDisplayable()) {
+				this.setVisible(true);
+			}
 		}
 	}
 
@@ -244,13 +245,15 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 
 		if (source == btnConfigArticulos) {
 			ventanaAAbrir = new AdminConfigArticulos(this);
+			abrirOpcion(ventanaAAbrir);
 		} else if (source == btnConfigUsuario) {
 			ventanaAAbrir = new AdminConfigUsuario(this);
+			abrirOpcion(ventanaAAbrir);
+		} else if (source == btnVolver) {
+			this.dispose();
 		}
-		abrirOpcion(ventanaAAbrir);
 	}
 
-	// Metodo para hacer el icono transparente
 	private ImageIcon cargarIcono(String path, int width, int height) {
 		URL imgURL = getClass().getResource(path);
 		if (imgURL != null) {
@@ -264,7 +267,6 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 			return makeTransparent(scaledIcon, COLOR_TRANSPARENTE_ICONO);
 
 		} else {
-			System.err.println("Icono no encontrado: " + path);
 			return crearIconoPlaceholder(width, height);
 		}
 	}
@@ -288,7 +290,6 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		return new ImageIcon(placeholder);
 	}
 
-	// Elimina el color de fondo
 	private ImageIcon makeTransparent(ImageIcon icon, final Color colorToRemove) {
 		if (icon == null)
 			return null;
@@ -312,4 +313,37 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		return new ImageIcon(transparentImage);
 	}
 
+	static class AdminConfigArticulos extends JDialog {
+		private static final long serialVersionUID = 1L;
+
+		public AdminConfigArticulos(Dialog owner) {
+			super(owner, "Configurar Artículos", true);
+			setSize(400, 300);
+			setLocationRelativeTo(owner);
+			setLayout(new BorderLayout());
+			add(new JLabel("Ventana de Configuración de Artículos", SwingConstants.CENTER), BorderLayout.CENTER);
+			JButton closeButton = new JButton("Cerrar");
+			closeButton.addActionListener(e -> dispose());
+			JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+			buttonPanel.add(closeButton);
+			add(buttonPanel, BorderLayout.SOUTH);
+		}
+	}
+
+	static class AdminConfigUsuario extends JDialog {
+		private static final long serialVersionUID = 1L;
+
+		public AdminConfigUsuario(Dialog owner) {
+			super(owner, "Configurar Usuarios", true);
+			setSize(400, 300);
+			setLocationRelativeTo(owner);
+			setLayout(new BorderLayout());
+			add(new JLabel("Ventana de Configuración de Usuarios", SwingConstants.CENTER), BorderLayout.CENTER);
+			JButton closeButton = new JButton("Cerrar");
+			closeButton.addActionListener(e -> dispose());
+			JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+			buttonPanel.add(closeButton);
+			add(buttonPanel, BorderLayout.SOUTH);
+		}
+	}
 }

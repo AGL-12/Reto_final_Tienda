@@ -112,7 +112,6 @@ public class VistaLogIn extends JFrame implements ActionListener {
 		setTitle("Welcome to DYE TOOLS");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
-		
 
 		// ContentPane con el fondo asignado
 		contentPane = new JPanel(new BorderLayout(20, 20)) {
@@ -289,7 +288,7 @@ public class VistaLogIn extends JFrame implements ActionListener {
 			e.visualizarMen();
 			limpiar();
 		} catch (Exception ex) {
-			System.err.println("Error inesperado durante el login: " + ex.getMessage());
+			ex.getMessage();
 			ex.printStackTrace();
 			JOptionPane.showMessageDialog(this,
 					"Ocurrió un error inesperado al intentar iniciar sesión.\nPor favor, inténtalo de nuevo o contacta al soporte.",
@@ -379,8 +378,6 @@ public class VistaLogIn extends JFrame implements ActionListener {
 				} catch (IOException ioException) {
 					/* Ignorar */ }
 			}
-		} else {
-			System.err.println("No se pudo encontrar el recurso de imagen en el classpath: " + ruta);
 		}
 
 		return crearPlaceholderIcon(width, height);

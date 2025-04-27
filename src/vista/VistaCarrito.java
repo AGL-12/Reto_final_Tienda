@@ -84,7 +84,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
 	 *                     pero sin ID de pedido aún).
 	 */
 	public VistaCarrito(JDialog vistaTienda, List<Compra> listaCompra, Pedido preSetCompra) {
-		super(vistaTienda, "Carrito de Compra", true);
+		super(vistaTienda, "Order Preview ", true);
 		this.localListaCompra = listaCompra;
 		this.localPedido = preSetCompra;
 
@@ -110,7 +110,7 @@ public class VistaCarrito extends JDialog implements ActionListener {
 		((JPanel) getContentPane()).setBorder(new EmptyBorder(15, 15, 15, 15)); // Padding general
 
 		// Titulo
-		JLabel lblTitulo = new JLabel("CARRITO DE COMPRA");
+		JLabel lblTitulo = new JLabel("ORDER PREVIEW");
 		lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 20));
 		lblTitulo.setHorizontalAlignment(SwingConstants.CENTER);
 		lblTitulo.setBorder(new EmptyBorder(0, 0, 10, 0)); // Espacio inferior
@@ -338,8 +338,6 @@ public class VistaCarrito extends JDialog implements ActionListener {
 						precioTotalArticulo });
 
 				totalCompraCalculado += precioTotalArticulo;
-			} else {
-				System.err.println("Advertencia: No se encontró el artículo con ID " + com.getId_art());
 			}
 		}
 
@@ -372,8 +370,8 @@ public class VistaCarrito extends JDialog implements ActionListener {
 	 */
 	private void fullCompra() {
 		if (localPedido == null || localListaCompra == null || localListaCompra.isEmpty()) {
-			JOptionPane.showMessageDialog(this, "Error: No hay datos de pedido o el carrito está vacío.",
-					"Error Interno", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Error: No hay datos de pedido la compra está vacía.", "Error Interno",
+					JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
