@@ -73,7 +73,13 @@ public class AdminListaCliente extends JDialog implements ActionListener {
 		btnTest.addActionListener(this);
 
 	}
-
+	/**
+	 * Maneja los eventos de acción disparados por los componentes en este diálogo.
+	 * Actualmente, solo escucha el clic en el botón btnTest
+	 * y llama al método  mostrarFilasSeleccionadas.
+	 *
+	 * @param e El ActionEvent que ocurrió.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(btnTest)) {
@@ -81,7 +87,11 @@ public class AdminListaCliente extends JDialog implements ActionListener {
 		}
 	}
 
-	// El metodo que mostrara las filas seleccionadas
+	/**
+	 * Identifica las filas que han sido seleccionadas (marcadas con el checkbox)
+	 * en la tabla de clientes. Almacena los índices de las filas seleccionadas
+	 * en un conjunto.
+	 */
 	private void mostrarFilasSeleccionadas() {
 		Set<Integer> filasSeleccionadas = new HashSet<>();
 
