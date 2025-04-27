@@ -60,13 +60,13 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 			try {
 				URL imgUrl = getClass().getResource(imagePath);
 				if (imgUrl == null) {
-					System.err.println("Error: Recurso no encontrado: " + imagePath);
+					
 					backgroundImage = null;
 				} else {
 					backgroundImage = ImageIO.read(imgUrl);
 				}
 			} catch (IOException | IllegalArgumentException e) {
-				System.err.println("Error cargando imagen de fondo: " + e.getMessage());
+				e.getMessage();
 				backgroundImage = null;
 			}
 			setOpaque(backgroundImage == null);
@@ -167,7 +167,7 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 			Image imgEscalada = img.getScaledInstance(nuevoAncho, nuevoAlto, Image.SCALE_SMOOTH);
 			lblTiendaLogo.setIcon(new ImageIcon(imgEscalada));
 		} catch (NullPointerException | IllegalArgumentException e) {
-			System.err.println("Error cargando logo: " + e.getMessage());
+			e.getMessage();
 			lblTiendaLogo.setText("Logo no disponible");
 			lblTiendaLogo.setPreferredSize(new Dimension(250, 250));
 			lblTiendaLogo.setBorder(BorderFactory.createLineBorder(Color.GRAY));
@@ -346,11 +346,10 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 				}
 				return new ImageIcon(image);
 			} catch (Exception e) {
-				System.err.println("Error procesando icono: " + path + " - " + e.getMessage());
+				e.getMessage();
 				return crearIconoPlaceholder(width, height);
 			}
 		} else {
-			System.err.println("Error: Recurso de icono no encontrado: " + path);
 			return crearIconoPlaceholder(width, height);
 		}
 	}
