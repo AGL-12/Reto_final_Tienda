@@ -176,6 +176,11 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 			public void changedUpdate(DocumentEvent e) {
 			}
 
+			/**
+			 * Llama a validarCampo para el JTextField cuyo documento ha cambiado.
+			 * 
+			 * @param e El evento del documento.
+			 */
 			private void actualizarValidacion(DocumentEvent e) {
 				Object source = e.getDocument();
 				if (source == textStock.getDocument()) {
@@ -193,7 +198,15 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		textOferta.getDocument().addDocumentListener(validationListener);
 
 	}
-
+	/**
+	 * Habilita o deshabilita los campos de texto principales (Nombre, Descripción,
+	 * Precio, Oferta) y el ComboBox de Sección.
+	 * El campo Stock permanece siempre editable para permitir ajustes.
+	 * Se usa para prevenir la edición de ciertos campos cuando se modifica un
+	 * artículo existente (normalmente solo el stock se modifica).
+	 *
+	 * @param activado true para habilitar la edición, false para deshabilitarla.
+	 */
 	private void camposEditables(boolean activado) {
 		textPrecio.setEditable(activado);
 		textOferta.setEditable(activado);
@@ -201,7 +214,16 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		textDescripcion.setEditable(activado);
 		comboBoxSeccion.setEnabled(activado);
 	}
-
+	
+	/**
+	 * Valida el contenido de un JTextField que debería contener un número.
+	 * Comprueba si está vacío, si es un número válido (entero >= 0 para Stock,
+	 * flotante para Precio/Oferta).
+	 * Cambia el color del texto a rojo si no es válido, o a negro si es válido o
+	 * está vacío.
+	 *
+	 * @param campo El JTextField a validar.
+	 */
 	private void validarCampo(JTextField campo) {
 		String texto = campo.getText().trim();
 		boolean valido = true;
@@ -228,6 +250,11 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		}
 	}
 
+	/**
+	 * Recarga el JComboBox comboBoxArticulo con los artículos obtenidos.
+	 * Añade un primer elemento por defecto "Selecciona un artículo".
+	 * Intenta mantener la selección previa si es posible.
+	 */
 	private void añadirArticuloCombo() {
 		articulos = Principal.obtenerTodosArticulos();
 		Object selectedItem = comboBoxArticulo.getSelectedItem();
@@ -249,6 +276,16 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		}
 	}
 
+	/**
+	 * Maneja los eventos de acción generados por los botones (Añadir, Modificar,
+	 * Salir).
+	 * Valida los campos antes de realizar operaciones de alta o modificación.
+	 * Llama a los métodos añadir(),modificar() o
+	 * cerrar() según corresponda.
+	 * Muestra mensajes de error o éxito.
+	 *
+	 * @param e El evento de acción.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == btnAlta || e.getSource() == btnModify) {
@@ -276,6 +313,18 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		}
 	}
 
+
+	/**
+	 * Muestra la información del artículo seleccionado en el JComboBox
+	 * comboBoxArticulo
+	 * en los campos de texto correspondientes y selecciona la sección adecuada.
+	 * Si se selecciona el elemento por defecto ("Selecciona un artículo"), limpia
+	 * los campos.
+	 * Realiza validación visual inicial de los campos numéricos cargados.
+	 *
+	 * @return El objeto  Articulo seleccionado, o  null si no hay
+	 * selección válida.
+	 */
 	private Articulo enseñarInfo() {
 		Articulo art = null;
 		textStock.setForeground(COLOR_NORMAL);
@@ -303,6 +352,15 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		return art;
 	}
 
+	/**
+	 * Intenta modificar el artículo actualmente seleccionado 
+	 * Recopila la información de los campos (aunque típicamente solo el stock se
+	 * modifica aquí),
+	 * obtiene el ID del artículo seleccionado.
+	 * Muestra mensajes de éxito o error.
+	 * Precondición: comprobarCampos() debe haber sido llamado y retornado
+	 * true.
+	 */
 	private void modificar() {
 		Articulo art = recopilarInformacion();
 		Articulo seleccionado;
@@ -326,6 +384,11 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		}
 	}
 
+	/**
+	 * Limpia todos los campos de texto del formulario, deselecciona el ComboBox de
+	 * sección,
+	 * y restaura el color de fuente por defecto en los campos numéricos.
+	 */
 	private void limpiar() {
 		textNombre.setText("");
 		textDescripcion.setText("");
@@ -337,11 +400,20 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		textPrecio.setForeground(COLOR_NORMAL);
 		textOferta.setForeground(COLOR_NORMAL);
 	}
-
+	/**
+	 * Cierra y libera los recursos de la ventana de diálogo.
+	 */
 	private void cerrar() {
 		dispose();
 	}
-
+	/**
+	 * Intenta añadir un nuevo artículo a la base de datos.
+	 * Recopila la información de los campos de texto y ComboBox, crea un nuevo
+	 * objeto Articulo (con ID 0 o generado por la BD).
+	 * Muestra mensajes de éxito o error.
+	 * Precondición: comprobarCampos() debe haber sido llamado y retornado
+	 * true.
+	 */
 	private void añadir() {
 		Articulo art = recopilarInformacion();
 		if (art == null)
@@ -356,7 +428,14 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 			e.printStackTrace();
 		}
 	}
-
+	/**
+	 * Recopila los datos introducidos en los campos del formulario y crea un objeto
+	 * Articulo.
+	 * Realiza la conversión de tipos necesaria (String a int/float).
+	 *
+	 * @return Un objeto Articulo con los datos recopilados si son válidos,
+	 * o null si la validación falla o ocurre un error de conversión.
+	 */
 	private Articulo recopilarInformacion() {
 		Articulo art = new Articulo();
 		if (!comprobarCampos()) {
@@ -377,7 +456,16 @@ public class AdminConfigArticulos extends JDialog implements ActionListener {
 		}
 
 	}
-
+	/**
+	 * Comprueba si todos los campos obligatorios del formulario están rellenos y si
+	 * los campos numéricos tienen un formato válido y cumplen las restricciones
+	 * (stock >= 0, precio >= 0, oferta >= 0).
+	 * También verifica el estado del color de los campos numéricos (que refleja la
+	 * validación en tiempo real).
+	 *
+	 * @return true si todos los campos son válidos, false en caso
+	 * contrario.
+	 */
 	private boolean comprobarCampos() {
 		boolean verificador = true;
 		int stock;

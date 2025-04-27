@@ -50,7 +50,11 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 	private static class BackgroundPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 		private transient BufferedImage backgroundImage;
-
+		
+		/**
+		 * Crea un nuevo BackgroundPanel con la imagen especificada como fondo.
+		 * @param imagePath La ruta al recurso de imagen.
+		 */
 		public BackgroundPanel(String imagePath) {
 			try {
 				URL imgUrl = getClass().getResource(imagePath);
@@ -64,7 +68,13 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 			}
 			setOpaque(backgroundImage == null);
 		}
-
+		
+		/**
+		 * Dibuja el panel y su contenido. Si backgroundImage no es nulo,
+		 * dibuja la imagen de fondo escalada para llenar el panel. De lo contrario,
+		 * rellena el fondo con un color de reserva.
+		 * @param g El contexto gráfico a usar para dibujar.
+		 */
 		@Override
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
@@ -95,6 +105,11 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		setLocationRelativeTo(padre);
 	}
 
+	/**
+	 * Inicializa y configura todos los componentes de la interfaz de usuario
+	 * de la ventana de administrador. Crea paneles, etiquetas, botones y los
+	 * organiza en el layout de la ventana. También carga imágenes y configura estilos.
+	 */
 	private void initComponents() {
 
 		panelTitulo = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -189,6 +204,14 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		contentPaneConFondo.add(panelInferior, BorderLayout.SOUTH);
 	}
 
+	/**
+	 * Crea y configura un botón con un estilo específico para el menú de administrador.
+	 * Incluye texto, un icono cargado de un recurso y efectos visuales (hover).
+	 *
+	 * @param texto El texto que se mostrará en el botón.
+	 * @param iconoPath La ruta al recurso de imagen para el icono del botón.
+	 * @return El JButton configurado.
+	 */
 	private JButton crearAdminBoton(String texto, String iconoPath) {
 		JButton btn = new JButton(texto);
 		btn.setFont(FONT_BOTON_ADMIN);
@@ -226,6 +249,13 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		return btn;
 	}
 
+	/**
+	 * Abre una ventana de diálogo especificada, ocultando la ventana actual
+	 * si la ventana a abrir es modal, y volviéndola a hacer visible después
+	 * si esta ventana no ha sido cerrada.
+	 *
+	 * @param abrirOpc La JDialog a abrir.
+	 */
 	public void abrirOpcion(JDialog abrirOpc) {
 		if (abrirOpc != null) {
 			this.setVisible(false);
@@ -238,6 +268,13 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		}
 	}
 
+	/**
+	 * Maneja los eventos de acción disparados por los botones en este diálogo.
+	 * Identifica qué botón fue presionado y abre la ventana de configuración
+	 * correspondiente (Usuarios o Artículos), o cierra la ventana actual si se pulsa "Volver".
+	 *
+	 * @param e El ActionEvent que ocurrió.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
@@ -253,7 +290,16 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 			this.dispose();
 		}
 	}
-
+	/**
+	 * Carga un icono desde un recurso dado, lo escala al tamaño especificado
+	 * y opcionalmente lo hace transparente eliminando un color específico.
+	 * Si el recurso no se encuentra, crea y devuelve un icono de marcador de posición.
+	 *
+	 * @param path La ruta al recurso del icono.
+	 * @param width El ancho deseado para el icono escalado.
+	 * @param height La altura deseada para el icono escalado.
+	 * @return Un ImageIcon escalado y procesado, o un marcador de posición si falla la carga.
+	 */
 	private ImageIcon cargarIcono(String path, int width, int height) {
 		URL imgURL = getClass().getResource(path);
 		if (imgURL != null) {
@@ -270,7 +316,16 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 			return crearIconoPlaceholder(width, height);
 		}
 	}
-
+	
+	/**
+	 * Crea un icono de marcador de posición (placeholder) visualmente reconocible
+	 * para usar cuando un recurso de icono real no se puede cargar.
+	 * Dibuja un cuadrado con un borde y una X en diagonal.
+	 *
+	 * @param width El ancho del icono placeholder.
+	 * @param height La altura del icono placeholder.
+	 * @return Un ImageIcon que representa un icono de marcador de posición.
+	 */
 	private ImageIcon crearIconoPlaceholder(int width, int height) {
 		BufferedImage placeholder = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = placeholder.createGraphics();
@@ -290,6 +345,13 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		return new ImageIcon(placeholder);
 	}
 
+	/**
+	 * Crea una nueva versión de un ImageIcon donde un color específico se vuelve transparente.
+	 *
+	 * @param icon El ImageIcon original.
+	 * @param colorToRemove El color que se desea hacer transparente.
+	 * @return Un nuevo ImageIcon con el color especificado hecho transparente, o null si el icono de entrada es null.
+	 */
 	private ImageIcon makeTransparent(ImageIcon icon, final Color colorToRemove) {
 		if (icon == null)
 			return null;
@@ -313,6 +375,11 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 		return new ImageIcon(transparentImage);
 	}
 
+	/**
+	 * Clase placeholder simple para la ventana de configuración de artículos.
+	 * Esta implementación es básica y solo muestra un mensaje.
+	 * En una aplicación real, sería una ventana de gestión completa.
+	 */
 	static class AdminConfigArticulos extends JDialog {
 		private static final long serialVersionUID = 1L;
 
@@ -329,7 +396,11 @@ public class VentanaIntermedia extends JDialog implements ActionListener {
 			add(buttonPanel, BorderLayout.SOUTH);
 		}
 	}
-
+	/**
+	 * Clase placeholder simple para la ventana de configuración de usuarios.
+	 * Esta implementación es básica y solo muestra un mensaje.
+	 * En una aplicación real, sería una ventana de gestión completa.
+	 */
 	static class AdminConfigUsuario extends JDialog {
 		private static final long serialVersionUID = 1L;
 

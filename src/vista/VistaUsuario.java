@@ -458,6 +458,11 @@ public class VistaUsuario extends JDialog implements ActionListener {
 			return null; // Devuelve null para que el botón no muestre un icono roto
 		}
 	}
+	/**
+	 * Método para checkear si estan bien los campos siguiendo los patrones del DNI y del email.
+	 * 
+	 * @return true si cumple todos los requisitos y en caso contrario devuelve false.
+	 */
 
 	private boolean validarCampos(boolean modificarModo) {
 		String errores = "";

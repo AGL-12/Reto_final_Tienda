@@ -158,7 +158,11 @@ public class VerPedidosCliente extends JDialog {
 		// Crear la tabla
 		tablePedidos = new JTable(modelPedidos) {
 			private static final long serialVersionUID = 1L;
-
+			
+			/**
+			 * Configura el renderizador para cada celda de la tabla de pedidos.
+			 * Aplica estilos como opacidad, color de fondo/fuente, bordes y alineación.
+			 */
 			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				Component c = super.prepareRenderer(renderer, row, column);
@@ -425,14 +429,29 @@ public class VerPedidosCliente extends JDialog {
 		tabbedPane.setSelectedComponent(panelArticulos);
 	}
 
-	// Metodo helper
+	/**
+	 * Aplica un renderizador de cabecera personalizado a la tabla dada.
+	 * Configura la fuente, colores, bordes y alineación de la cabecera.
+	 *
+	 * @param table La JTable a la que se aplicará el renderizador de cabecera.
+	 */
 	private void applyCustomHeaderRenderer(JTable table) {
 		JTableHeader header = table.getTableHeader();
 		header.setReorderingAllowed(false);
 		header.setResizingAllowed(true);
 		header.setDefaultRenderer(new TableCellRenderer() {
 			private final TableCellRenderer defaultRenderer = table.getTableHeader().getDefaultRenderer();
-
+			
+			/**
+			 * Devuelve el componente utilizado para renderizar la cabecera de una celda.
+			 * @param t La tabla.
+			 * @param v El valor de la celda (texto de la cabecera).
+			 * @param sel Si la celda está seleccionada (no aplica a cabeceras).
+			 * @param foc Si la celda tiene el foco (no aplica a cabeceras).
+			 * @param r La fila de la celda (siempre 0 para cabeceras).
+			 * @param c La columna de la celda.
+			 * @return El componente renderizado.
+			 */
 			@Override
 			public Component getTableCellRendererComponent(JTable t, Object v, boolean sel, boolean foc, int r, int c) {
 				Component comp = defaultRenderer.getTableCellRendererComponent(t, v, sel, foc, r, c);
@@ -454,7 +473,14 @@ public class VerPedidosCliente extends JDialog {
 		header.repaint();
 	}
 
-	// Ajustar el ancho de las columnas
+	/**
+	 * Ajusta automáticamente el ancho preferido de cada columna de la tabla
+	 * para que se adapte al contenido más ancho (cabecera o celdas) más un padding.
+	 * Este ajuste se realiza después de que la interfaz de usuario sea visible para asegurar
+	 * que las dimensiones de los componentes se han calculado.
+	 *
+	 * @param table La JTable cuyas columnas se van a ajustar.
+	 */
 	private void adjustColumnWidths(JTable table) {
 		SwingUtilities.invokeLater(() -> {
 			TableColumnModel columnModel = table.getColumnModel();

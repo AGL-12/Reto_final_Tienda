@@ -102,7 +102,15 @@ public class DaoImplementMySQL implements Dao {
 			}
 		}
 	}
-
+	/**
+	 * Autentica a un cliente en la base de datos comparando usuario y contraseña.
+	 *
+	 * @param cli Un objeto Cliente que contiene el nombre de usuario y la contraseña
+	 * a verificar.
+	 * @return Un objeto Cliente con todos los datos si la autenticación es exitosa.
+	 * @throws LoginError Si el usuario o la contraseña son incorrectos, o si ocurre
+	 * un error de SQL durante la consulta.
+	 */
 	@Override
 	public Cliente login(Cliente cli) throws LoginError {
 
@@ -145,6 +153,13 @@ public class DaoImplementMySQL implements Dao {
 		return usuarioAutenticado;
 	}
 
+	/**
+	 * Modifica los datos de un artículo existente en la base de datos.
+	 *
+	 * @param art El objeto Articulo con los datos actualizados y el ID del artículo
+	 * a modificar.
+	 * @throws modifyError Si ocurre un error de SQL durante la actualización.
+	 */
 	@Override
 	public void modificarArticulo(Articulo art) throws modifyError {
 		System.out.println(art.toString());
@@ -167,7 +182,12 @@ public class DaoImplementMySQL implements Dao {
 		}
 
 	}
-
+	/**
+	 * Elimina un artículo de la base de datos utilizando su ID.
+	 *
+	 * @param art El objeto Articulo que contiene el ID del artículo a eliminar.
+	 * @throws modifyError Si ocurre un error de SQL durante la eliminación.
+	 */
 	@Override
 	public void eliminarArticulo(Articulo art) throws modifyError {
 
@@ -184,6 +204,14 @@ public class DaoImplementMySQL implements Dao {
 		}
 	}
 
+	/**
+	 * Añade un nuevo artículo a la base de datos.
+	 * Obtiene automáticamente el siguiente ID disponible antes de la inserción.
+	 *
+	 * @param art El objeto Articulo con los datos del nuevo artículo (el ID se
+	 * ignora y se genera automáticamente).
+	 * @throws modifyError Si ocurre un error de SQL durante la inserción.
+	 */
 	@Override
 	public void añadirArticulo(Articulo art) throws modifyError {
 		int id;
@@ -209,6 +237,13 @@ public class DaoImplementMySQL implements Dao {
 
 	}
 
+	/**
+	 * Recupera todos los clientes registrados en la base de datos.
+	 *
+	 * @return Un Map donde la clave es el ID del cliente  y el valor es el
+	 * objeto Cliente correspondiente. Retorna un mapa vacío si no hay
+	 * clientes o si ocurre un error.
+	 */
 	public Map<Integer, Cliente> listarClientesTod() {
 		Map<Integer, Cliente> todosClientes = new HashMap<>();
 		ResultSet rs = null;
@@ -255,6 +290,14 @@ public class DaoImplementMySQL implements Dao {
 		return todosClientes;
 	}
 
+	/**
+	 * Carga todas las compras asociadas a un ID de cliente específico.
+	 *
+	 * @param idCliente El ID del cliente cuyas compras se van a cargar.
+	 * @return Un Map donde la clave es el ID del pedido asociado a la
+	 * compra y el valor es el objeto Compra. Retorna un mapa vacío si no
+	 * hay compras o si ocurre un error.
+	 */
 	private Map<Integer, Compra> cargarMapaCom(int id) {
 		Map<Integer, Compra> paraCargar = new HashMap<>();
 
@@ -282,6 +325,12 @@ public class DaoImplementMySQL implements Dao {
 		}
 		return paraCargar;
 	}
+	/**
+	 * Registra un nuevo cliente en la base de datos.
+	 *
+	 * @param clien El objeto Cliente con los datos a insertar.
+	 * @throws AltaError Si ocurre un error de SQL durante la inserción. 
+	 */
 
 	@Override
 	public void altaCliente(Cliente clien) throws AltaError {
@@ -341,6 +390,13 @@ public class DaoImplementMySQL implements Dao {
 		}
 	}*/
 	
+	/**
+	 * Modifica los datos de un cliente existente en la base de datos.
+	 *
+	 * @param clien El objeto Cliente con los datos actualizados y el ID del cliente
+	 * a modificar.
+	 * @throws modifyError Si ocurre un error de SQL durante la actualización.
+	 */
 	@Override
 	public void modificarCliente(Cliente clien) throws modifyError {
 	    openConnection();
@@ -376,7 +432,13 @@ public class DaoImplementMySQL implements Dao {
 	        closeConnection();
 	    }
 	}
-
+	
+	/**
+	 * Elimina un cliente de la base de datos utilizando su ID.
+	 *
+	 * @param clien El objeto Cliente que contiene el ID del cliente a eliminar.
+	 * @throws DropError Si ocurre un error de SQL durante la eliminación.
+	 */
 	@Override
 	public void bajaCliente(Cliente clien) throws DropError {
 
@@ -393,6 +455,13 @@ public class DaoImplementMySQL implements Dao {
 		}
 	}
 
+	/**
+	 * Recupera todos los artículos disponibles en la base de datos.
+	 *
+	 * @return Un Map donde la clave es el ID del artículo y el valor es
+	 * el objeto Articulo correspondiente. Retorna un mapa vacío si no hay
+	 * artículos o si ocurre un error.
+	 */
 	public Map<Integer, Articulo> obtenerTodosArticulos() {
 		Map<Integer, Articulo> articulos = new HashMap<>();
 		ResultSet rs = null;
@@ -419,6 +488,15 @@ public class DaoImplementMySQL implements Dao {
 		return articulos;
 
 	}
+	
+	/**
+	 * Guarda un nuevo pedido (orden) en la base de datos.
+	 *
+	 * @param ped El objeto Pedido que contiene los detalles del pedido a guardar
+	 * (ID del pedido, ID del cliente, total, fecha).
+	 * @throws SQLException Si ocurre un error durante la inserción en la base de
+	 * datos.
+	 */
 
 	public void guardarPedido(Pedido ped) throws SQLException {
 		openConnection();
@@ -439,6 +517,16 @@ public class DaoImplementMySQL implements Dao {
 
 	}
 
+	/**
+	 * Guarda una lista de artículos comprados (objetos Compra) asociados a un
+	 * pedido.
+	 * Después de insertar las compras, actualiza el stock de cada artículo
+	 * correspondiente.
+	 *
+	 * @param listaCompra La lista de objetos Compra a guardar en la base de datos.
+	 * @throws SQLException Si ocurre un error durante la inserción de las compras o
+	 * la actualización del stock.
+	 */
 	public void guardarCompra(List<Compra> listaCompra) throws SQLException {
 		openConnection();
 		try {
@@ -461,7 +549,15 @@ public class DaoImplementMySQL implements Dao {
 
 		}
 	}
-
+	
+	/**
+	 * Actualiza (decrementa) el stock de un artículo específico en la base de
+	 * datos.
+	 *
+	 * @param idArticulo       El ID del artículo cuyo stock se va a actualizar.
+	 * @param cantidadComprada La cantidad que se restará del stock actual.
+	 * @throws SQLException Si ocurre un error durante la actualización del stock.
+	 */
 	public void actualizarStock(int idArticulo, int cantidadComprada) throws SQLException {
 		openConnection();
 		try {
@@ -479,6 +575,12 @@ public class DaoImplementMySQL implements Dao {
 
 	}
 
+	/**
+	 * Crea un registro de pedido en la base de datos para un usuario.
+	 *
+	 * @param nuevoBD El objeto Pedido con los datos iniciales (ID pedido, ID
+	 * usuario, total, fecha) a insertar.
+	 */
 	@Override
 	public void crearPedidoUsuario(Pedido nuevoBD) {
 		openConnection();
@@ -499,6 +601,13 @@ public class DaoImplementMySQL implements Dao {
 		}
 	}
 
+	/**
+	 * Obtiene el ID máximo actual de la tabla de pedidos y le suma 1.
+	 * Útil para generar el ID del siguiente pedido a insertar.
+	 *
+	 * @return El siguiente ID de pedido potencial (max ID + 1). Retorna 1 si no hay
+	 * pedidos.
+	 */
 	@Override
 	public int obtenerUltimoIdPed() {
 		int ultimoId = 0;
@@ -520,7 +629,14 @@ public class DaoImplementMySQL implements Dao {
 		}
 		return ultimoId + 1;
 	}
-
+	
+	/**
+	 * Busca y recupera un artículo específico de la base de datos por su ID.
+	 *
+	 * @param id_art El ID del artículo a buscar.
+	 * @return El objeto Articulo encontrado, o  null si no se encuentra un
+	 * artículo con ese ID o si ocurre un error.
+	 */
 	@Override
 	public Articulo buscarArticulo(int id_art) {
 		openConnection();
@@ -550,6 +666,13 @@ public class DaoImplementMySQL implements Dao {
 
 		return busca;
 	}
+	/**
+	 * Obtiene el ID máximo actual de la tabla de clientes y le suma 1.
+	 * Útil para generar el ID del siguiente cliente a insertar.
+	 *
+	 * @return El siguiente ID de cliente potencial (max ID + 1). Retorna 1 si no
+	 * hay clientes.
+	 */
 
 	@Override
 	public int obtenerNewIdCliente() {
@@ -571,7 +694,16 @@ public class DaoImplementMySQL implements Dao {
 		}
 		return ultimoId + 1;
 	}
-
+	/**
+	 * Obtiene una lista de artículos asociados a un pedido específico.
+	 *
+	 * @param id_ped El ID del **pedido** cuyos artículos se desean obtener.
+	 * @return Una lista de objetos Articulo que pertenecen al pedido especificado.
+	 * Incluye ID, nombre, precio y oferta del artículo (la cantidad viene
+	 * de la tabla compra, pero no se mapea al objeto Articulo aquí).
+	 * Retorna una lista vacía si el pedido no tiene artículos o si ocurre
+	 * un error.
+	 */
 	@Override
 	public List<Articulo> obtenerArticulosPedido(int id_clien) {
 		List<Articulo> listaArticulo = new ArrayList<>();
@@ -602,6 +734,14 @@ public class DaoImplementMySQL implements Dao {
 		return listaArticulo;
 	}
 
+	/**
+	 * Obtiene una lista de todos los pedidos realizados por un cliente específico.
+	 *
+	 * @param id_usu El ID del cliente cuyos pedidos se desean obtener.
+	 * @return Una lista de objetos Pedido asociados al cliente. Incluye ID del
+	 * pedido, ID del cliente, total y fecha de compra. Retorna una lista
+	 * vacía si el cliente no tiene pedidos o si ocurre un error.
+	 */
 	@Override
 	public List<Pedido> obtenerPedidosCliente(int id_usu) {
 		List<Pedido> listaPedidos = new ArrayList<>();
@@ -634,6 +774,12 @@ public class DaoImplementMySQL implements Dao {
 		return listaPedidos;
 	}
 
+	/**
+	 * Inserta una lista de compras (artículos de un pedido) en la base de datos.
+	 * Después de insertar, actualiza el stock de cada artículo comprado.
+	 *
+	 * @param localListaCompra La lista de objetos Compra a insertar.
+	 */
 	@Override
 	public void insertListCompra(List<Compra> localListaCompra) {
 		openConnection();
@@ -657,7 +803,15 @@ public class DaoImplementMySQL implements Dao {
 			updateStockArticulo(compra);
 		}
 	}
-
+	/**
+	 * Método auxiliar para actualizar el stock de un artículo después de
+	 * una compra.
+	 * Primero busca el artículo para obtener el stock actual, luego calcula el
+	 * nuevo stock y lo actualiza en la base de datos.
+	 *
+	 * @param com El objeto Compra que contiene el ID del artículo y la cantidad
+	 * comprada.
+	 */
 	private void updateStockArticulo(Compra com) {
 		Articulo cambio = buscarArticulo(com.getId_art());
 		openConnection();
@@ -675,7 +829,11 @@ public class DaoImplementMySQL implements Dao {
 			closeConnection();
 		}
 	}
-
+	/**
+	 * Inserta un registro completo de pedido en la base de datos.
+	 *
+	 * @param localPedido El objeto Pedido a insertar.
+	 */
 	@Override
 	public void insertPedido(Pedido localPedido) {
 		openConnection();
@@ -698,6 +856,16 @@ public class DaoImplementMySQL implements Dao {
 		}
 	}
 
+	/**
+	 * Obtiene la cantidad de un artículo específico dentro de un pedido
+	 * determinado.
+	 * Consulta directamente la tabla 'compra'.
+	 *
+	 * @param idPedido   El ID del pedido a consultar.
+	 * @param idArticulo El ID del artículo a buscar dentro del pedido.
+	 * @return La cantidad del artículo encontrado en ese pedido. Retorna 0 si el
+	 * artículo no está en el pedido o si ocurre un error.
+	 */
 	public int obtenerCantidadArticuloEnPedido(int idPedido, int idArticulo) {
 		int cantidad = 0;
 		openConnection();
@@ -716,6 +884,15 @@ public class DaoImplementMySQL implements Dao {
 		return cantidad;
 	}
 
+	/**
+	 * Verifica si ya existe un cliente con un nombre de usuario específico en la
+	 * base de datos.
+	 * Es útil para evitar nombres de usuario duplicados durante el registro.
+	 *
+	 * @param nombreUsuario El nombre de usuario a verificar.
+	 * @return true si el nombre de usuario ya existe, false en caso
+	 * contrario o si ocurre un error.
+	 */
 	public boolean existeUsuario(String nombreUsuario) {
 		ResultSet rs = null;
 		boolean usuarioExiste = false;
@@ -745,6 +922,13 @@ public class DaoImplementMySQL implements Dao {
 		return usuarioExiste;
 	}
 
+	/**
+	 * Obtiene el ID máximo actual de la tabla de artículos y le suma 1.
+	 * Útil para generar el ID del siguiente artículo a insertar.
+	 *
+	 * @return El siguiente ID de artículo potencial (max ID + 1). Retorna 1 si no
+	 * hay artículos.
+	 */
 	public int obtenerUltimoIdArt() {
 		int ultimoIdArt = 0;
 		ResultSet rs = null;
@@ -771,6 +955,16 @@ public class DaoImplementMySQL implements Dao {
 		return ultimoIdArt + 1;
 	}
 
+	/**
+	 * Calcula el gasto total de un cliente sumando el campo 'total' de todos sus
+	 * pedidos.
+	 * Utiliza una función SQL predefinida llamada  TOTALGASTADO.
+	 *
+	 * @param clien El objeto Cliente (se utiliza su ID) para el cual calcular el
+	 * gasto total.
+	 * @return El gasto total como un valor float. Retorna 0 si el cliente no
+	 * tiene pedidos, la función no existe, o si ocurre un error.
+	 */
 	@Override
 	public float totalGastado(Cliente clien) {
 		float resultado = 0;

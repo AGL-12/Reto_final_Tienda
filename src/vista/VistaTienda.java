@@ -82,6 +82,11 @@ public class VistaTienda extends JDialog implements ActionListener {
 		setLocationRelativeTo(owner);
 	}
 
+	/**
+	 * Inicializa y organiza los componentes principales de la interfaz de usuario
+	 * de la ventana de la tienda, excluyendo la tabla de artículos que se configura
+	 * por separado. Crea y posiciona los paneles de cabecera y botones.
+	 */
 	private void initComponents() {
 		JPanel panelCabecera = new JPanel();
 		// Establecer BoxLayout para apilar elementos verticalmente
@@ -137,6 +142,14 @@ public class VistaTienda extends JDialog implements ActionListener {
 		getContentPane().add(panelBotones, BorderLayout.SOUTH);
 	}
 
+	/**
+	 * Crea y configura un botón con estilos personalizados, incluyendo texto,
+	 * icono, colores, bordes, cursor y un efecto hover simple.
+	 *
+	 * @param texto     El texto que se mostrará en el botón.
+	 * @param iconoPath La ruta al recurso de imagen para el icono del botón.
+	 * @return El JButton configurado.
+	 */
 	private JButton crearBoton(String texto, String iconoPath) {
 		JButton btn = new JButton(texto);
 		btn.setFont(FONT_BOTON);
@@ -166,6 +179,15 @@ public class VistaTienda extends JDialog implements ActionListener {
 		return btn;
 	}
 
+	/**
+	 * Crea una nueva versión de un ImageIcon donde un color específico se vuelve
+	 * transparente. Convierte el ImageIcon a BufferedImage para manipulación de
+	 * píxeles.
+	 *
+	 * @param imageIcon El ImageIcon original.
+	 * @param color     El color que se desea hacer transparente.
+	 * @return Un nuevo ImageIcon con el color especificado hecho transparente.
+	 */
 	private ImageIcon makeTransparent(ImageIcon imageIcon, final Color color) {
 		Image image = imageIcon.getImage();
 		BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null),
@@ -183,6 +205,10 @@ public class VistaTienda extends JDialog implements ActionListener {
 		return new ImageIcon(bufferedImage);
 	}
 
+	/**
+	 * Configura el modelo de la tabla de artículos, las propiedades de la tabla
+	 * (renderizadores, editores, estilos) y la envuelve en un JScrollPane.
+	 */
 	private void configurarTabla() {
 		model = new DefaultTableModel() {
 			@Override
@@ -388,6 +414,12 @@ public class VistaTienda extends JDialog implements ActionListener {
 		tableArticulo.setOpaque(false);
 	}
 
+	/**
+	 * Carga los datos de los artículos disponibles desde el controlador (DAO) y los
+	 * añade al modelo de la tabla. Solo añade artículos con stock mayor a 0. Si la
+	 * tabla está en modo edición, detiene la edición antes de actualizar el modelo.
+	 */
+
 	public void cargarDatosTabla() {
 		if (tableArticulo.isEditing()) {
 			tableArticulo.getCellEditor().stopCellEditing();
@@ -404,6 +436,13 @@ public class VistaTienda extends JDialog implements ActionListener {
 		}
 	}
 
+	/**
+	 * Ajusta automáticamente el ancho preferido de cada columna de la tabla de
+	 * artículos para que se adapte al contenido más ancho (cabecera o celdas) más
+	 * un padding. Se ejecuta después de que la interfaz de usuario sea visible para
+	 * asegurar que las dimensiones de los componentes se han calculado
+	 * correctamente.
+	 */
 	private void ajustarAnchosColumnaTabla() {
 		tableArticulo.revalidate();
 		if (tableArticulo.getWidth() == 0) {
@@ -436,6 +475,14 @@ public class VistaTienda extends JDialog implements ActionListener {
 		tableArticulo.getTableHeader().resizeAndRepaint();
 	}
 
+	/**
+	 * Calcula el ancho preferido de la cabecera de una columna específica de la
+	 * tabla.
+	 *
+	 * @param table           La JTable.
+	 * @param columnIndexView El índice de vista de la columna.
+	 * @return El ancho preferido de la cabecera de la columna.
+	 */
 	private int getColumnHeaderWidth(JTable table, int columnIndexView) {
 		TableColumn column = table.getColumnModel().getColumn(columnIndexView);
 		TableCellRenderer renderer = column.getHeaderRenderer();
@@ -447,6 +494,14 @@ public class VistaTienda extends JDialog implements ActionListener {
 		return comp.getPreferredSize().width;
 	}
 
+	/**
+	 * Calcula el ancho máximo preferido necesario para renderizar el contenido de
+	 * todas las celdas en una columna específica de la tabla.
+	 *
+	 * @param table           La JTable.
+	 * @param columnIndexView El índice de vista de la columna.
+	 * @return El ancho máximo preferido entre todas las celdas de la columna.
+	 */
 	private int getMaximumColumnContentWidth(JTable table, int columnIndexView) {
 		int maxWidth = 0;
 		for (int row = 0; row < table.getRowCount(); row++) {
@@ -468,6 +523,12 @@ public class VistaTienda extends JDialog implements ActionListener {
 			abrirCarrito();
 	}
 
+	/**
+	 * Crea y muestra la ventana de cuenta del usuario (VistaUsuario) utilizando el
+	 * cliente actualmente logueado. Muestra un mensaje de error si no hay cliente
+	 * identificado.
+	 */
+
 	private void mostrarVistaUsuario() {
 		if (localClien != null) {
 			VistaUsuario vistaUsuario = new VistaUsuario(localClien, this);
@@ -477,6 +538,12 @@ public class VistaTienda extends JDialog implements ActionListener {
 		}
 	}
 
+	/**
+	 * Crea y muestra la ventana del menú de administración
+	 * (VentanaIntermedia). Después de que la ventana de administración se
+	 * cierra (si es modal), recarga los datos de la tabla y ajusta los anchos de
+	 * columna, en caso de que se hayan modificado artículos.
+	 */
 	private void mostrarVistaAdmin() {
 		VentanaIntermedia menuAdmin = new VentanaIntermedia(this);
 		menuAdmin.setVisible(true);
@@ -484,6 +551,11 @@ public class VistaTienda extends JDialog implements ActionListener {
 		ajustarAnchosColumnaTabla();
 	}
 
+	/**
+	 * Prepara los datos para la compra, valida las cantidades ingresadas
+	 * y abre la ventana del carrito (VistaCarrito) con los artículos seleccionados.
+	 * Realiza verificaciones previas, como si el cliente tiene credenciales de pago y si hay artículos con cantidad > 0.
+	 */
 	private void abrirCarrito() {
 		if (localClien.getMetodo_pago() == null && localClien.getNum_cuenta() == null) {
 			JOptionPane.showMessageDialog(this, "No tiene los credenciales necesarios para realizar una compra",
@@ -513,6 +585,12 @@ public class VistaTienda extends JDialog implements ActionListener {
 		ajustarAnchosColumnaTabla();
 	}
 
+	/**
+	 * Valida que todas las cantidades ingresadas por el usuario en la columna
+	 * "Cantidad" de la tabla son números enteros no negativos y no exceden el stock disponible.
+	 *
+	 * @return true si todas las cantidades son válidas, false en caso contrario.
+	 */
 	private boolean validarCantidadesParaCarrito() {
 		if (tableArticulo.isEditing()) {
 			if (!tableArticulo.getCellEditor().stopCellEditing()) {
@@ -536,6 +614,13 @@ public class VistaTienda extends JDialog implements ActionListener {
 		return true;
 	}
 
+	/**
+	 * Recopila los artículos seleccionados por el usuario (con cantidad > 0)
+	 * de la tabla y crea una lista de objetos Compra para el pedido dado.
+	 *
+	 * @param idePed El ID del pedido al que pertenecerán estas compras.
+	 * @return Una lista de objetos Compra que representan los artículos seleccionados para el pedido.
+	 */
 	private List<Compra> recopilarCompras(int idePed) {
 		List<Compra> listaCompra = new ArrayList<>();
 		for (int i = 0; i < model.getRowCount(); i++) {
@@ -556,6 +641,16 @@ public class VistaTienda extends JDialog implements ActionListener {
 		}
 		return listaCompra;
 	}
+	/**
+	 * Carga un icono desde un recurso dado, lo escala al tamaño especificado.
+	 * Si el recurso no se encuentra, crea y devuelve un icono de marcador de posición.
+	 * Este es el método sobrecargado que especifica ancho y alto.
+	 *
+	 * @param path La ruta al recurso del icono.
+	 * @param width El ancho deseado para el icono escalado.
+	 * @param height La altura deseada para el icono escalado.
+	 * @return Un ImageIcon escalado, o un marcador de posición si falla la carga.
+	 */
 
 	private ImageIcon cargarIcono(String path, int width, int height) {
 		java.net.URL imgURL = getClass().getResource(path);
@@ -586,7 +681,13 @@ public class VistaTienda extends JDialog implements ActionListener {
 			return new ImageIcon(placeholder);
 		}
 	}
-
+	/**
+	 * Carga un icono desde un recurso dado con un tamaño por defecto de 16x16 píxeles.
+	 * Este es un método sobrecargado que llama a cargarIcono(String path, int width, int height)}.
+	 *
+	 * @param path La ruta al recurso del icono.
+	 * @return Un ImageIcon de 16x16 píxeles, o un marcador de posición si falla la carga.
+	 */
 	private ImageIcon cargarIcono(String path) {
 		return cargarIcono(path, 16, 16);
 	}
