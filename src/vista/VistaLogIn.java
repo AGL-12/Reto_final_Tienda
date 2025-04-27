@@ -66,11 +66,11 @@ public class VistaLogIn extends JFrame implements ActionListener {
 	// Colores ue usaremos
 	private static final Color COLOR_FONDO_FALLBACK = new Color(210, 190, 170);
 	private static final Color COLOR_PANEL = new Color(210, 180, 140, 200);
+	private static final Color COLOR_BOTON_SECUNDARIO = COLOR_PANEL;
+	private static final Color COLOR_BOTON_SECUNDARIO_HOVER = new Color(230, 230, 215);
 	private static final Color COLOR_BOTON_PRIMARIO = new Color(139, 69, 19);
 	private static final Color COLOR_BOTON_PRIMARIO_HOVER = new Color(115, 55, 10);
 	private static final Color COLOR_TEXTO_BOTON_PRIMARIO = Color.WHITE;
-	private static final Color COLOR_BOTON_SECUNDARIO = COLOR_PANEL;
-	private static final Color COLOR_BOTON_SECUNDARIO_HOVER = new Color(230, 230, 215);
 	private static final Color COLOR_BORDE_TEXTO_SECUNDARIO = COLOR_BOTON_PRIMARIO;
 
 	private static final Font FUENTE_GENERAL = new Font("Segoe UI", Font.PLAIN, 14);
