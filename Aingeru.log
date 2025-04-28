@@ -1,0 +1,41 @@
+[33mcommit 49fde8b922d8fb28fb66e3dd7d9a0f15754aeeb9[m
+Author: [1;31mPrecursorVT[m <152068337+[1;31mPrecursorVT[m@users.noreply.github.com>
+Date:   Tue Apr 1 13:56:14 2025 +0200
+
+    creacion de readme para sprint1
+
+[33mcommit 40bdfaa5378c60f9abb7dc44b5b89669a8dc2a09[m
+Author: [1;31mPrecursorVT[m <152068337+[1;31mPrecursorVT[m@users.noreply.github.com>
+Date:   Mon Mar 24 22:31:35 2025 +0100
+
+    VentanaDeRegistro
+    
+    por ahora voy subiendo la ventana registro lo visual nada de programacion
+
+[33mcommit 8ba73dd3755c1c61e7ca53188e3151dedce6a3d6[m
+Author: [1;31mPrecursorVT[m <152068337+[1;31mPrecursorVT[m@users.noreply.github.com>
+Date:   Mon Mar 24 14:15:04 2025 +0100
+
+    quitando .settings directory de mi branchAingeru
+
+[33mcommit d2dd843525b892a93b98b3109747e37678aced50[m
+Author: [1;31mPrecursorVT[m <152068337+[1;31mPrecursorVT[m@users.noreply.github.com>
+Date:   Mon Mar 24 12:45:05 2025 +0100
+
+    Cambio para el  Principal.java
+
+[33mcommit c74f69dcbbc66118cd818c4abbc5b11d42553af1[m
+Author: [1;31mPrecursorVT[m <152068337+[1;31mPrecursorVT[m@users.noreply.github.com>
+Date:   Fri Mar 21 08:52:40 2025 +0100
+
+    Update Principal.java
+    
+    Estoy probando a ver si me funciona hacer un branch nuevo en mi nombre
+
+[33mcommit 2249426e3940a5515669747c44b3db45a1cc4958[m
+Author: [1;31mPrecursorVT[m <152068337+[1;31mPrecursorVT[m@users.noreply.github.com>
+Date:   Fri Mar 21 08:47:56 2025 +0100
+
+    Update Dao.java
+    
+    Prueba del primer  commit(DAO)
