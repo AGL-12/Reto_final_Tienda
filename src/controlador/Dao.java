@@ -58,4 +58,5 @@ public interface Dao {
 	public int obtenerUltimoIdArt();
 
 	public float totalGastado(Cliente clien);
+	
 }
