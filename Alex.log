@@ -1,0 +1,285 @@
+[33mcommit 8f43a5f3142569566395420a02cfc029d119d482[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32msprint1[m[33m, [m[1;31morigin/sprint1[m[33m)[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Mon Apr 28 07:20:47 2025 +0200
+
+    last commit
+
+[33mcommit cd6dcc4095f42d1cefe4bc5c298ca1ed06e99271[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Sun Apr 27 18:12:19 2025 +0200
+
+    pequeños bugs
+
+[33mcommit 4ce59f503237274b5e6cb22d83a6effcad17d9e5[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Sun Apr 27 16:21:18 2025 +0200
+
+    Sysos en una clase que se me habia pasado
+
+[33mcommit dbfd105d2d4477a203ef795e5b28333ecb63b2b2[m
+Author: Aingeru <Aingeru@DESKTOP-IO41DJ8>
+Date:   Sun Apr 27 16:17:15 2025 +0200
+
+    quitando syso incognito
+
+[33mcommit e2b4e22e6e0e1bb662720e836e26a755b92c0346[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Sun Apr 27 16:14:59 2025 +0200
+
+    Otra dimension
+
+[33mcommit 7904e0595bd79d740c6f739f9fbb98e39aff28f9[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Sun Apr 27 16:10:05 2025 +0200
+
+    Actualizacion ventana intermedia
+
+[33mcommit af588d34a3e618cceb1c0d522b70140b9cb91df3[m
+Merge: 1b4f122 e789b9a
+Author: mikel <mikel@GORGOROTH>
+Date:   Sun Apr 27 16:05:33 2025 +0200
+
+    Merge branch 'sprint1' of https://github.com/AGL-12/Reto_final_Tienda.git into sprint1
+
+[33mcommit e789b9a597e2304bc3d8b5c2523e18ad8a5a9a2b[m
+Author: Aingeru <Aingeru@DESKTOP-IO41DJ8>
+Date:   Sun Apr 27 15:55:40 2025 +0200
+
+    totalGastado que desaparecio puesto de nuevo
+
+[33mcommit 1b4f122ae4f1888b4a56ecede7b5d3a667aa79c4[m
+Merge: ab5e00a 0012ec8
+Author: mikel <mikel@GORGOROTH>
+Date:   Sun Apr 27 15:04:02 2025 +0200
+
+    Merge branch 'sprint1' of https://github.com/AGL-12/Reto_final_Tienda.git into sprint1
+
+[33mcommit ab5e00a6a82a5a28ab75f0fcf1ee54d6b5830d5c[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Sun Apr 27 14:56:45 2025 +0200
+
+    Cambio goodies
+
+[33mcommit 531ce7af7fae08066a0c230cfb3eb49597bd5ef3[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Sun Apr 27 14:55:55 2025 +0200
+
+    Jgoodies
+
+[33mcommit 0012ec8e4eb343d8917ab22903524eff20527f91[m
+Author: Aingeru <Aingeru@DESKTOP-IO41DJ8>
+Date:   Sun Apr 27 13:09:42 2025 +0200
+
+    JavaDoc VistaTienda
+
+[33mcommit e03475d28e64caa634c650587ce31475691029d7[m
+Author: Aingeru <Aingeru@DESKTOP-IO41DJ8>
+Date:   Sun Apr 27 12:59:36 2025 +0200
+
+    javadocVerPedidosCliente
+
+[33mcommit 7250f25c005fd24c007aceeef15bcb6af7157114[m
+Author: Aingeru <Aingeru@DESKTOP-IO41DJ8>
+Date:   Sun Apr 27 12:47:15 2025 +0200
+
+    javadoc vistausuario
+
+[33mcommit dd4394d178ae87deb7c970bfa4e0624451daa1d4[m
+Author: Aingeru <Aingeru@DESKTOP-IO41DJ8>
+Date:   Sun Apr 27 12:43:08 2025 +0200
+
+    Java doc de VentanaIntermedia
+
+[33mcommit f3a8aa9c96a795b2e0873d33215d49eb801c1d95[m
+Author: Aingeru <Aingeru@DESKTOP-IO41DJ8>
+Date:   Sun Apr 27 12:37:55 2025 +0200
+
+    Javadoc AdminListaCliente
+
+[33mcommit 083dd5651ed655ccc18fec7fff8bcfc85d32aa43[m
+Author: Aingeru <Aingeru@DESKTOP-IO41DJ8>
+Date:   Sun Apr 27 12:35:51 2025 +0200
+
+    Javadoc AdminCinfigUsuario
+
+[33mcommit 9912049d890a851d29b9f4057a16bda63c28382c[m
+Author: Aingeru <Aingeru@DESKTOP-IO41DJ8>
+Date:   Sun Apr 27 12:31:28 2025 +0200
+
+    Javadoc AdminConfigArticulos
+
+[33mcommit efe1d743b85ec97d0fecd79762fdf3daa371ea75[m
+Author: Aingeru <Aingeru@DESKTOP-IO41DJ8>
+Date:   Sun Apr 27 12:20:35 2025 +0200
+
+    Javadoc DaoImplementMySQL intento 12
+
+[33mcommit 736e76d94f0752e94c8b7243ac894e14c180701e[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Sun Apr 27 12:00:43 2025 +0200
+
+    Modificar usuario arreglado
+
+[33mcommit 5b0a89d7e4f0b184db81e2878dc423745188d826[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Sun Apr 27 11:14:54 2025 +0200
+
+    break syso fuera mikel
+
+[33mcommit 2797bfea10c6a68549de54238cc167a7f32ffc9b[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Sun Apr 27 11:12:33 2025 +0200
+
+    d
+
+[33mcommit 62940c3aa00e36819993083272bd2b7309a12e75[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Sun Apr 27 11:12:17 2025 +0200
+
+    repaso comentarios fuera breaks syssos
+
+[33mcommit 3721b74d73775ed2127a118c56fc69418fd1e2cd[m
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Tue Apr 22 18:44:56 2025 +0200
+
+    quitando archino no utilizados
+
+[33mcommit 01e13226a689379ab8c9668154f95ed17c6caa8c[m
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Tue Apr 22 14:13:47 2025 +0200
+
+    traduciendo y quitando algo de amarillo
+
+[33mcommit 92b022832f060c8163ec419cea09b871af10e7ee[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Mon Apr 21 18:46:16 2025 +0200
+
+    actualizacion comentarios repasar tienda y usuario
+
+[33mcommit a48e0f225b1326f17c3fab346390a196343b22ba[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Sun Apr 20 14:01:34 2025 +0200
+
+    Mejora menu admin
+
+[33mcommit 76e045901f51fc893845c3190609aaaa79324bbb[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Sat Apr 19 14:10:03 2025 +0200
+
+    mas cambios visuales mikel
+
+[33mcommit 7eec44ac179d99ce61b04fbe2ed9a4c1cb39ec6b[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Sat Apr 19 14:09:47 2025 +0200
+
+    Cambios Visuales Mikel
+
+[33mcommit 81d3bb1ea0332955307b4490484550ff3d88ff9c[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Fri Apr 18 16:50:09 2025 +0200
+
+    Mas estetica
+
+[33mcommit a3887d9015df9cff2ad9b5658fdfc1fec2f2fca5[m
+Author: mikel <mikel@GORGOROTH>
+Date:   Wed Apr 16 17:54:26 2025 +0200
+
+    Actualizacion
+
+[33mcommit 627b494317547be52c3e96374c395d89778214a1[m
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Fri Apr 11 13:21:10 2025 +0200
+
+    logo para ventanas y barra de tareas
+
+[33mcommit 1a22571bdf5a7cc825c5e6e886bb82e8c2441c60[m
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Fri Apr 11 13:15:48 2025 +0200
+
+    ajuste de imagen
+
+[33mcommit 3a994f827b6fd05e9bfaf1bc8ffc2adf5c52235d[m
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Fri Apr 11 13:15:33 2025 +0200
+
+    logo color para ventanda admin
+
+[33mcommit 867d3947487372da71491de54adfcf127c0b25ca[m
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Fri Apr 11 12:55:29 2025 +0200
+
+    icono closetab
+
+[33mcommit 42fa98361e37ee4247482e2990dcb89e2a8e90c8[m
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Fri Apr 11 12:46:12 2025 +0200
+
+    add iconos e imagenes
+
+[33mcommit 68d478106de498d3ea4a2431f434cf46bf734b45[m
+Merge: 574b324 2b21444
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Fri Apr 11 12:38:59 2025 +0200
+
+    Merge Main-Producito final
+    
+    falta refactorizar y limpiar codigo
+
+[33mcommit 2b21444d28068229a8473f2d21379183f0722772[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Fri Apr 11 12:33:30 2025 +0200
+
+    deleting
+
+[33mcommit 37086f89826067b73156e91e06a7fb60bfa23e9b[m
+Merge: 8864ac2 eaa08a6
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Fri Apr 11 12:31:31 2025 +0200
+
+    Merge branch 'main' of https://github.com/AGL-12/Reto_final_Tienda.git into main
+
+[33mcommit eaa08a6547867c9cd473dc7e8346c613546705e7[m[33m ([m[1;32mdevelop[m[33m)[m
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Fri Apr 11 12:31:17 2025 +0200
+
+    producto final falta refinar
+
+[33mcommit 574b3243fcbae6dc4caaaeed995fe71784b606b0[m
+Merge: 5625cb8 0e4283a
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Fri Apr 11 12:22:53 2025 +0200
+
+    Merge branch 'sprint1' of https://github.com/AGL-12/Reto_final_Tienda.git into sprint1
+
+[33mcommit 5625cb826fadcf4171b435b54b7c8d7134bb537b[m
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Fri Apr 11 12:22:29 2025 +0200
+
+    add flat
+
+[33mcommit 8864ac2a6b42605a22f56a5368acaa9202f9e548[m
+Merge: 955cdbf 22312a2
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Fri Apr 11 12:20:10 2025 +0200
+
+    Merge branch 'main' of https://github.com/AGL-12/Reto_final_Tienda.git into main
+
+[33mcommit 955cdbffa1ff6443808f8722d4d6c0cf62264420[m
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Fri Apr 11 12:19:56 2025 +0200
+
+    probando push
+
+[33mcommit 22312a27e0d223a1216f08a50c69af463526a7f5[m
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Fri Apr 11 12:17:34 2025 +0200
+
+    litle
+
+[33mcommit 31705f10285a441f57dab1f0610ae35236008213[m
+Author: AGL-12” <aglgg21@gmail.com”>
+Date:   Fri Apr 11 12:16:47 2025 +0200
+
+    fixing
+
+[33mcommit d7bef4588d4611545f40adc9a8dd5986da1f7ae1[m[33m (
