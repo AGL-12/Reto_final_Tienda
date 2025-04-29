@@ -37,11 +37,11 @@ public class Principal {
 
 		} catch (UnsupportedLookAndFeelException e) {
 			// Manejo del error si FlatLaf no se puede aplicar
-			System.err.println("Error al inicializar FlatLaf Look and Feel: " + e.getMessage());
+			e.getMessage();
 			e.printStackTrace();
 		} catch (Exception e) {
-			// Captura otras posibles excepciones
-			System.err.println("Error inesperado al configurar Look and Feel: " + e.getMessage());
+			// Captura otras posibles excepciones 
+			e.getMessage();
 			e.printStackTrace();
 		}
 		SwingUtilities.invokeLater(() -> {
