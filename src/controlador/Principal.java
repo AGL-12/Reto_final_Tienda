@@ -24,10 +24,6 @@ import vista.VistaLogIn;
 public class Principal {
 	private static Dao dao = new DaoImplementMySQL();
 
-	/*
-	 * public static void main(String[] args) { VistaLogIn inicio = new
-	 * VistaLogIn(); inicio.setVisible(true); }
-	 */
 
 	public static void main(String[] args) {
 
