@@ -34,38 +34,18 @@ public class Principal {
 		// --- Configuración del Look and Feel (FlatLaf) ---
 		try {
 			UIManager.setLookAndFeel(new FlatLightLaf());
-			// UIManager.setLookAndFeel( new com.formdev.flatlaf.FlatDarkLaf() );
-			// UIManager.setLookAndFeel( new com.formdev.flatlaf.FlatIntelliJLaf() );
-			// UIManager.setLookAndFeel( new com.formdev.flatlaf.FlatDarculaLaf() );
-
-			// Opcional: Puedes poner propiedades globales de UIManager aquí
-			// para afectar a toda la aplicación, DESPUÉS de setLookAndFeel
-			// Ejemplos:
-			// UIManager.put( "Button.arc", 10 ); // Botones redondeados
-			// UIManager.put( "Component.arc", 8 ); // Componentes (campos de texto, etc.)
-			// redondeados
-			// UIManager.put( "ProgressBar.arc", 8 );
-			// UIManager.put( "TextComponent.arc", 8 );
-			// UIManager.put( "Table.showHorizontalLines", true );
-			// UIManager.put( "Table.showVerticalLines", false );
-			// UIManager.put( "Table.intercellSpacing", new java.awt.Dimension(0,1) );
+		
 
 		} catch (UnsupportedLookAndFeelException e) {
 			// Manejo del error si FlatLaf no se puede aplicar
-			System.err.println("Error al inicializar FlatLaf Look and Feel: " + e.getMessage());
+			e.getMessage();
 			e.printStackTrace();
-			// Podrías intentar usar el L&F del sistema como fallback si falla
-			// try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); }
-			// catch (Exception ex) {}
 		} catch (Exception e) {
-			// Captura otras posibles excepciones (raro)
-			System.err.println("Error inesperado al configurar Look and Feel: " + e.getMessage());
+			// Captura otras posibles excepciones 
+			e.getMessage();
 			e.printStackTrace();
 		}
-		// --- Fin de la configuración del Look and Feel ---
-
-		// Es una buena práctica lanzar la interfaz gráfica en el Event Dispatch Thread
-		// (EDT)
+		
 		SwingUtilities.invokeLater(() -> {
 			VistaLogIn inicio = new VistaLogIn();
 			inicio.setVisible(true);
