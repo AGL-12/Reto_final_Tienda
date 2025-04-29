@@ -39,7 +39,6 @@ public class Principal {
 			// Captura otras posibles excepciones 
 			e.getMessage();
 			e.printStackTrace();
-			
 		}
 		SwingUtilities.invokeLater(() -> {
 			VistaLogIn inicio = new VistaLogIn();
