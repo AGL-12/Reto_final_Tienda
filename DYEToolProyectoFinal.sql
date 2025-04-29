@@ -46,34 +46,34 @@ INSERT INTO cliente VALUES
 
 INSERT INTO articulo (id_art, nombre, descripcion, stock, precio, oferta, seccion)
 VALUES
-(10, 'Sierra Circular', 'Sierra eléctrica para cortes precisos', 5, 79.50, 15, 'jardineria'), -- Asumiendo uso en exteriores/poda
-(11, 'Lijadora Orbital', 'Lijadora para acabados suaves', 12, 35.75, 5, 'pintura'), -- Preparación para pintar
-(12, 'Juego de Destornilladores', 'Juego con 6 destornilladores de diferentes tamaños', 25, 19.99, 0, 'fontaneria'), -- Herramienta general
-(13, 'Martillo de Carpintero', 'Martillo con cabeza de acero y mango ergonómico', 18, 12.50, 0, 'jardineria'), -- Para estructuras de jardín
-(14, 'Cinta Métrica', 'Cinta métrica de 5 metros', 40, 6.99, 0, 'fontaneria'), -- Para mediciones en general
-(15, 'Nivel de Burbuja', 'Nivel de burbuja de 60 cm', 15, 9.25, 0, 'fontaneria'), -- Para nivelar instalaciones
+(10, 'Sierra Circular', 'Sierra eléctrica para cortes precisos', 5, 79.50, 15, 'jardineria'), 
+(11, 'Lijadora Orbital', 'Lijadora para acabados suaves', 12, 35.75, 5, 'pintura'), 
+(12, 'Juego de Destornilladores', 'Juego con 6 destornilladores de diferentes tamaños', 25, 19.99, 0, 'fontaneria'), 
+(13, 'Martillo de Carpintero', 'Martillo con cabeza de acero y mango ergonómico', 18, 12.50, 0, 'jardineria'), 
+(14, 'Cinta Métrica', 'Cinta métrica de 5 metros', 40, 6.99, 0, 'fontaneria'),
+(15, 'Nivel de Burbuja', 'Nivel de burbuja de 60 cm', 15, 9.25, 0, 'fontaneria'), 
 (16, 'Llave Inglesa', 'Llave ajustable de 200 mm', 8, 24.00, 10, 'fontaneria'),
 (17, 'Alicates Universales', 'Alicates para cortar, sujetar y doblar', 20, 14.75, 0, 'fontaneria'),
-(18, 'Brocas para Madera (Juego)', 'Juego de 10 brocas de diferentes diámetros', 10, 29.99, 20, 'jardineria'), -- Para estructuras de jardín
-(19, 'Brocas para Metal (Juego)', 'Juego de 10 brocas de acero de alta velocidad', 15, 34.50, 10, 'soldadura'), -- Para preparar uniones
+(18, 'Brocas para Madera (Juego)', 'Juego de 10 brocas de diferentes diámetros', 10, 29.99, 20, 'jardineria'), 
+(19, 'Brocas para Metal (Juego)', 'Juego de 10 brocas de acero de alta velocidad', 15, 34.50, 10, 'soldadura'), 
 (20, 'Pintura Blanca (1 Litro)', 'Pintura plástica blanca para interiores/exteriores', 30, 15.99, 0, 'pintura'),
 (21, 'Rodillo de Pintura', 'Rodillo de pintura con mango ergonómico', 22, 8.50, 0, 'pintura'),
 (22, 'Pinceles (Juego)', 'Juego de 5 pinceles de diferentes tamaños', 18, 11.25, 0, 'pintura'),
-(23, 'Cutter', 'Cúter con cuchillas reemplazables', 35, 4.50, 0, 'fontaneria'), -- Para cortar materiales blandos
-(24, 'Guantes de Trabajo', 'Par de guantes de seguridad para trabajos manuales', 50, 9.75, 5, 'jardineria'), -- Uso general
-(25, 'Gafas de Seguridad', 'Gafas protectoras transparentes', 45, 6.25, 0, 'soldadura'), -- Protección al soldar
-(26, 'Mascarilla Antipolvo', 'Mascarilla para proteger de partículas y polvo', 60, 3.50, 0, 'pintura'), -- Al lijar o pintar
-(27, 'Flexómetro Láser', 'Medidor láser de distancias', 7, 49.99, 15, 'fontaneria'), -- Para mediciones precisas
+(23, 'Cutter', 'Cúter con cuchillas reemplazables', 35, 4.50, 0, 'fontaneria'), 
+(24, 'Guantes de Trabajo', 'Par de guantes de seguridad para trabajos manuales', 50, 9.75, 5, 'jardineria'), 
+(25, 'Gafas de Seguridad', 'Gafas protectoras transparentes', 45, 6.25, 0, 'soldadura'), 
+(26, 'Mascarilla Antipolvo', 'Mascarilla para proteger de partículas y polvo', 60, 3.50, 0, 'pintura'), 
+(27, 'Flexómetro Láser', 'Medidor láser de distancias', 7, 49.99, 15, 'fontaneria'), 
 (28, 'Atornillador Eléctrico', 'Atornillador eléctrico compacto', 10, 39.00, 10, 'fontaneria'),
-(29, 'Sargento (Pequeño)', 'Sargento de apriete de 150 mm', 28, 7.50, 0, 'jardineria'), -- Para sujetar al trabajar en exterior
-(30, 'Sargento (Mediano)', 'Sargento de apriete de 300 mm', 20, 11.00, 0, 'jardineria'), -- Para sujetar al trabajar en exterior
-(31, 'Lima (Juego)', 'Juego de 3 limas de diferentes formas', 14, 16.75, 5, 'soldadura'), -- Para preparar uniones
-(32, 'Mordaza de Banco', 'Mordaza de banco con base giratoria', 3, 65.00, 20, 'soldadura'), -- Para sujetar piezas a soldar
+(29, 'Sargento (Pequeño)', 'Sargento de apriete de 150 mm', 28, 7.50, 0, 'jardineria'), 
+(30, 'Sargento (Mediano)', 'Sargento de apriete de 300 mm', 20, 11.00, 0, 'jardineria'),
+(31, 'Lima (Juego)', 'Juego de 3 limas de diferentes formas', 14, 16.75, 5, 'soldadura'), 
+(32, 'Mordaza de Banco', 'Mordaza de banco con base giratoria', 3, 65.00, 20, 'soldadura'), 
 (33, 'Pistola de Pintura (Eléctrica)', 'Pistola de pintura eléctrica de baja presión', 6, 89.99, 10, 'pintura'),
 (34, 'Cinta de Carrocero', 'Cinta adhesiva para delimitar áreas al pintar', 32, 5.25, 0, 'pintura'),
 (35, 'Espátula', 'Espátula de acero inoxidable para emplastecer', 25, 3.99, 0, 'pintura'),
-(36, 'Taladro de Percusión', 'Taladro con función de percusión para materiales duros', 8, 69.00, 15, 'fontaneria'), -- Para instalaciones
-(37, 'Maza de Goma', 'Maza con cabeza de goma para golpear sin dañar', 16, 13.50, 0, 'fontaneria'), -- Para ajustar tuberías
+(36, 'Taladro de Percusión', 'Taladro con función de percusión para materiales duros', 8, 69.00, 15, 'fontaneria'), 
+(37, 'Maza de Goma', 'Maza con cabeza de goma para golpear sin dañar', 16, 13.50, 0, 'fontaneria'), 
 (38, 'Carretilla', 'Carretilla de obra de 60 litros', 2, 75.00, 5, 'jardineria'),
 (39, 'Pala de Punta', 'Pala de punta para excavar', 10, 18.25, 0, 'jardineria'),
 (40, 'Pintura Acrílica Azul', 'Pintura resistente al agua', 50, 15.99, 10, 'pintura'),
@@ -85,58 +85,58 @@ VALUES
 (47, 'Manguera de Jardín', 'Manguera de 10 metros con boquilla', 15, 25.00, 20, 'jardineria');
 
 
--- Inserción en la tabla pedido
+
 INSERT INTO pedido (id_ped, id_clien, total, fecha_compra) 
 VALUES 
-(1, 1, 150.00, '2025-04-10 14:30:00'),  -- Pedido 1
-(2, 1, 80.00, '2025-04-12 16:45:00'),   -- Pedido 2
-(3, 1, 200.00, '2025-04-15 10:00:00'),  -- Pedido 3
-(4, 6, 75.00, '2025-04-18 11:15:00'),   -- Pedido 4
-(5, 6, 120.00, '2025-04-20 13:20:00'),  -- Pedido 5
-(6, 1, 300.00, '2025-04-22 17:25:00');  -- Pedido 6
+(1, 1, 150.00, '2025-04-10 14:30:00'), 
+(2, 1, 80.00, '2025-04-12 16:45:00'),   
+(3, 1, 200.00, '2025-04-15 10:00:00'),  
+(4, 6, 75.00, '2025-04-18 11:15:00'),  
+(5, 6, 120.00, '2025-04-20 13:20:00'),  
+(6, 1, 300.00, '2025-04-22 17:25:00'); 
 
 
 -- Insertar compras para el pedido 1 (cliente 1)
 INSERT INTO compra (id_art, id_ped, cantidad) 
 VALUES 
-(10, 1, 2),  -- Sierra Circular
-(11, 1, 1),  -- Lijadora Orbital
-(13, 1, 1);  -- Martillo de Carpintero
+(10, 1, 2),  
+(11, 1, 1),  
+(13, 1, 1); 
 
--- Insertar compras para el pedido 2 (cliente 1)
+
 INSERT INTO compra (id_art, id_ped, cantidad) 
 VALUES 
-(15, 2, 2),  -- Nivel de Burbuja
-(20, 2, 3),  -- Pintura Blanca (1 Litro)
-(23, 2, 2);  -- Cutter
+(15, 2, 2),  
+(20, 2, 3),  
+(23, 2, 2); 
 
--- Insertar compras para el pedido 3 (cliente 1)
+
 INSERT INTO compra (id_art, id_ped, cantidad) 
 VALUES 
-(17, 3, 3),  -- Alicates Universales
-(42, 3, 1),  -- Llave Inglesa
-(27, 3, 1);  -- Flexómetro Láser
+(17, 3, 3), 
+(42, 3, 1),  
+(27, 3, 1);  
 
--- Insertar compras para el pedido 4 (cliente 6)
+
 INSERT INTO compra (id_art, id_ped, cantidad) 
 VALUES 
-(24, 4, 2),  -- Guantes de Trabajo
-(29, 4, 1),  -- Sargento (Pequeño)
-(40, 4, 2);  -- Pintura Acrílica Azul
+(24, 4, 2),
+(29, 4, 1),  
+(40, 4, 2);  
 
--- Insertar compras para el pedido 5 (cliente 6)
+
 INSERT INTO compra (id_art, id_ped, cantidad) 
 VALUES 
-(18, 5, 1),  -- Brocas para Madera (Juego)
-(36, 5, 1),  -- Taladro de Percusión
-(45, 5, 2);  -- Martillo de Carpintero
+(18, 5, 1),  
+(36, 5, 1),  
+(45, 5, 2);  
 
--- Insertar compras para el pedido 6 (cliente 1)
+
 INSERT INTO compra (id_art, id_ped, cantidad) 
 VALUES 
-(46, 6, 3),  -- Barniz Transparente
-(47, 6, 1),  -- Manguera de Jardín
-(41, 6, 2);  -- Tijeras de Jardinería
+(46, 6, 3),  
+(47, 6, 1),  
+(41, 6, 2);  
 
 
 

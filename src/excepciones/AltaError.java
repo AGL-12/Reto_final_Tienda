@@ -11,6 +11,7 @@ public class AltaError extends Exception {
 	}
 
 	
+	
 	 public AltaError() {
 	        super(); 
 	        this.mensaje = "El usuario ya existe.";
