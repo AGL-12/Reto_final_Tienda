@@ -140,6 +140,7 @@ public class VistaTienda extends JDialog implements ActionListener {
 		panelBotones.add(Box.createHorizontalGlue());
 		panelBotones.add(btnCompra);
 		getContentPane().add(panelBotones, BorderLayout.SOUTH);
+		
 	}
 
 	/**
