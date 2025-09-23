@@ -7,4 +7,5 @@ The table will order to optimize finding products, such as by tool stock and cos
 Orders will be associated with customers and items. Each customer can place multiple orders, and each order can include several items. The system will store this information and allow for detailed tracking of purchases.
 If time allows, features like processing returns for customers and including a system for special offers are planned to be added.
 
+#This project requires the following programing languages: Java and MySQL
 #To use this program you need to put the libraries that are in the lib folder, put the resources folder in the build path folder and have run the .sq file in mySQLworkBench
