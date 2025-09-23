@@ -1,4 +1,4 @@
-ONLINE EXPRESS STORE
+ONLINE EXPRESS STORE:
 The goal of this program is to manage the online purchase of DIY tools in an online store. The system will be designed to allow customers to make purchases easily, while the administrator will efficiently manage products and orders.
 Users will be able to register in the store, log in, and place orders for available items in the catalog. Customers will have access to the products, can add items to their order, and make purchases securely. Additionally, they will be able to consult the history of orders they have made, and the system will automatically update the stock of products after each purchase.
 There will be a single administrator, who will have special permissions to manage the product inventory. This will include creating and modifying available items. The administrator will be able to control stock, prices, descriptions, and other product characteristics.
